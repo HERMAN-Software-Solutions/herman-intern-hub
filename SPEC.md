@@ -1,12 +1,12 @@
 # HERMAN Intern Hub — Specification
 
 > Intern lifecycle management for HERMAN Software Solutions Limited.
-> Onboarding, projects, tasks, reviews, certificates — all in one place.
+> Invitation-only onboarding, projects, tasks, reviews, certificates — all in one place.
 
-**Version:** 1.0 (MVP scope)
+**Version:** 1.1 (MVP scope + approval flow)
 **Status:** Draft — approved for Phase 1 build
 **Owner:** HERMAN Software Solutions Limited
-**Last updated:** [auto — set on commit]
+**Last updated:** 2026-09-16
 
 ---
 
@@ -21,6 +21,7 @@ HERMAN Software Solutions currently manages interns through:
 - No central record of who did what, when
 - No project, progress, or performance tracking
 - No formal onboarding or offboarding process
+- No gate between "someone heard about us" and "someone has portal access"
 
 This is not scalable and creates risk as the program grows toward 30+ interns per cohort.
 
@@ -28,11 +29,12 @@ This is not scalable and creates risk as the program grows toward 30+ interns pe
 
 **HERMAN Intern Hub** — a web portal that manages the full intern lifecycle:
 
-Application → Onboarding → Projects & Tasks → Reviews → Daily Logs → Certificates → Alumni.
+Application → Review → Approval → Invitation → Onboarding → Projects & Tasks → Reviews → Daily Logs → Certificates → Alumni.
 
 ### 1.3 Goals
 
 - Replace WhatsApp coordination with a single source of truth
+- Enforce an explicit approval + invitation flow (no public self-registration)
 - Automate certificate and experience letter generation
 - Give mentors visibility into every intern's work
 - Give interns a professional portal for their work
@@ -54,9 +56,12 @@ Application → Onboarding → Projects & Tasks → Reviews → Daily Logs → C
 |---|---|---|
 | **Public visitor** | Anyone visiting the site | Landing page, apply form, intern directory, success stories |
 | **Applicant** | Someone who submitted an application | Application status page (via email link) |
-| **Intern** | Accepted and onboarded | Self-service dashboard: own projects, tasks, logs, documents |
+| **Invited user** | Applicant who received an invitation but hasn't accepted | Accept-invite page only |
+| **Onboarding intern** | Accepted invite, wizard in progress | Onboarding wizard only |
+| **Intern (active)** | Fully onboarded + mentor assigned | Full self-service dashboard |
+| **Alumni** | Completed internship | Read-only access to own documents |
 | **Mentor** | Assigned to guide interns | View assigned interns, review submissions, leave feedback |
-| **Admin** | HERMAN staff (e.g. HR) | Full access: manage interns, projects, applications, documents |
+| **Admin** | HERMAN staff (HR, program lead) | Manage interns, projects, applications, documents |
 | **Super Admin** | Owner-level | Everything + role management + system settings |
 
 ---
@@ -64,7 +69,7 @@ Application → Onboarding → Projects & Tasks → Reviews → Daily Logs → C
 ## 3. Program Rules (Business Logic)
 
 ### 3.1 Internship Duration
-Dynamic — set per intern during registration. Default example: 3 months.
+Dynamic — set per intern during approval. Default example: 3 months.
 
 ### 3.2 Cohort Size
 Up to **30 interns** per cohort.
@@ -86,7 +91,7 @@ Issued on request or completion. Auto-generated as PDF.
 Captured per applicant during registration. Free text with autocomplete suggestions.
 
 ### 3.7 Tech Stack
-Interns **choose their learning track** at registration from a standardized list (React, Next.js, Node.js, Python, PostgreSQL, etc.). Admins can add new stacks.
+Interns **choose their learning track** during onboarding from a standardized list (React, Next.js, Node.js, Python, PostgreSQL, etc.). Admins can add new stacks.
 
 ### 3.8 Daily Logs
 Required. Interns log work daily. Auto-compiled into weekly reports.
@@ -95,7 +100,25 @@ Required. Interns log work daily. Auto-compiled into weekly reports.
 Auto-generated every Sunday at 23:59 (Africa/Kampala) from the week's daily logs. Emailed to intern + mentor.
 
 ### 3.10 Public Directory
-Visible to everyone. Interns opt-in/opt-out via profile setting.
+Visible to everyone. Only active and completed interns appear. Interns opt-in/opt-out via profile setting.
+
+### 3.11 No Public Self-Registration
+**There is no `/signup` route.** Account creation happens only via an accepted invitation. The only public entry point is `/apply`.
+
+### 3.12 Approval Required Before Access
+Every intern is approved by an Admin or Super Admin. No exceptions. Approval triggers an invitation email; nothing happens before that.
+
+### 3.13 Mentor Assignment Required
+Before an intern's status flips to `active`, an admin must assign a mentor. Until then, the intern sits in the `onboarding` state and sees only the onboarding wizard.
+
+### 3.14 Agreement Signing Required
+Every intern must sign a code of conduct + internship terms during onboarding. Timestamp and version stored on the profile.
+
+### 3.15 Invitation Expiry
+Invitations expire 7 days after creation. Expired invitations can be re-issued by an admin.
+
+### 3.16 Data Retention
+Intern profiles and their documents are retained indefinitely for alumni tracking. Personal data can be deleted on request.
 
 ---
 
@@ -107,15 +130,23 @@ Visible to everyone. Interns opt-in/opt-out via profile setting.
 |---|---|
 | Landing page | Explains the program, links to apply and directory |
 | Apply form | Name, email, university, course, tech stack interest, portfolio, message |
-| Public intern directory | Current + past interns (opt-in), with photo, bio, tech stack, project highlights |
-| Success stories | Past interns and where they are now |
 | Application status | Applicant checks status via email magic link |
+| Public intern directory | Active + completed interns (opt-in), with photo, bio, tech stack |
+| Success stories | Past interns and where they are now |
+| Accept invitation | `/invite/[token]` — set password, verify email, sign agreement |
+| Login | Email/password for existing users |
 
-### 4.2 Intern Portal (Login required)
+> ⚠️ **No public signup page exists.** Only invitations grant access.
+
+### 4.2 Intern Portal (Login required — status-gated)
 
 | Feature | Description |
 |---|---|
-| Onboarding wizard | Complete profile, select tech stack, acknowledge code of conduct |
+| Onboarding welcome | First login landing page |
+| Profile wizard | Name, photo, phone, university, course, bio |
+| Tech stack wizard | Multi-select from standardized list |
+| Agreement wizard | Code of conduct + internship terms, timestamped |
+| Pending page | Waiting-for-mentor state |
 | Dashboard | Overview: active projects, pending tasks, deadlines, weekly report |
 | My Projects | List + detail with tasks, files, updates |
 | My Tasks | To-do list across projects, mark complete, attach notes |
@@ -125,17 +156,23 @@ Visible to everyone. Interns opt-in/opt-out via profile setting.
 | Feedback | Mentor feedback on submitted work |
 | Skills Progress | Track learning milestones per tech stack |
 | Profile | Edit personal + academic details, directory visibility |
+| Account status | Read-only page for paused/completed/withdrawn |
 
 ### 4.3 Mentor / Admin Dashboard
 
 | Feature | Description |
 |---|---|
-| Overview | All interns, active projects, pending reviews |
+| Overview | All interns, active projects, pending reviews, log gaps |
+| Applications inbox | Review, approve, reject applications |
+| Approve modal | Set start date, duration, mentor, tech stack, welcome message |
+| Send invitation | Creates invitation token, emails magic link |
+| Manage Invitations | View pending, resend, revoke |
+| Direct invite | Invite a known candidate without public application |
 | Manage Interns | Add, edit, deactivate, change role, extend duration |
+| Assign Mentor | Required before intern becomes active |
 | Manage Projects | Create, assign to interns, set compensation type |
 | Review Submissions | Approve, request revision, leave feedback |
 | Generate Documents | Certificates + experience letters as PDF |
-| Applications | Review, accept, reject, convert to intern |
 | Reports | Productivity, completion rate, log consistency |
 | Notifications | Alerts on submissions, log gaps, milestone completions |
 | Audit Log | Every admin action recorded |
@@ -144,10 +181,12 @@ Visible to everyone. Interns opt-in/opt-out via profile setting.
 
 | Feature | Description |
 |---|---|
-| Auth | Email/password + email verification (required) |
-| Row-Level Security | Interns see only their own data |
+| Auth | Email/password + email verification (required), no public signup |
+| Invitations | Token-based, single-use, 7-day expiry, emailed via Brevo |
+| Status enforcement | Middleware + DB-level checks on every protected route |
+| Row-Level Security | Interns see only their own data; unapproved users see nothing |
 | File Storage | Uploads for submissions, documents, avatars |
-| Email | Brevo — transactional + weekly digests |
+| Email | Brevo — transactional + weekly digests + invitations |
 | PDF | jsPDF — certificates, letters, weekly reports |
 | Audit | Every sensitive action logged |
 
@@ -160,7 +199,7 @@ Visible to everyone. Interns opt-in/opt-out via profile setting.
 | Frontend | Next.js 14 (App Router) | Same as HERMAN website |
 | Styling | Tailwind CSS | Same as HERMAN website |
 | Database | PostgreSQL via Supabase | Free tier, real SQL, RLS |
-| Auth | Supabase Auth | Email/password + verification |
+| Auth | Supabase Auth | Email/password + verification + admin invite API |
 | Storage | Supabase Storage | Files, avatars, documents |
 | PDF | jsPDF | Already used on HERMAN site |
 | Email | Brevo | Already used by HERMAN |
@@ -171,11 +210,13 @@ Visible to everyone. Interns opt-in/opt-out via profile setting.
 
 ## 6. Success Metrics (Phase 1)
 
-- ≥ 90% of interns log work at least 4 days/week
+- **Zero unauthorized signups per month** (no public registration path exists)
+- ≥ 90% of active interns log work at least 4 days/week
 - ≥ 80% of tasks reviewed within 48 hours
 - Zero manual certificate creation after Phase 2
 - ≥ 5 applications/month via public form (after Phase 3)
 - Mentor time on coordination reduced by 50%
+- 100% of active interns have an assigned mentor
 
 ---
 
@@ -183,9 +224,9 @@ Visible to everyone. Interns opt-in/opt-out via profile setting.
 
 See `ROADMAP.md` for details.
 
-- **Phase 1 (MVP):** Auth, intern dashboard, admin dashboard, projects, tasks, daily logs
+- **Phase 1 (MVP):** Invitation system, application review + approval, onboarding wizard, auth, intern dashboard, admin dashboard
 - **Phase 2:** Certificates, experience letters, feedback, weekly report emails
-- **Phase 3:** Public landing, apply form, directory, success stories
+- **Phase 3:** Public landing, apply form (public), directory, success stories
 - **Phase 4:** Analytics, notifications, gamification, "HERMAN People" expansion
 
 ---
@@ -204,6 +245,7 @@ See `ROADMAP.md` for details.
 ## 9. References
 
 - Live website: https://herman-software-website.vercel.app
+- Auth flow: `docs/auth-flow.md`
 - Data model: `docs/data-model.md`
 - Wireframes: `docs/wireframes.md`
 - Brand: `docs/brand.md`
