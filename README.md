@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HERMAN Intern Hub
 
-## Getting Started
+> Intern lifecycle management for **HERMAN Software Solutions Limited**.
+> Onboarding, projects, tasks, reviews, and certificates — all in one place.
 
-First, run the development server:
+**Status:** 🚧 In design — Phase 1 build pending
+**License:** MIT
+**Owner:** HERMAN Software Solutions Limited
+
+---
+
+## What It Does
+
+HERMAN Intern Hub replaces WhatsApp coordination and manual paperwork with a single web portal for managing interns end-to-end:
+
+- **Apply** — public application form
+- **Onboard** — profile, tech stack selection, agreement
+- **Work** — projects, tasks, daily logs
+- **Review** — mentor feedback, approvals
+- **Certify** — auto-generated certificates and experience letters
+- **Showcase** — public intern directory and success stories
+
+---
+
+## Stack
+
+Next.js 14 · Tailwind CSS · Supabase (PostgreSQL + Auth + Storage) · jsPDF · Brevo · Vercel
+
+---
+
+## Documentation
+
+- [SPEC.md](./SPEC.md) — full specification
+- [ROADMAP.md](./ROADMAP.md) — phased plan
+- [docs/data-model.md](./docs/data-model.md) — database schema
+- [docs/wireframes.md](./docs/wireframes.md) — screen layouts
+- [docs/brand.md](./docs/brand.md) — design tokens
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — how to contribute
+
+---
+
+## Local Development
+
+> Setup instructions added in Phase 1.
 
 ```bash
+# Coming soon
+git clone git@github.com:HERMAN-Software-Solutions/herman-intern-hub.git
+cd herman-intern-hub
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Contact
+📧 infohermansoftware@gmail.com
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+📞 +256 772 723 188
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+📍 Jinja, Gabula Rd, Uganda
 
-## Learn More
+🌐 https://herman-software-website.vercel.app
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+© HERMAN Software Solutions Limited
