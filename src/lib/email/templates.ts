@@ -157,3 +157,36 @@ export function rejectionEmail(name: string): {
     `),
   }
 }
+
+// ─────────────────────────────────────────────
+// 5. Certificate issued
+// ─────────────────────────────────────────────
+export function certificateIssuedEmail(input: {
+  fullName: string | null
+  certificateId: string
+  score: number
+  verifyUrl: string
+}): { subject: string; html: string } {
+  return {
+    subject: `🎓 Your HERMAN certificate is ready`,
+    html: shell(`
+      ${h1(`Congratulations${input.fullName ? `, ${input.fullName.split(' ')[0]}` : ''}! 🎓`)}
+      ${p(`Your internship certificate has been issued. We hope your time at HERMAN was as valuable for you as it was for us.`)}
+      ${p(`<strong>Certificate ID:</strong> ${input.certificateId}<br>
+           <strong>Performance:</strong> ${input.score.toFixed(1)} / 5.0`)}
+      ${p(`You can download your certificate and experience letter anytime from your dashboard.`)}
+      <div style="margin-top:24px;">
+        ${button(
+          `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/documents`,
+          'View my documents'
+        )}
+      </div>
+      ${p(`Anyone can verify your certificate at any time using this link:`)}
+      <p style="font-size:12px;color:#64748b;word-break:break-all;background:#f1f5f9;padding:10px;border-radius:6px;font-family:monospace;">
+        ${input.verifyUrl}
+      </p>
+      ${p(`Feel free to add this to your LinkedIn profile or CV. We wish you the very best in your career.`)}
+      ${p(`— The HERMAN team`)}
+    `),
+  }
+}

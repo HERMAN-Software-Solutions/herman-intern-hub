@@ -5,6 +5,7 @@ import { generateCertificateId } from './generate-id'
 import { renderCertificatePdf, renderExperienceLetterPdf } from './pdf/render'
 import type { CertificateData } from './types'
 import QRCode from 'qrcode'
+import { sendCertificateIssued } from '@/lib/email/send'
 
 type GenerateResult =
   | {
@@ -250,6 +251,21 @@ export async function generateCertificate(
     entity_id: internId,
     metadata: { certificateId, score },
   })
+
+    // 16. Send notification email (fire-and-forget)
+  if (intern.email) {
+    sendCertificateIssued({
+      to: intern.email,
+      fullName: intern.full_name,
+      certificateId,
+      score,
+      verifyUrl,
+    }).then((res) => {
+      if (!res.success) {
+        console.error('Certificate email failed:', res.error)
+      }
+    })
+  }
 
   return {
     success: true,
