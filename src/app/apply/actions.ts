@@ -1,6 +1,7 @@
 'use server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendApplicationReceived } from '@/lib/email/send'
 
 type ApplicationInput = {
   name: string
@@ -64,7 +65,13 @@ export async function submitApplication(input: ApplicationInput) {
     return { error: 'Something went wrong. Please try again.' }
   }
 
-  // TODO (Session 3F): Send confirmation email via Brevo
+    // Send confirmation email (fire-and-forget, don't block the response)
+  sendApplicationReceived(input.email.toLowerCase().trim(), input.name.trim())
+    .then((res) => {
+      if (!res.success) {
+        console.error('Confirmation email failed:', res.error)
+      }
+    })
 
   return { success: true }
 }

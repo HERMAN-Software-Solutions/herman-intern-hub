@@ -18,6 +18,17 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single()
 
+  // Supabase types relations as arrays — normalize
+  const mentorRaw = profile?.mentor as
+    | { full_name: string | null; email: string }
+    | { full_name: string | null; email: string }[]
+    | null
+    | undefined
+
+  const mentor = Array.isArray(mentorRaw)
+    ? mentorRaw[0] ?? null
+    : mentorRaw ?? null
+
   // Today's log
   const today = new Date().toISOString().slice(0, 10)
   const { data: todayLog } = await supabase
@@ -55,21 +66,19 @@ export default async function DashboardPage() {
       <p className="text-slate-500 mt-1">
         {profile?.start_date && profile?.end_date
           ? `Internship: ${new Date(profile.start_date).toLocaleDateString()} → ${new Date(profile.end_date).toLocaleDateString()}`
-          : 'Here\u2019s what\u2019s on your plate.'}
+          : "Here's what's on your plate."}
       </p>
 
       {/* Mentor card */}
-      {profile?.mentor && (
+      {mentor && (
         <div className="mt-6 bg-white border border-slate-200 rounded-xl p-5 flex items-center gap-4">
           <div className="w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center font-semibold">
-            {(profile.mentor.full_name ?? profile.mentor.email)
-              .charAt(0)
-              .toUpperCase()}
+            {(mentor.full_name ?? mentor.email).charAt(0).toUpperCase()}
           </div>
           <div>
             <div className="text-sm text-slate-500">Your mentor</div>
             <div className="font-medium text-slate-900">
-              {profile.mentor.full_name ?? profile.mentor.email}
+              {mentor.full_name ?? mentor.email}
             </div>
           </div>
         </div>
@@ -78,7 +87,7 @@ export default async function DashboardPage() {
       {/* Today's log */}
       <div className="mt-6 bg-white border border-slate-200 rounded-xl p-6">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-slate-900">Today's log</h2>
+          <h2 className="font-semibold text-slate-900">Today&apos;s log</h2>
           <Link
             href="/dashboard/logs"
             className="text-xs text-blue-600 hover:underline"
@@ -99,13 +108,13 @@ export default async function DashboardPage() {
         ) : (
           <div>
             <p className="text-sm text-slate-500 mb-3">
-              You haven't logged today's work yet.
+              You haven&apos;t logged today&apos;s work yet.
             </p>
             <Link
               href="/dashboard/logs"
               className="inline-block bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
             >
-              Log today's work →
+              Log today&apos;s work →
             </Link>
           </div>
         )}
@@ -125,9 +134,7 @@ export default async function DashboardPage() {
           </div>
 
           {!assignments || assignments.length === 0 ? (
-            <p className="text-sm text-slate-500">
-              No projects assigned yet.
-            </p>
+            <p className="text-sm text-slate-500">No projects assigned yet.</p>
           ) : (
             <ul className="space-y-3">
               {assignments.slice(0, 3).map((a: any) => (

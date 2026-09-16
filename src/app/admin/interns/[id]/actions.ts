@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { sendActivated } from '@/lib/email/send'
 
 export async function assignMentor(internId: string, mentorId: string) {
   if (!mentorId) return { error: 'Please select a mentor' }
@@ -23,6 +24,32 @@ export async function assignMentor(internId: string, mentorId: string) {
     .eq('role', 'intern')
 
   if (error) return { error: error.message }
+
+    // Fetch intern + mentor for the email
+  const { data: intern } = await admin
+    .from('profiles')
+    .select('email, full_name, status')
+    .eq('id', internId)
+    .single()
+
+  const { data: mentor } = await admin
+    .from('profiles')
+    .select('full_name, email')
+    .eq('id', mentorId)
+    .single()
+
+  // Only send if the intern just became active
+  if (intern?.status === 'active' && intern.email) {
+    sendActivated({
+      to: intern.email,
+      fullName: intern.full_name,
+      mentorName: mentor?.full_name ?? mentor?.email ?? null,
+    }).then((res) => {
+      if (!res.success) {
+        console.error('Activation email failed:', res.error)
+      }
+    })
+  }
 
   // Audit
   await admin.from('audit_log').insert({

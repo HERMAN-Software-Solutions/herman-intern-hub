@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { randomBytes } from 'crypto'
+import { sendInvitation, sendRejection } from '@/lib/email/send'
 
 export async function rejectApplication(
   applicationId: string,
@@ -17,6 +18,7 @@ export async function rejectApplication(
 
   const admin = createAdminClient()
 
+  // 1. Update the application
   const { error } = await admin
     .from('applications')
     .update({
@@ -29,6 +31,23 @@ export async function rejectApplication(
 
   if (error) return { error: error.message }
 
+  // 2. Fetch application details for the email
+  const { data: app } = await admin
+    .from('applications')
+    .select('email, name')
+    .eq('id', applicationId)
+    .single()
+
+  // 3. Send rejection email (fire-and-forget)
+  if (app?.email) {
+    sendRejection(app.email, app.name).then((res) => {
+      if (!res.success) {
+        console.error('Rejection email failed:', res.error)
+      }
+    })
+  }
+
+  // 4. Audit log
   await admin.from('audit_log').insert({
     actor_id: user.id,
     action: 'application.rejected',
@@ -124,7 +143,20 @@ export async function approveApplication(input: {
     })
     .eq('id', input.applicationId)
 
-  // 5. Audit log
+  // 5. Send invitation email (fire-and-forget)
+  sendInvitation({
+    to: application.email,
+    fullName: application.name,
+    token,
+    startDate: input.startDate,
+    welcomeMessage: input.welcomeMessage,
+  }).then((res) => {
+    if (!res.success) {
+      console.error('Invitation email failed:', res.error)
+    }
+  })
+
+  // 6. Audit log
   await admin.from('audit_log').insert({
     actor_id: user.id,
     action: 'application.approved',
