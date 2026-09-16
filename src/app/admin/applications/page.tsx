@@ -1,0 +1,131 @@
+import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
+import { StatusBadge } from '../_components/status-badge'
+
+const FILTERS = [
+  { key: 'pending', label: 'Pending' },
+  { key: 'reviewing', label: 'Reviewing' },
+  { key: 'accepted', label: 'Accepted' },
+  { key: 'rejected', label: 'Rejected' },
+  { key: 'all', label: 'All' },
+]
+
+export default async function ApplicationsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>
+}) {
+  const params = await searchParams
+  const activeFilter = params.status ?? 'pending'
+  const supabase = await createClient()
+
+  let query = supabase
+    .from('applications')
+    .select('id, name, email, university, course, tech_stack_interest, status, submitted_at')
+    .order('submitted_at', { ascending: false })
+
+  if (activeFilter !== 'all') {
+    query = query.eq('status', activeFilter)
+  }
+
+  const { data: applications } = await query
+
+  return (
+    <div className="p-8 max-w-6xl">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-slate-900">Applications</h1>
+        <p className="text-slate-500 mt-1">
+          Review and approve incoming applications.
+        </p>
+      </div>
+
+      {/* Filter tabs */}
+      <div className="flex gap-1 mb-6 border-b border-slate-200">
+        {FILTERS.map((f) => {
+          const active = activeFilter === f.key
+          return (
+            <Link
+              key={f.key}
+              href={`/admin/applications?status=${f.key}`}
+              className={`px-4 py-2 text-sm border-b-2 transition-colors ${
+                active
+                  ? 'border-slate-900 text-slate-900 font-medium'
+                  : 'border-transparent text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              {f.label}
+            </Link>
+          )
+        })}
+      </div>
+
+      {/* List */}
+      {!applications || applications.length === 0 ? (
+        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
+          <p className="text-slate-500">No applications here.</p>
+        </div>
+      ) : (
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-slate-500 text-left text-xs uppercase tracking-wider">
+              <tr>
+                <th className="px-4 py-3">Applicant</th>
+                <th className="px-4 py-3">University</th>
+                <th className="px-4 py-3">Tech interest</th>
+                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {applications.map((app) => (
+                <tr
+                  key={app.id}
+                  className="border-t border-slate-100 hover:bg-slate-50"
+                >
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/admin/applications/${app.id}`}
+                      className="font-medium text-slate-900 hover:text-blue-600"
+                    >
+                      {app.name}
+                    </Link>
+                    <div className="text-xs text-slate-500">{app.email}</div>
+                  </td>
+                  <td className="px-4 py-3 text-slate-600">
+                    {app.university}
+                    <div className="text-xs text-slate-400">{app.course}</div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {(app.tech_stack_interest ?? [])
+                        .slice(0, 3)
+                        .map((t: string) => (
+                          <span
+                            key={t}
+                            className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded"
+                          >
+                            {t}
+                          </span>
+                        ))}
+                      {(app.tech_stack_interest ?? []).length > 3 && (
+                        <span className="text-xs text-slate-400">
+                          +{app.tech_stack_interest.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={app.status} />
+                  </td>
+                  <td className="px-4 py-3 text-slate-500 text-xs">
+                    {new Date(app.submitted_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  )
+}
