@@ -1,5 +1,5 @@
 import 'server-only'
-import * as SibApiV3Sdk from '@getbrevo/brevo'
+import { BrevoClient } from '@getbrevo/brevo'
 
 export type EmailPayload = {
   to: string
@@ -10,10 +10,6 @@ export type EmailPayload = {
   replyTo?: string
 }
 
-/**
- * Sends a transactional email via Brevo.
- * Returns { success } or { error } — never throws.
- */
 export async function sendEmail(
   payload: EmailPayload
 ): Promise<{ success: true } | { success: false; error: string }> {
@@ -27,25 +23,17 @@ export async function sendEmail(
   }
 
   try {
-    const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi()
-    apiInstance.setApiKey(
-      SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey,
-      apiKey
-    )
+    const brevo = new BrevoClient({ apiKey })
 
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail()
-    sendSmtpEmail.subject = payload.subject
-    sendSmtpEmail.htmlContent = payload.htmlContent
-    sendSmtpEmail.textContent = payload.textContent ?? stripHtml(payload.htmlContent)
-    sendSmtpEmail.sender = { email: senderEmail, name: senderName }
-    sendSmtpEmail.to = [
-      { email: payload.to, name: payload.toName ?? payload.to },
-    ]
-    if (payload.replyTo) {
-      sendSmtpEmail.replyTo = { email: payload.replyTo }
-    }
+    await brevo.transactionalEmails.sendTransacEmail({
+      subject: payload.subject,
+      htmlContent: payload.htmlContent,
+      textContent: payload.textContent ?? stripHtml(payload.htmlContent),
+      sender: { email: senderEmail, name: senderName },
+      to: [{ email: payload.to, name: payload.toName ?? payload.to }],
+      ...(payload.replyTo && { replyTo: { email: payload.replyTo } }),
+    })
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail)
     return { success: true }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
