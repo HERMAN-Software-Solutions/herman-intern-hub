@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { AdminSidebar } from './_components/admin-sidebar'
+import { NotificationBell } from '@/components/notifications/notification-bell'
 
 export default async function AdminLayout({
   children,
@@ -30,7 +31,12 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen bg-slate-50">
       <AdminSidebar adminName={profile.full_name ?? profile.email} />
-      <main className="flex-1 overflow-x-auto">{children}</main>
+      <main className="flex-1 overflow-x-auto flex flex-col">
+        <div className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 px-6 py-3 flex items-center justify-end">
+          <NotificationBell />
+        </div>
+        <div className="flex-1">{children}</div>
+      </main>
     </div>
   )
 }

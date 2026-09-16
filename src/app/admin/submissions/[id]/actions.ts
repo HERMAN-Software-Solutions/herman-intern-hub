@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { createNotification } from '@/lib/notifications/create'
 
 export async function approveSubmission(submissionId: string, feedback: string) {
   const supabase = await createClient()
@@ -13,10 +14,10 @@ export async function approveSubmission(submissionId: string, feedback: string) 
 
   const admin = createAdminClient()
 
-  // 1. Fetch the submission
+  // 1. Fetch the submission (with task title for the notification body)
   const { data: submission } = await admin
     .from('submissions')
-    .select('id, task_id, intern_id, status')
+    .select('id, task_id, intern_id, status, task:task_id (title)')
     .eq('id', submissionId)
     .single()
 
@@ -43,7 +44,23 @@ export async function approveSubmission(submissionId: string, feedback: string) 
     })
   }
 
-  // 5. Audit
+  // 5. Notify the intern (fire-and-forget)
+  const taskRaw = (submission as any).task
+  const task = Array.isArray(taskRaw) ? taskRaw[0] : taskRaw
+  const taskTitle = task?.title ?? 'your task'
+
+  createNotification({
+    userId: submission.intern_id,
+    type: 'submission_approved',
+    title: '✅ Submission approved',
+    body: `Your work on "${taskTitle}" was approved by your mentor.`,
+    link: `/dashboard/tasks/${submission.task_id}`,
+    metadata: { taskId: submission.task_id },
+  }).catch((err) => {
+    console.error('Approval notification failed:', err)
+  })
+
+  // 6. Audit
   await admin.from('audit_log').insert({
     actor_id: user.id,
     action: 'submission.approved',
@@ -76,7 +93,7 @@ export async function requestRevision(submissionId: string, feedback: string) {
 
   const { data: submission } = await admin
     .from('submissions')
-    .select('id, task_id, intern_id')
+    .select('id, task_id, intern_id, task:task_id (title)')
     .eq('id', submissionId)
     .single()
 
@@ -101,7 +118,29 @@ export async function requestRevision(submissionId: string, feedback: string) {
     content: feedback.trim(),
   })
 
-  // 4. Audit
+  // 4. Notify the intern (fire-and-forget)
+  const taskRaw = (submission as any).task
+  const task = Array.isArray(taskRaw) ? taskRaw[0] : taskRaw
+  const taskTitle = task?.title ?? 'your task'
+
+  const trimmedFeedback = feedback.trim()
+  const preview =
+    trimmedFeedback.length > 120
+      ? trimmedFeedback.slice(0, 120) + '…'
+      : trimmedFeedback
+
+  createNotification({
+    userId: submission.intern_id,
+    type: 'revision_requested',
+    title: '⚠️ Revision requested',
+    body: `${taskTitle}: ${preview}`,
+    link: `/dashboard/tasks/${submission.task_id}`,
+    metadata: { taskId: submission.task_id },
+  }).catch((err) => {
+    console.error('Revision notification failed:', err)
+  })
+
+  // 5. Audit
   await admin.from('audit_log').insert({
     actor_id: user.id,
     action: 'submission.revision_requested',

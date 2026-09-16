@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendApplicationReceived } from '@/lib/email/send'
+import { notifyAdmins } from '@/lib/notifications/create'
 
 type ApplicationInput = {
   name: string
@@ -65,13 +66,24 @@ export async function submitApplication(input: ApplicationInput) {
     return { error: 'Something went wrong. Please try again.' }
   }
 
-    // Send confirmation email (fire-and-forget, don't block the response)
+  // Send confirmation email (fire-and-forget, don't block the response)
   sendApplicationReceived(input.email.toLowerCase().trim(), input.name.trim())
     .then((res) => {
       if (!res.success) {
         console.error('Confirmation email failed:', res.error)
       }
     })
+
+  // Notify all admins (fire-and-forget)
+  notifyAdmins({
+    type: 'application_received',
+    title: '📥 New application',
+    body: `${input.name.trim()} from ${input.university.trim()} just applied.`,
+    link: '/admin/applications',
+    metadata: { email: input.email.toLowerCase().trim() },
+  }).catch((err) => {
+    console.error('Admin notification failed:', err)
+  })
 
   return { success: true }
 }

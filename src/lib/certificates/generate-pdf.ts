@@ -6,6 +6,7 @@ import { renderCertificatePdf, renderExperienceLetterPdf } from './pdf/render'
 import type { CertificateData } from './types'
 import QRCode from 'qrcode'
 import { sendCertificateIssued } from '@/lib/email/send'
+import { createNotification } from '@/lib/notifications/create'
 
 type GenerateResult =
   | {
@@ -208,21 +209,13 @@ export async function generateCertificate(
     return { success: false, error: 'Failed to upload experience letter' }
   }
 
-  // 13. Get signed URLs (valid 1 year)
-  const { data: certSigned } = await supabase.storage
-    .from('documents')
-    .createSignedUrl(certPath, 60 * 60 * 24 * 365)
-  const { data: letterSigned } = await supabase.storage
-    .from('documents')
-    .createSignedUrl(letterPath, 60 * 60 * 24 * 365)
-
-  // 14. Insert into documents table
+  // 13. Insert into documents table
   const { error: docError } = await supabase.from('documents').insert([
     {
       intern_id: internId,
       type: 'certificate',
       title: `Certificate of Internship — ${certificateId}`,
-      file_url: certPath, // storage path (use signed URL on the fly)
+      file_url: certPath,
       issued_by: issuedByUserId,
       certificate_id: certificateId,
       performance_score: score,
@@ -243,7 +236,7 @@ export async function generateCertificate(
     return { success: false, error: 'Failed to save document records' }
   }
 
-  // 15. Audit
+  // 14. Audit
   await supabase.from('audit_log').insert({
     actor_id: issuedByUserId,
     action: 'certificate.issued',
@@ -252,7 +245,19 @@ export async function generateCertificate(
     metadata: { certificateId, score },
   })
 
-    // 16. Send notification email (fire-and-forget)
+  // 15. In-app notification (fire-and-forget)
+  createNotification({
+    userId: internId,
+    type: 'certificate_issued',
+    title: '🎓 Certificate issued!',
+    body: `Your certificate ${certificateId} is ready to download.`,
+    link: '/dashboard/documents',
+    metadata: { certificateId },
+  }).catch((err) => {
+    console.error('Certificate notification failed:', err)
+  })
+
+  // 16. Email notification (fire-and-forget)
   if (intern.email) {
     sendCertificateIssued({
       to: intern.email,

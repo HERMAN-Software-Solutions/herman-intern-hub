@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { sendActivated } from '@/lib/email/send'
+import { createNotification } from '@/lib/notifications/create'
 
 export async function assignMentor(internId: string, mentorId: string) {
   if (!mentorId) return { error: 'Please select a mentor' }
@@ -25,7 +26,7 @@ export async function assignMentor(internId: string, mentorId: string) {
 
   if (error) return { error: error.message }
 
-    // Fetch intern + mentor for the email
+  // Fetch intern + mentor for the email + notification
   const { data: intern } = await admin
     .from('profiles')
     .select('email, full_name, status')
@@ -47,6 +48,19 @@ export async function assignMentor(internId: string, mentorId: string) {
     }).then((res) => {
       if (!res.success) {
         console.error('Activation email failed:', res.error)
+      }
+    })
+
+    // In-app notification
+    createNotification({
+      userId: internId,
+      type: 'mentor_assigned',
+      title: '🎉 Welcome to the team!',
+      body: `Your mentor is ${mentor?.full_name ?? mentor?.email ?? 'assigned'}. You can now access your dashboard.`,
+      link: '/dashboard',
+    }).then((res) => {
+      if (!res.success) {
+        console.error('Mentor assignment notification failed:', res.error)
       }
     })
   }

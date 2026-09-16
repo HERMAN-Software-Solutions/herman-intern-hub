@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { createNotification } from '@/lib/notifications/create'
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25 MB
 const ALLOWED_TYPES = [
@@ -40,7 +41,7 @@ export async function submitTaskWork(input: {
   // Verify the task belongs to this intern
   const { data: task } = await supabase
     .from('tasks')
-    .select('id, assigned_to, status')
+    .select('id, assigned_to, status, title')
     .eq('id', input.taskId)
     .eq('assigned_to', user.id)
     .maybeSingle()
@@ -98,6 +99,28 @@ export async function submitTaskWork(input: {
     .update({ status: 'review' })
     .eq('id', input.taskId)
     .eq('assigned_to', user.id)
+
+  // Notify the mentor (fire-and-forget)
+  const { data: internProfile } = await supabase
+    .from('profiles')
+    .select('full_name, email, mentor_id')
+    .eq('id', user.id)
+    .single()
+
+  if (internProfile?.mentor_id) {
+    createNotification({
+      userId: internProfile.mentor_id,
+      type: 'submission_received',
+      title: '📥 New submission received',
+      body: `${
+        internProfile.full_name ?? internProfile.email ?? 'An intern'
+      } submitted work for "${task.title}".`,
+      link: '/admin/submissions',
+      metadata: { taskId: input.taskId, internId: user.id },
+    }).catch((err) => {
+      console.error('Notification failed:', err)
+    })
+  }
 
   revalidatePath(`/dashboard/tasks/${input.taskId}`)
   revalidatePath('/dashboard/tasks')
