@@ -13,7 +13,7 @@ export type ScoreBreakdown = {
 }
 
 export type ScoreResult = {
-  score: number          // 0.0 – 5.0
+  score: number // 0.0 – 5.0
   band: RatingBand
   breakdown: ScoreBreakdown
 }
@@ -35,4 +35,40 @@ export function getRatingBand(score: number): RatingBand {
 
 export function getStars(score: number): number {
   return Math.round(score)
+}
+
+export type CertificateData = {
+  // Intern
+  internName: string
+  internEmail: string
+  university: string | null
+  course: string | null
+
+  // Internship
+  track: string           // e.g. "Full Stack Development"
+  startDate: string
+  endDate: string
+  durationWeeks: number
+
+  // Performance
+  score: number
+  band: RatingBand
+  stars: number
+  tasksCompleted: number
+  tasksAssigned: number
+  daysLogged: number
+  workingDays: number
+
+  // Contributions
+  highlights: string[]    // top 5 tasks marked highlight
+
+  // Signatures
+  mentorName: string
+  ceoName: string
+
+  // Metadata
+  certificateId: string
+  issueDate: string
+  verifyUrl: string
+  qrCodeDataUrl: string
 }

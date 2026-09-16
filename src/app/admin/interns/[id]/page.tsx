@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '../../_components/status-badge'
 import { MentorAssignment } from './mentor-assignment'
+import { IssueButton } from './issue-certificate/issue-button'
 
 export default async function InternDetailPage({
   params,
@@ -150,6 +151,20 @@ export default async function InternDetailPage({
          </Link>
         </div>
       </div>
+       
+      {/* Certificate issuance */}
+      {intern.status === 'completed' || intern.status === 'active' ? (
+       <div className="mt-6 bg-white border border-slate-200 rounded-xl p-6">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+            Certificate
+          </h2>
+          <p className="text-sm text-slate-600 mb-4">
+           Issue a certificate of internship and experience letter as PDFs.
+           Requires a completed performance review.
+          </p>
+         <IssueButton internId={intern.id} />
+       </div>
+      ) : null}
 
       {/* Activation checklist */}
       <Card title="Activation checklist" className="mt-6">

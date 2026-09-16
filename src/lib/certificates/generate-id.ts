@@ -1,10 +1,6 @@
 import 'server-only'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-/**
- * Generates a unique certificate ID: HRM-YYYY-NNNN
- * Uses the certificate_id_seq sequence from Postgres.
- */
 export async function generateCertificateId(): Promise<string> {
   const supabase = createAdminClient()
 
