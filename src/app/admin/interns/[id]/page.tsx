@@ -133,6 +133,24 @@ export default async function InternDetailPage({
         />
       </div>
 
+      {/* Performance review CTA */}
+     <div className="mt-6">
+       <div className="bg-white border border-slate-200 rounded-xl p-6">
+         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+           Performance review
+         </h2>
+         <p className="text-sm text-slate-600 mb-4">
+          Complete the performance review before issuing a certificate.
+         </p>
+         <Link
+           href={`/admin/interns/${intern.id}/review`}
+           className="inline-block bg-slate-900 hover:bg-slate-800 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+        >
+           Open review form →
+         </Link>
+        </div>
+      </div>
+
       {/* Activation checklist */}
       <Card title="Activation checklist" className="mt-6">
         <ul className="space-y-2 text-sm">
