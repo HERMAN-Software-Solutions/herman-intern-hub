@@ -66,7 +66,7 @@ export const metadata: Metadata = {
   },
   // Uncomment and add your code after verifying with Google Search Console
    verification: {
-     google: 'googlee083547305f9a958',
+     google: 'ARKdvcChjPgHXFnujH-TH_CYT-XjvmN2ATFRLXfxG24',
    },
 }
 
