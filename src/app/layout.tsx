@@ -65,9 +65,9 @@ export const metadata: Metadata = {
     },
   },
   // Uncomment and add your code after verifying with Google Search Console
-  // verification: {
-  //   google: 'YOUR-VERIFICATION-CODE',
-  // },
+   verification: {
+     google: 'googlee083547305f9a958',
+   },
 }
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
