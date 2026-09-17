@@ -79,48 +79,53 @@ export function LogsClient({
           {todayLog ? "Update today's log" : "Log today's work"}
         </h2>
 
-        <div className="grid grid-cols-4 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Date
-            </label>
-            <input
-              type="date"
-              value={today}
-              disabled
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-slate-500 text-sm"
+        <div className="space-y-4">
+          {/* Date + Hours side by side on desktop, stacked on mobile */}
+         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+           <div>
+             <label className="block text-sm font-medium text-slate-700 mb-1.5">
+             Date
+             </label>
+             <input
+             type="date"
+             value={today}
+             disabled
+             className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg bg-slate-50 text-slate-500 text-sm"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              Hours
-            </label>
-            <input
-              type="number"
-              step="0.5"
-              min="0"
-              max="24"
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
-              placeholder="e.g. 6"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none text-sm"
-            />
-          </div>
-
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-slate-700 mb-1">
-              What did you work on?
-            </label>
-            <input
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief summary of your work today"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none text-sm"
-            />
-          </div>
+         <div>
+          <label className="block text-sm font-medium text-slate-700 mb-1.5">
+           Hours worked
+          </label>
+          <input
+          type="number"
+          step="0.5"
+          min="0"
+          max="24"
+          inputMode="decimal"
+          value={hours}
+          onChange={(e) => setHours(e.target.value)}
+          placeholder="e.g. 6"
+          className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-sm"
+         />
         </div>
+       </div>
+
+       {/* Full-width description */}
+       <div>
+         <label className="block text-sm font-medium text-slate-700 mb-1.5">
+          What did you work on?
+         </label>
+         <textarea
+         value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        rows={3}
+        placeholder="Brief summary of your work today…"
+        className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-sm resize-none"
+        />
+       </div>
+      </div>
 
         {error && (
           <div className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
