@@ -12,14 +12,7 @@ export const metadata = {
 export default async function Home() {
   const supabase = await createClient()
 
-  // Fetch public intern count + a few recent interns
-  const { count: internCount } = await supabase
-    .from('profiles')
-    .select('*', { count: 'exact', head: true })
-    .eq('role', 'intern')
-    .in('status', ['active', 'completed'])
-    .eq('directory_visible', true)
-
+  // Featured interns for the "Meet our interns" section
   const { data: featuredInterns } = await supabase
     .from('profiles')
     .select('id, full_name, university, course, avatar_url, bio')
@@ -38,10 +31,10 @@ export default async function Home() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/40" />
 
-        <div className="relative max-w-6xl mx-auto px-6 py-20 md:py-28">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-28">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 text-xs font-medium text-blue-700 mb-6">
-              <span className="w-1.5 h-1.5 bg-blue-600 rounded-full" />
+              <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
               Applications open
             </div>
 
@@ -51,9 +44,9 @@ export default async function Home() {
             </h1>
 
             <p className="text-lg md:text-xl text-slate-600 mt-6 leading-relaxed max-w-2xl">
-              Real projects. Real mentorship. Real experience. Build
-              production-grade software with a team that cares about your
-              growth — right here in Uganda.
+              Work on real projects with real mentors — learning the same
+              tools and patterns we use for paying clients. From Jinja, for
+              anyone with an internet connection.
             </p>
 
             <div className="flex flex-wrap gap-3 mt-8">
@@ -71,31 +64,54 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="flex items-center gap-6 mt-10 text-sm text-slate-500">
-              <div>
-                <div className="text-2xl font-bold text-slate-900">
-                  {internCount ?? 0}
-                </div>
-                <div>current & alumni interns</div>
+            {/* Status pills — replaces the "0" stats */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-10 text-sm text-slate-600">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                <span className="font-medium">Applications open</span>
               </div>
-              <div className="w-px h-10 bg-slate-200" />
-              <div>
-                <div className="text-2xl font-bold text-slate-900">100%</div>
-                <div>mentor-led</div>
+              <div className="hidden sm:block w-px h-5 bg-slate-200" />
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-4 h-4 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span>Mentor-led</span>
               </div>
-              <div className="w-px h-10 bg-slate-200" />
-              <div>
-                <div className="text-2xl font-bold text-slate-900">0</div>
-                <div>cost to you</div>
+              <div className="hidden sm:block w-px h-5 bg-slate-200" />
+              <div className="flex items-center gap-2">
+                <svg
+                  className="w-4 h-4 text-green-600"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2.5}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <span>Free to apply</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── What you'll learn ─────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="max-w-2xl mb-12">
+      {/* ─── What you'll work with ─────────────────────── */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+        <div className="max-w-2xl mb-10 md:mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
             What you&apos;ll work with
           </h2>
@@ -132,8 +148,8 @@ export default async function Home() {
 
       {/* ─── How it works ────────────────────────────── */}
       <section className="bg-slate-50 border-y border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 py-20">
-          <div className="max-w-2xl mb-14">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+          <div className="max-w-2xl mb-12 md:mb-14">
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
               How it works
             </h2>
@@ -142,7 +158,7 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {[
               {
                 n: '01',
@@ -187,8 +203,8 @@ export default async function Home() {
       </section>
 
       {/* ─── Why HERMAN ──────────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="max-w-2xl mb-14">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+        <div className="max-w-2xl mb-12 md:mb-14">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
             Why intern with HERMAN
           </h2>
@@ -206,7 +222,7 @@ export default async function Home() {
             },
             {
               title: 'Verifiable certificate',
-              body: 'Get a data-driven certificate with your real performance metrics — anyone can verify it online.',
+              body: 'Each certificate has a unique ID and QR code. Anyone can verify it online at any time.',
             },
           ].map((f) => (
             <div
@@ -224,104 +240,154 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ─── Current cohort ──────────────────────────── */}
-      {featuredInterns && featuredInterns.length > 0 && (
-        <section className="bg-slate-50 border-y border-slate-200">
-          <div className="max-w-6xl mx-auto px-6 py-20">
-            <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
-              <div>
-                <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-                  Meet our interns
-                </h2>
-                <p className="text-slate-600 mt-2">
-                  Talented students building real software with us.
-                </p>
-              </div>
-              <Link
-                href="/interns"
-                className="text-sm font-medium text-blue-600 hover:underline"
-              >
-                See all →
-              </Link>
+      {/* ─── About HERMAN ────────────────────────────── */}
+      <section className="bg-slate-50 border-y border-slate-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+          <div className="max-w-3xl">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+              About HERMAN
+            </h2>
+            <div className="mt-6 space-y-4 text-slate-600 leading-relaxed">
+              <p>
+                HERMAN Software Solutions is a Ugandan software company based
+                in Jinja, building robust web, mobile, and enterprise systems
+                for clients across East Africa.
+              </p>
+              <p>
+                We&apos;ve shipped production systems for schools,
+                cooperatives, retailers, and media platforms — including a
+                school platform serving 40+ pages, a voting portal handling
+                multiple live elections, and a desktop app now live on the
+                Microsoft Store.
+              </p>
+              <p>
+                Our internship program exists because we believe the best way
+                to learn software engineering is to build real software. Our
+                mentors are engineers who ship code every day.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {featuredInterns.map((intern) => (
-                <Link
-                  key={intern.id}
-                  href={`/interns/${intern.id}`}
-                  className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 transition-colors"
-                >
-                  <div className="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center font-semibold text-lg mb-4">
-                    {(intern.full_name ?? 'A').charAt(0).toUpperCase()}
-                  </div>
-                  <div className="font-medium text-slate-900 truncate">
-                    {intern.full_name}
-                  </div>
-                  <div className="text-xs text-slate-500 mt-1 truncate">
-                    {intern.course ?? intern.university ?? 'Intern'}
-                  </div>
-                </Link>
-              ))}
+            <div className="mt-8 flex flex-wrap gap-3 text-sm">
+              <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700">
+                🇺🇬 Built in Jinja, Uganda
+              </span>
+              <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700">
+                Remote-first
+              </span>
+              <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700">
+                Production clients since 2024
+              </span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Current cohort ──────────────────────────── */}
+      {featuredInterns && featuredInterns.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+          <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+                Meet our interns
+              </h2>
+              <p className="text-slate-600 mt-2">
+                Talented students building real software with us.
+              </p>
+            </div>
+            <Link
+              href="/interns"
+              className="text-sm font-medium text-blue-600 hover:underline"
+            >
+              See all →
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {featuredInterns.map((intern) => (
+              <Link
+                key={intern.id}
+                href={`/interns/${intern.id}`}
+                className="bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 transition-colors"
+              >
+                <div className="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center font-semibold text-lg mb-4">
+                  {(intern.full_name ?? 'A').charAt(0).toUpperCase()}
+                </div>
+                <div className="font-medium text-slate-900 truncate">
+                  {intern.full_name}
+                </div>
+                <div className="text-xs text-slate-500 mt-1 truncate">
+                  {intern.course ?? intern.university ?? 'Intern'}
+                </div>
+              </Link>
+            ))}
           </div>
         </section>
       )}
 
       {/* ─── FAQ ─────────────────────────────────────── */}
-      <section className="max-w-4xl mx-auto px-6 py-20">
-        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight text-center mb-12">
-          Common questions
-        </h2>
+      <section className="bg-slate-50 border-y border-slate-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight text-center mb-12">
+            Common questions
+          </h2>
 
-        <div className="space-y-3">
-          {[
-            {
-              q: 'Who can apply?',
-              a: 'Any student or recent graduate interested in software engineering. We welcome applicants from any university in Uganda and beyond.',
-            },
-            {
-              q: 'Is the internship paid?',
-              a: 'Internships are unpaid by default — you gain experience, mentorship, and a verified certificate. However, if you\u2019re assigned to a client project with a signed agreement, compensation is arranged.',
-            },
-            {
-              q: 'How long is the internship?',
-              a: 'Typically 3 months, but the duration is set during registration based on your availability and track.',
-            },
-            {
-              q: 'Do I need to know how to code already?',
-              a: 'You should have some programming fundamentals. We\u2019ll teach you the tools, patterns, and professional workflows — but we don\u2019t start from zero.',
-            },
-            {
-              q: 'Will I get a certificate?',
-              a: 'Yes. Every intern who completes the program receives a data-driven certificate of internship and an experience letter. Both are verifiable online.',
-            },
-            {
-              q: 'Can I do it remotely?',
-              a: 'The program is primarily on-site at our Jinja office. Remote arrangements can be discussed for exceptional cases.',
-            },
-          ].map((faq, i) => (
-            <details
-              key={i}
-              className="bg-white border border-slate-200 rounded-xl overflow-hidden group"
-            >
-              <summary className="cursor-pointer px-5 py-4 font-medium text-slate-900 hover:bg-slate-50 transition-colors list-none flex items-center justify-between">
-                {faq.q}
-                <span className="text-slate-400 group-open:rotate-180 transition-transform">
-                  ▾
-                </span>
-              </summary>
-              <div className="px-5 pb-5 text-sm text-slate-600 leading-relaxed">
-                {faq.a}
-              </div>
-            </details>
-          ))}
+          <div className="space-y-3">
+            {[
+              {
+                q: 'Who can apply?',
+                a: 'Any student or recent graduate interested in software engineering. We welcome applicants from any university in Uganda and beyond — and from anywhere in the world that has reliable internet.',
+              },
+              {
+                q: 'Is the internship paid?',
+                a: 'Internships are unpaid by default — you gain experience, mentorship, and a verified certificate. However, if you\u2019re assigned to a client project with a signed agreement, compensation is arranged.',
+              },
+              {
+                q: 'How long is the internship?',
+                a: 'Typically 3 months, but the duration is set during registration based on your availability and track.',
+              },
+              {
+                q: 'Where is the internship based?',
+                a: 'The program is remote-first. You can work from anywhere with a reliable internet connection. In-person meetups in Jinja can be arranged when needed.',
+              },
+              {
+                q: 'How much time per week does it take?',
+                a: 'Most interns commit around 15–25 hours per week. You and your mentor will agree on a schedule that works for both of you.',
+              },
+              {
+                q: 'Do I need my own laptop?',
+                a: 'Yes. You need access to a computer and reliable internet. A laptop with at least 8GB RAM is recommended but not strictly required.',
+              },
+              {
+                q: 'Do I need to know how to code already?',
+                a: 'You should have some programming fundamentals. We\u2019ll teach you the tools, patterns, and professional workflows — but we don\u2019t start from zero.',
+              },
+              {
+                q: 'Will I get a certificate?',
+                a: 'Yes. Every intern who completes the program receives a certificate of internship and an experience letter. Each certificate has a unique ID and QR code — anyone can verify it at herman-intern-hub.vercel.app/verify.',
+              },
+            ].map((faq, i) => (
+              <details
+                key={i}
+                className="bg-white border border-slate-200 rounded-xl overflow-hidden group"
+              >
+                <summary className="cursor-pointer px-5 py-4 font-medium text-slate-900 hover:bg-slate-50 transition-colors list-none flex items-center justify-between gap-4">
+                  <span>{faq.q}</span>
+                  <span className="text-slate-400 group-open:rotate-180 transition-transform flex-shrink-0">
+                    ▾
+                  </span>
+                </summary>
+                <div className="px-5 pb-5 text-sm text-slate-600 leading-relaxed">
+                  {faq.a}
+                </div>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ─── CTA ─────────────────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-6 py-20">
-        <div className="bg-slate-900 rounded-3xl p-10 md:p-16 text-center">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+        <div className="bg-slate-900 rounded-3xl p-8 md:p-16 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
             Ready to start?
           </h2>
