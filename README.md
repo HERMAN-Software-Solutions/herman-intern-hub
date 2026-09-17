@@ -201,4 +201,18 @@ Contact
 
 🌐 herman-software-website.vercel.app
 
+Quick links:
+
+| Doc | Purpose |
+|---|---|
+| [Getting Started](./docs/getting-started.md) | Local setup guide |
+| [SPEC.md](./SPEC.md) | Full specification |
+| [ROADMAP.md](./ROADMAP.md) | Phased delivery plan |
+| [Data Model](./docs/data-model.md) | Database schema |
+| [Auth Flow](./docs/auth-flow.md) | Approval + invitations |
+| [Certificate Spec](./docs/certificate-spec.md) | Certificate generation |
+| [Wireframes](./docs/wireframes.md) | Screen layouts |
+| [Brand Guide](./docs/brand.md) | Design tokens |
+| [Contributing](./CONTRIBUTING.md) | How to contribute |
+
 <div align="center"> <sub>Built with care in Jinja, Uganda 🇺🇬</sub> </div> ```
