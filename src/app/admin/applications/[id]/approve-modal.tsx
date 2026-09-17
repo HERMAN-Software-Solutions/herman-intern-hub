@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { approveApplication } from './actions'
 
 type Mentor = { id: string; full_name: string | null; email: string }
@@ -44,11 +45,20 @@ export function ApproveModal({
 
       if (res.error) {
         setError(res.error)
+        toast.error(res.error)
         return
       }
 
       const url = `${window.location.origin}/invite/${res.invitationToken}`
       setInvitationLink(url)
+      toast.success(
+        res.alreadyExisted ? 'Invitation already exists' : 'Invitation sent',
+        {
+          description: res.alreadyExisted
+            ? 'A pending invitation was already created for this applicant.'
+            : 'The applicant will receive an email shortly.',
+        }
+      )
       router.refresh()
     })
   }
@@ -57,6 +67,7 @@ export function ApproveModal({
     if (!invitationLink) return
     navigator.clipboard.writeText(invitationLink)
     setCopied(true)
+    toast.success('Link copied to clipboard')
     setTimeout(() => setCopied(false), 2000)
   }
 

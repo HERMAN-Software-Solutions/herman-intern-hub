@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '../_components/status-badge'
+import { EmptyState } from '@/components/ui/empty-state'
 
 const FILTERS = [
   { key: 'pending', label: 'Pending' },
@@ -21,7 +22,9 @@ export default async function ApplicationsPage({
 
   let query = supabase
     .from('applications')
-    .select('id, name, email, university, course, tech_stack_interest, status, submitted_at')
+    .select(
+      'id, name, email, university, course, tech_stack_interest, status, submitted_at'
+    )
     .order('submitted_at', { ascending: false })
 
   if (activeFilter !== 'all') {
@@ -61,9 +64,11 @@ export default async function ApplicationsPage({
 
       {/* List */}
       {!applications || applications.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
-          <p className="text-slate-500">No applications here.</p>
-        </div>
+        <EmptyState
+          icon="📥"
+          title="No applications here"
+          description="When someone applies via the public form, they'll appear here for review."
+        />
       ) : (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
           <table className="w-full text-sm">

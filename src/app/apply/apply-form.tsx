@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { submitApplication } from './actions'
 
 type TechStack = {
@@ -121,8 +122,12 @@ export function ApplyForm() {
       const result = await submitApplication(data)
       if (result.error) {
         setError(result.error)
+        toast.error(result.error)
         return
       }
+      toast.success('Application submitted!', {
+        description: "We'll review it within 5 working days.",
+      })
       router.push('/apply/success')
     })
   }

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { EmptyState } from '@/components/ui/empty-state'
 
 const STATUS_COLORS: Record<string, string> = {
   planning: 'bg-slate-100 text-slate-700',
@@ -34,17 +35,16 @@ export default async function ProjectsPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">My Projects</h1>
         <p className="text-slate-500 mt-1">
-          Projects you've been assigned to.
+          Projects you&apos;ve been assigned to.
         </p>
       </div>
 
       {!assignments || assignments.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
-          <p className="text-slate-500">No projects assigned yet.</p>
-          <p className="text-sm text-slate-400 mt-1">
-            Your mentor will assign projects soon.
-          </p>
-        </div>
+        <EmptyState
+          icon="📁"
+          title="No projects yet"
+          description="Your mentor will assign you to a project soon. This is where your work will appear."
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {assignments.map((a: any) => {

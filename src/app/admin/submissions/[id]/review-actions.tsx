@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { approveSubmission, requestRevision } from './actions'
 
 export function ReviewActions({
@@ -21,10 +22,15 @@ export function ReviewActions({
     setError(null)
     startTransition(async () => {
       const res = await approveSubmission(submissionId, feedback)
-      if (res.error) setError(res.error)
-      else {
+      if (res.error) {
+        setError(res.error)
+        toast.error(res.error)
+      } else {
         setMode('idle')
         setFeedback('')
+        toast.success('Submission approved', {
+          description: 'Task marked as complete. The intern has been notified.',
+        })
         router.refresh()
       }
     })
@@ -33,15 +39,22 @@ export function ReviewActions({
   function handleRequestRevision() {
     setError(null)
     if (feedback.trim().length < 10) {
-      setError('Please provide clear feedback (min 10 characters)')
+      const msg = 'Please provide clear feedback (min 10 characters)'
+      setError(msg)
+      toast.error(msg)
       return
     }
     startTransition(async () => {
       const res = await requestRevision(submissionId, feedback)
-      if (res.error) setError(res.error)
-      else {
+      if (res.error) {
+        setError(res.error)
+        toast.error(res.error)
+      } else {
         setMode('idle')
         setFeedback('')
+        toast.success('Revision requested', {
+          description: 'The intern has been notified.',
+        })
         router.refresh()
       }
     })

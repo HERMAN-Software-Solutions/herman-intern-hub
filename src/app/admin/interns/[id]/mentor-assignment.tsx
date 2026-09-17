@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { assignMentor, unassignMentor } from './actions'
 
 type Mentor = { id: string; full_name: string | null; email: string }
@@ -29,6 +30,7 @@ export function MentorAssignment({
 
     if (!selected) {
       setError('Please select a mentor')
+      toast.error('Please select a mentor')
       return
     }
 
@@ -36,9 +38,18 @@ export function MentorAssignment({
       const res = await assignMentor(internId, selected)
       if (res.error) {
         setError(res.error)
+        toast.error(res.error)
         return
       }
       setSuccess(true)
+      toast.success(
+        canActivate ? 'Mentor assigned — intern is now active' : 'Mentor assigned',
+        {
+          description: canActivate
+            ? 'They can now access their full dashboard.'
+            : 'You can change this later.',
+        }
+      )
       router.refresh()
     })
   }
@@ -49,9 +60,12 @@ export function MentorAssignment({
     setError(null)
     startTransition(async () => {
       const res = await unassignMentor(internId)
-      if (res.error) setError(res.error)
-      else {
+      if (res.error) {
+        setError(res.error)
+        toast.error(res.error)
+      } else {
         setSelected('')
+        toast.success('Mentor removed')
         router.refresh()
       }
     })

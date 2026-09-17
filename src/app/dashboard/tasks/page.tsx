@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { EmptyState } from '@/components/ui/empty-state'
 
 const STATUS_LABELS: Record<string, string> = {
   todo: 'To do',
@@ -64,10 +65,10 @@ export default async function TasksPage({
 
   const counts = {
     all: allTasks?.length ?? 0,
-    open:
-      allTasks?.filter((t) => t.status !== 'done').length ?? 0,
+    open: allTasks?.filter((t) => t.status !== 'done').length ?? 0,
     todo: allTasks?.filter((t) => t.status === 'todo').length ?? 0,
-    in_progress: allTasks?.filter((t) => t.status === 'in_progress').length ?? 0,
+    in_progress:
+      allTasks?.filter((t) => t.status === 'in_progress').length ?? 0,
     review: allTasks?.filter((t) => t.status === 'review').length ?? 0,
     done: allTasks?.filter((t) => t.status === 'done').length ?? 0,
   }
@@ -105,9 +106,11 @@ export default async function TasksPage({
       </div>
 
       {!tasks || tasks.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
-          <p className="text-slate-500">No tasks here.</p>
-        </div>
+        <EmptyState
+          icon="✅"
+          title="No tasks here"
+          description="Nothing to work on right now. Your mentor will assign tasks soon."
+        />
       ) : (
         <div className="space-y-3">
           {tasks.map((task: any) => (
@@ -135,7 +138,9 @@ export default async function TasksPage({
                     {task.project?.title}
                     {task.due_date && (
                       <>
-                        {' '}· Due {new Date(task.due_date).toLocaleDateString()}
+                        {' '}
+                        · Due{' '}
+                        {new Date(task.due_date).toLocaleDateString()}
                       </>
                     )}
                   </div>

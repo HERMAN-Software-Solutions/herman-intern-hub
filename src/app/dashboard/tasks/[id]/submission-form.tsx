@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { submitTaskWork, updateTaskStatus } from './actions'
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024 // 25 MB
@@ -27,6 +28,9 @@ export function SubmissionForm({
 
     if (f && f.size > MAX_FILE_SIZE) {
       setError('File must be under 25 MB')
+      toast.error('File too large', {
+        description: 'Maximum file size is 25 MB.',
+      })
       setFile(null)
       e.target.value = ''
       return
@@ -51,7 +55,9 @@ export function SubmissionForm({
     setError(null)
 
     if (!content.trim() || content.trim().length < 10) {
-      setError('Please describe your work (min 10 characters)')
+      const msg = 'Please describe your work (min 10 characters)'
+      setError(msg)
+      toast.error(msg)
       return
     }
 
@@ -62,7 +68,9 @@ export function SubmissionForm({
         try {
           fileBase64 = await fileToBase64(file)
         } catch {
-          setError('Could not read file. Try a smaller one.')
+          const msg = 'Could not read file. Try a smaller one.'
+          setError(msg)
+          toast.error(msg)
           return
         }
       }
@@ -78,11 +86,15 @@ export function SubmissionForm({
 
       if (res.error) {
         setError(res.error)
+        toast.error(res.error)
         return
       }
 
       setContent('')
       setFile(null)
+      toast.success('Work submitted for review', {
+        description: 'Your mentor will review it shortly.',
+      })
       router.refresh()
     })
   }
@@ -90,8 +102,13 @@ export function SubmissionForm({
   function handleMarkInProgress() {
     startTransition(async () => {
       const res = await updateTaskStatus(taskId, 'in_progress')
-      if (res.error) setError(res.error)
-      else router.refresh()
+      if (res.error) {
+        setError(res.error)
+        toast.error(res.error)
+      } else {
+        toast.success('Task marked as in progress')
+        router.refresh()
+      }
     })
   }
 
