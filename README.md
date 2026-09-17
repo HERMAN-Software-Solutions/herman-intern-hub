@@ -139,19 +139,13 @@ docs/certificate-spec.md	Certificate generation spec
 docs/brand.md	Design tokens
 CONTRIBUTING.md	How to contribute
 Screenshots
-
 <div align="center">
-
-Public landing page
-<img src="public/brand/screenshot-landing.png" alt="Landing page" width="720" />
-
-Login
-<img src="public/brand/screenshot-login.png" alt="Login page" width="720" />
-
 Admin dashboard
 <img src="public/brand/screenshot-admin.png" alt="Admin dashboard" width="720" />
-
-</div>
+Public landing page
+<img src="public/brand/screenshot-landing.png" alt="Landing page" width="720" />
+Certificate
+<img src="public/brand/screenshot-certificate.png" alt="Certificate" width="720" /></div>
 Project structure
 text
 herman-intern-hub/
