@@ -1,0 +1,105 @@
+name: 🐛 Bug report
+description: Report something that isn't working
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill this out so we can help you faster.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the actual behavior you saw.
+      placeholder: When I clicked "Approve", the modal stayed open...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: Describe what you thought should happen.
+      placeholder: The modal should close and the list should update.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Go to /admin/applications
+        2. Click on any application
+        3. Click "Approve & invite"
+        4. Fill in the fields
+        5. Click "Send invitation"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: role
+    attributes:
+      label: Which role were you using?
+      options:
+        - Public visitor (no login)
+        - Applicant
+        - Intern
+        - Mentor
+        - Admin
+        - Super admin
+    validations:
+      required: false
+
+  - type: input
+    id: url
+    attributes:
+      label: URL
+      description: If the bug is on a specific page, paste the URL.
+      placeholder: https://herman-intern-hub.vercel.app/admin/interns/...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Where did this happen?
+      options:
+        - Production (herman-intern-hub.vercel.app)
+        - Local development
+        - Preview deployment
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome / Edge
+        - Firefox
+        - Safari
+        - Mobile browser
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / video
+      description: If applicable, drag screenshots here.
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console / server errors
+      description: Paste any errors from the browser console or Vercel logs.
+      render: shell
+    validations:
+      required: false

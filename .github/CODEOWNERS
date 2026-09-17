@@ -1,0 +1,15 @@
+# Default owner for everything
+* @jiangsalim
+
+# Admin dashboard — requires HERMAN team review
+/src/app/admin/ @jiangsalim
+
+# Security-sensitive areas
+/src/lib/supabase/ @jiangsalim
+/src/middleware.ts @jiangsalim
+/src/lib/certificates/ @jiangsalim
+
+# Docs
+/docs/ @jiangsalim
+/SPEC.md @jiangsalim
+/ROADMAP.md @jiangsalim
