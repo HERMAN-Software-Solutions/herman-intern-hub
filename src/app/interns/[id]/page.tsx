@@ -184,7 +184,7 @@ export default async function InternProfilePage({
         )}
 
         {/* Stats */}
-        <div className="mt-10 grid grid-cols-3 gap-4">
+        <div className="mt-10 grid grid-cols-3 gap-3 sm:gap-4">
           <Stat
             label="Tasks completed"
             value={completedTasksCount ?? 0}

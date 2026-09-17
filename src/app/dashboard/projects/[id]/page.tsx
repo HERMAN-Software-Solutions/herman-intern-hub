@@ -46,7 +46,7 @@ export default async function ProjectDetailPage({
     .order('due_date', { ascending: true, nullsFirst: false })
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
       <Link
         href="/dashboard/projects"
         className="text-sm text-slate-500 hover:text-slate-900"

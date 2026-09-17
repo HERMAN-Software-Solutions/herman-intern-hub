@@ -124,7 +124,7 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
         {/* Projects */}
         <div className="bg-white border border-slate-200 rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">

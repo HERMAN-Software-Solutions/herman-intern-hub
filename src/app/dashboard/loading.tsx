@@ -20,7 +20,7 @@ export default function DashboardLoading() {
       </div>
 
       {/* Two columns */}
-      <div className="grid grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
         {[0, 1].map((i) => (
           <div
             key={i}

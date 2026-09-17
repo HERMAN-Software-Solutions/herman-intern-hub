@@ -73,7 +73,7 @@ export function ProfileForm({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className={labelClass}>
             University <span className="text-red-500">*</span>

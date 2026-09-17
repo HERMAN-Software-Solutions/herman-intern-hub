@@ -56,7 +56,7 @@ export default async function InternDetailPage({
     intern.status === 'onboarding'
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
       <Link
         href="/admin/interns"
         className="text-sm text-slate-500 hover:text-slate-900"
@@ -77,7 +77,7 @@ export default async function InternDetailPage({
         <StatusBadge status={intern.status} />
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mt-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
         <Card title="Academic">
           <Row label="University" value={intern.university} />
           <Row label="Course" value={intern.course} />

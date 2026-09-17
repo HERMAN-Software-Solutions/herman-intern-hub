@@ -77,7 +77,7 @@ export default async function TaskDetailPage({
   const isLocked = task.status === 'done' || hasPending
 
   return (
-    <div className="p-8 max-w-4xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
       <Link
         href="/dashboard/tasks"
         className="text-sm text-slate-500 hover:text-slate-900"

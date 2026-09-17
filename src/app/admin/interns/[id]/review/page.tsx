@@ -27,7 +27,7 @@ export default async function ReviewPage({
     .maybeSingle()
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl">
       <Link
         href={`/admin/interns/${id}`}
         className="text-sm text-slate-500 hover:text-slate-900"

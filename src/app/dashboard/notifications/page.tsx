@@ -18,7 +18,7 @@ export default async function NotificationsPage() {
     .limit(100)
 
   return (
-    <div className="p-8 max-w-3xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">Notifications</h1>
         <p className="text-slate-500 mt-1">
