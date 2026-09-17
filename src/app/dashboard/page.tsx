@@ -56,12 +56,16 @@ export default async function DashboardPage() {
     .order('due_date', { ascending: true })
     .limit(5)
 
-  const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
+  const displayName =
+  profile?.full_name?.trim().split(' ')[0] &&
+  profile.full_name.trim().split(' ')[0].toLowerCase() !== 'herman'
+    ? profile.full_name.trim().split(' ')[0]
+    : null
 
   return (
-    <div className="p-8 max-w-5xl">
-      <h1 className="text-3xl font-bold text-slate-900">
-        Welcome, {firstName} 👋
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
+      <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+       {displayName ? `Welcome back, ${displayName}` : 'Welcome back'}
       </h1>
       <p className="text-slate-500 mt-1">
         {profile?.start_date && profile?.end_date

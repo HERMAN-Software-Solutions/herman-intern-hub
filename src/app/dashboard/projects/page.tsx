@@ -31,7 +31,7 @@ export default async function ProjectsPage() {
     .order('assigned_at', { ascending: false })
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-900">My Projects</h1>
         <p className="text-slate-500 mt-1">
