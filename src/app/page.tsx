@@ -31,7 +31,7 @@ export default async function Home() {
     .limit(4)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div id="main-content" className="min-h-screen bg-white">
       <PublicNav />
 
       {/* ─── Hero ─────────────────────────────────────── */}

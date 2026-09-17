@@ -29,7 +29,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen bg-slate-50">
       <InternSidebar internName={profile.full_name ?? profile.email} />
-      <main className="flex-1 overflow-x-auto flex flex-col">
+      <main id="main-content" className="flex-1 overflow-x-auto flex flex-col">
         <div className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-slate-200 px-6 py-3 flex items-center justify-end">
           <NotificationBell />
         </div>

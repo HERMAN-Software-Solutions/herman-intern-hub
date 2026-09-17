@@ -149,10 +149,14 @@ export function SubmissionForm({
       </div>
 
       <div className="mt-5">
-        <label className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          htmlFor="submission-file"
+          className="block text-sm font-medium text-slate-700 mb-1"
+        >
           Attach a file (optional)
         </label>
         <input
+          id="submission-file"
           type="file"
           onChange={handleFileChange}
           accept={ACCEPT}

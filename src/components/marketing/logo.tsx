@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export function Logo({
   href = '/',
@@ -12,10 +13,12 @@ export function Logo({
 
   return (
     <Link href={href} className="flex items-center gap-2.5 group">
-      <img
-        src="/brand/logo.png"
-        alt="HERMAN"
-        className={`${dims} rounded object-contain`}
+      <Image
+       src="/brand/logo.png"
+       alt="HERMAN Intern Hub"
+       width={40}
+       height={40}
+       className={`${dims} rounded object-contain`}
       />
       <span
         className={`${text} font-bold text-slate-900 tracking-tight group-hover:text-slate-700 transition-colors`}
