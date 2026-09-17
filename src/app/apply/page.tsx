@@ -1,35 +1,65 @@
-import { ApplyForm } from './apply-form'
+import Link from 'next/link'
+import { StandaloneLayout } from '@/components/layout/standalone-layout'
 
 export const metadata = {
-  title: 'Apply for an Internship — HERMAN Intern Hub',
-  description:
-    'Join HERMAN Software Solutions as an intern. Real projects, real mentorship, real experience.',
+  title: 'Application received — HERMAN Intern Hub',
 }
 
-export default function ApplyPage() {
+export default function SuccessPage() {
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Apply for an internship
-          </h1>
-          <p className="text-slate-600 mt-2">
-            Takes about 5 minutes. We review every application.
-          </p>
-        </div>
+    <StandaloneLayout>
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 text-center">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-          <ApplyForm />
+          <h1 className="text-2xl font-bold text-slate-900">
+            Application received
+          </h1>
+          <p className="text-slate-600 mt-3">
+            Thanks for applying to HERMAN Software Solutions. We&apos;ll
+            review your application within 5 working days.
+          </p>
+
+          <div className="mt-6 pt-6 border-t border-slate-100">
+            <p className="text-sm text-slate-500 mb-4">
+              You can check your status anytime by entering your email.
+            </p>
+
+            <Link
+              href="/apply/status"
+              className="inline-block w-full bg-slate-900 hover:bg-slate-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors"
+            >
+              Check my status →
+            </Link>
+          </div>
         </div>
 
         <p className="text-center text-sm text-slate-500 mt-6">
-          Already applied?{' '}
-          <a href="/apply/status" className="text-blue-600 hover:underline font-medium">
-            Check your status
+          Follow us at{' '}
+          <a
+            href="https://herman-software-website.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            herman-software-website.vercel.app
           </a>
         </p>
       </div>
-    </div>
+    </StandaloneLayout>
   )
 }

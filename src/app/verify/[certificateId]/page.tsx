@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { StandaloneLayout } from '@/components/layout/standalone-layout'
 
 export const metadata = {
   title: 'Verify Certificate — HERMAN Software Solutions',
@@ -31,11 +32,21 @@ export default async function VerifyPage({
     .eq('type', 'certificate')
     .maybeSingle()
 
-  if (!doc) {
-    return <NotFound certificateId={certificateId} />
-  }
+  return (
+    <StandaloneLayout>
+      <div className="w-full max-w-lg">
+        {!doc ? (
+          <NotFoundView certificateId={certificateId} />
+        ) : (
+          <VerifiedView doc={doc} />
+        )}
+      </div>
+    </StandaloneLayout>
+  )
+}
 
-  const internRaw = (doc as any).intern
+function VerifiedView({ doc }: { doc: any }) {
+  const internRaw = doc.intern
   const intern = Array.isArray(internRaw) ? internRaw[0] : internRaw
 
   const score = Number(doc.performance_score ?? 0)
@@ -51,87 +62,98 @@ export default async function VerifyPage({
             : 'Needs Improvement'
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
-      <div className="max-w-lg w-full">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-          {/* Success badge */}
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-green-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Certificate Verified
-            </h1>
-            <p className="text-sm text-slate-500 mt-1">
-              This certificate is authentic and was issued by HERMAN Software
-              Solutions Limited.
-            </p>
-          </div>
-
-          {/* Details */}
-          <div className="space-y-3 pt-6 border-t border-slate-200">
-            <Row
-              label="Certificate ID"
-              value={doc.certificate_id ?? '—'}
-              mono
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+      <div className="text-center mb-6">
+        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg
+            className="w-8 h-8 text-green-600"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M5 13l4 4L19 7"
             />
-            <Row
-              label="Issued to"
-              value={intern?.full_name ?? intern?.email ?? '—'}
-            />
-            {intern?.university && (
-              <Row
-                label="University"
-                value={intern.university}
-              />
-            )}
-            <Row
-              label="Issued on"
-              value={new Date(doc.issued_date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            />
-            <Row
-              label="Performance"
-              value={
-                <span className={`font-semibold ${BAND_COLORS[band] ?? ''}`}>
-                  {band} ({score.toFixed(1)} / 5.0)
-                </span>
-              }
-            />
-          </div>
-
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-slate-200 text-center text-xs text-slate-500">
-            HERMAN Software Solutions Limited
-            <br />
-            Jinja, Gabula Rd, Uganda
-            <br />
-            infohermansoftware@gmail.com · +256 772 723 188
-          </div>
+          </svg>
         </div>
-
-        <p className="text-center text-xs text-slate-500 mt-6">
-          Looking for a different certificate?{' '}
-          <Link href="/" className="text-blue-600 hover:underline">
-            Go home
-          </Link>
+        <h1 className="text-2xl font-bold text-slate-900">
+          Certificate verified
+        </h1>
+        <p className="text-sm text-slate-500 mt-1">
+          This certificate is authentic and was issued by HERMAN Software
+          Solutions Limited.
         </p>
       </div>
+
+      <div className="space-y-3 pt-6 border-t border-slate-200">
+        <Row
+          label="Certificate ID"
+          value={doc.certificate_id ?? '—'}
+          mono
+        />
+        <Row
+          label="Issued to"
+          value={intern?.full_name ?? intern?.email ?? '—'}
+        />
+        {intern?.university && (
+          <Row label="University" value={intern.university} />
+        )}
+        <Row
+          label="Issued on"
+          value={new Date(doc.issued_date).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })}
+        />
+        <Row
+          label="Performance"
+          value={
+            <span className={`font-semibold ${BAND_COLORS[band] ?? ''}`}>
+              {band} ({score.toFixed(1)} / 5.0)
+            </span>
+          }
+        />
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-slate-200 text-center text-xs text-slate-500">
+        HERMAN Software Solutions Limited
+        <br />
+        Jinja, Gabula Rd, Uganda
+        <br />
+        infohermansoftware@gmail.com · +256 772 723 188
+      </div>
+    </div>
+  )
+}
+
+function NotFoundView({ certificateId }: { certificateId: string }) {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 text-center">
+      <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
+        <span className="text-3xl">⚠️</span>
+      </div>
+      <h1 className="text-xl font-bold text-slate-900">
+        Certificate not found
+      </h1>
+      <p className="text-sm text-slate-600 mt-3">
+        We couldn&apos;t verify the certificate with ID:
+      </p>
+      <code className="block mt-3 text-xs bg-slate-50 border border-slate-200 p-3 rounded font-mono break-all">
+        {certificateId}
+      </code>
+      <p className="text-xs text-slate-500 mt-4">
+        If you believe this is an error, contact us at{' '}
+        <a
+          href="mailto:infohermansoftware@gmail.com"
+          className="text-blue-600 hover:underline"
+        >
+          infohermansoftware@gmail.com
+        </a>
+      </p>
     </div>
   )
 }
@@ -155,36 +177,6 @@ function Row({
       >
         {value}
       </span>
-    </div>
-  )
-}
-
-function NotFound({ certificateId }: { certificateId: string }) {
-  return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
-        <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="text-3xl">⚠️</span>
-        </div>
-        <h1 className="text-xl font-bold text-slate-900">
-          Certificate not found
-        </h1>
-        <p className="text-sm text-slate-600 mt-3">
-          We couldn&apos;t verify the certificate with ID:
-        </p>
-        <code className="block mt-3 text-xs bg-slate-50 border border-slate-200 p-3 rounded font-mono break-all">
-          {certificateId}
-        </code>
-        <p className="text-xs text-slate-500 mt-4">
-          If you believe this is an error, contact us at{' '}
-          <a
-            href="mailto:infohermansoftware@gmail.com"
-            className="text-blue-600 hover:underline"
-          >
-            infohermansoftware@gmail.com
-          </a>
-        </p>
-      </div>
     </div>
   )
 }
