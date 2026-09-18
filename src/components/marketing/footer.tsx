@@ -23,10 +23,16 @@ export function PublicFooter() {
               className="h-8 w-8 rounded object-contain bg-white/10 p-0.5"
             />
             <div>
-              <div className="font-bold text-white text-base leading-tight">
+              <div
+                className="font-bold text-base leading-tight"
+                style={{ color: '#ffffff' }}
+              >
                 HERMAN
               </div>
-              <div className="text-[10px] text-slate-400 leading-tight uppercase tracking-wider">
+              <div
+                className="text-[10px] leading-tight uppercase tracking-wider"
+                style={{ color: '#94a3b8' }}
+              >
                 Intern Hub
               </div>
             </div>
@@ -41,10 +47,16 @@ export function PublicFooter() {
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
-            <span className="text-[11px] bg-white/5 border border-white/10 text-slate-300 px-2.5 py-1 rounded-full">
+            <span
+              className="text-[11px] bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
+              style={{ color: '#cbd5e1' }}
+            >
               🇺🇬 Built in Uganda
             </span>
-            <span className="text-[11px] bg-white/5 border border-white/10 text-slate-300 px-2.5 py-1 rounded-full">
+            <span
+              className="text-[11px] bg-white/5 border border-white/10 px-2.5 py-1 rounded-full"
+              style={{ color: '#cbd5e1' }}
+            >
               Remote-first
             </span>
           </div>
@@ -52,14 +64,18 @@ export function PublicFooter() {
 
         {/* Explore */}
         <div>
-          <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-4">
+          <h3
+            className="text-xs font-semibold uppercase tracking-wider mb-4"
+            style={{ color: '#ffffff' }}
+          >
             Explore
           </h3>
           <ul className="space-y-2.5 text-sm">
             <li>
               <Link
                 href="/about"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 About the Hub
               </Link>
@@ -67,7 +83,8 @@ export function PublicFooter() {
             <li>
               <Link
                 href="/interns"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 Meet our interns
               </Link>
@@ -75,7 +92,8 @@ export function PublicFooter() {
             <li>
               <Link
                 href="/success-stories"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 Success stories
               </Link>
@@ -83,7 +101,8 @@ export function PublicFooter() {
             <li>
               <Link
                 href="/apply"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 Apply
               </Link>
@@ -91,7 +110,8 @@ export function PublicFooter() {
             <li>
               <Link
                 href="/apply/status"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 Check application
               </Link>
@@ -101,14 +121,18 @@ export function PublicFooter() {
 
         {/* Legal */}
         <div>
-          <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-4">
+          <h3
+            className="text-xs font-semibold uppercase tracking-wider mb-4"
+            style={{ color: '#ffffff' }}
+          >
             Legal
           </h3>
           <ul className="space-y-2.5 text-sm">
             <li>
               <Link
                 href="/terms"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 Terms &amp; Conditions
               </Link>
@@ -116,7 +140,8 @@ export function PublicFooter() {
             <li>
               <Link
                 href="/privacy"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 Privacy Policy
               </Link>
@@ -124,7 +149,8 @@ export function PublicFooter() {
             <li>
               <Link
                 href="/cookies"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 Cookie Policy
               </Link>
@@ -134,7 +160,10 @@ export function PublicFooter() {
 
         {/* Contact */}
         <div>
-          <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-4">
+          <h3
+            className="text-xs font-semibold uppercase tracking-wider mb-4"
+            style={{ color: '#ffffff' }}
+          >
             Contact
           </h3>
           <ul className="space-y-2.5 text-sm">
@@ -142,7 +171,8 @@ export function PublicFooter() {
             <li>
               <a
                 href="mailto:infohermansoftware@gmail.com"
-                className="text-slate-400 hover:text-white transition-colors break-all"
+                className="transition-colors hover:text-white break-all"
+                style={{ color: '#94a3b8' }}
               >
                 infohermansoftware@gmail.com
               </a>
@@ -150,7 +180,8 @@ export function PublicFooter() {
             <li>
               <a
                 href="tel:+256772723188"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors hover:text-white"
+                style={{ color: '#94a3b8' }}
               >
                 +256 772 723 188
               </a>
@@ -170,7 +201,7 @@ export function PublicFooter() {
               href="https://herman-software-website.vercel.app"
               target="_blank"
               rel="noopener noreferrer"
-              className="transition-colors"
+              className="transition-colors hover:text-white"
               style={{ color: '#64748b' }}
             >
               Developed by the HERMAN Internship Team →

@@ -4,20 +4,24 @@ import { useEffect, useRef, useState } from 'react'
 
 export function AnimatedCounter({
   to,
-  duration = 1500,
+  duration = 1800,
   suffix = '',
+  prefix = '',
   className = '',
+  style,
 }: {
   to: number
   duration?: number
   suffix?: string
+  prefix?: string
   className?: string
+  style?: React.CSSProperties
 }) {
   const [count, setCount] = useState(0)
   const ref = useRef<HTMLSpanElement>(null)
   const [started, setStarted] = useState(false)
 
-  // Start counting when element scrolls into view
+  // Start when element scrolls into view
   useEffect(() => {
     const el = ref.current
     if (!el) return
@@ -34,6 +38,7 @@ export function AnimatedCounter({
     return () => observer.disconnect()
   }, [started])
 
+  // Animate
   useEffect(() => {
     if (!started) return
 
@@ -52,8 +57,7 @@ export function AnimatedCounter({
     function tick(now: number) {
       const elapsed = now - start
       const progress = Math.min(elapsed / duration, 1)
-
-      // Ease-out cubic
+      // Ease-out cubic for a nice deceleration
       const eased = 1 - Math.pow(1 - progress, 3)
       setCount(Math.round(eased * to))
 
@@ -67,7 +71,8 @@ export function AnimatedCounter({
   }, [started, to, duration])
 
   return (
-    <span ref={ref} className={className}>
+    <span ref={ref} className={className} style={style}>
+      {prefix}
       {count}
       {suffix}
     </span>

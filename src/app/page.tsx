@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PublicNav } from '@/components/marketing/nav'
 import { PublicFooter } from '@/components/marketing/footer'
 import { AnimatedCounter } from '@/components/marketing/animated-counter'
+import { TypewriterText } from '@/components/marketing/typewriter-text'
 
 export const metadata = {
   title: 'HERMAN Intern Hub — Launch your software career',
@@ -123,34 +124,45 @@ export default async function Home() {
       </section>
 
       {/* ─── STATS STRIP ──────────────────────────────── */}
-      <section className="bg-white border-b border-slate-200">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center">
-            <div>
-              <AnimatedCounter
-                to={30}
-                suffix="+"
-                className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
-              />
-              <div className="text-sm text-slate-500 mt-1">
-                Intern positions planned
-              </div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
-                100%
-              </div>
-              <div className="text-sm text-slate-500 mt-1">Mentor-led</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold text-green-600 tracking-tight">
-                Free
-              </div>
-              <div className="text-sm text-slate-500 mt-1">To apply</div>
-            </div>
-          </div>
+<section className="bg-white border-b border-slate-200">
+  <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center">
+      <div>
+        <AnimatedCounter
+          to={30}
+          suffix="+"
+          className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
+        />
+        <div className="text-sm text-slate-500 mt-1">
+          Intern positions planned
         </div>
-      </section>
+      </div>
+
+      {/* Animated 100% */}
+      <div>
+        <AnimatedCounter
+          to={100}
+          suffix="%"
+          className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
+        />
+        <div className="text-sm text-slate-500 mt-1">Mentor-led</div>
+      </div>
+
+      {/* Typewriter "Free" */}
+      <div>
+        <div className="text-4xl md:text-5xl font-bold text-green-600 tracking-tight">
+          <TypewriterText
+            text="Free"
+            typingSpeed={180}
+            deletingSpeed={120}
+            pauseTime={2200}
+          />
+        </div>
+        <div className="text-sm text-slate-500 mt-1">To apply</div>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* ─── NOT JUST CODE ─────────────────────────────── */}
       <section className="bg-slate-50 border-b border-slate-200">
