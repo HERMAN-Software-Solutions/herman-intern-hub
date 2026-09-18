@@ -104,15 +104,14 @@ export function PublicFooter() {
                 className="transition-colors hover:text-white"
                 style={{ color: '#94a3b8' }}
               >
-                Apply
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/apply/status"
-                className="transition-colors hover:text-white"
-                style={{ color: '#94a3b8' }}
-              >
+                <li>
+                  <Link
+                    href="/verify"
+                    className="text-slate-400 hover:text-white transition-colors"
+                  >
+                    Verify a certificate
+                  </Link>
+                </li>
                 Check application
               </Link>
             </li>
