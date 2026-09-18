@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Copy, Check, X } from 'lucide-react'
@@ -36,6 +36,24 @@ export function ApproveModal({
   const [isPending, startTransition] = useTransition()
   const [invitationLink, setInvitationLink] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+
+  // Close on Escape key
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    const original = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = original
+    }
+  }, [])
 
   function handleApprove() {
     setError(null)
@@ -77,11 +95,23 @@ export function ApproveModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="approve-modal-title"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
+      onClick={(e) => {
+        // Close when clicking the backdrop (not the modal content)
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
       <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 border-b border-slate-100 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">
+            <h2
+              id="approve-modal-title"
+              className="text-xl font-bold text-slate-900"
+            >
               Approve {applicantName}
             </h2>
             <p className="text-sm text-slate-500 mt-1">{applicantEmail}</p>
@@ -89,7 +119,8 @@ export function ApproveModal({
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-700 transition-colors -mt-1"
-            aria-label="Close"
+            aria-label="Close dialog"
+            type="button"
           >
             <X className="w-5 h-5" />
           </button>
@@ -140,6 +171,7 @@ export function ApproveModal({
             <button
               onClick={onClose}
               className="w-full text-slate-500 hover:text-slate-900 text-sm mt-3 transition-colors"
+              type="button"
             >
               Close
             </button>
@@ -186,7 +218,10 @@ export function ApproveModal({
             />
 
             {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+              <div
+                role="alert"
+                className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3"
+              >
                 {error}
               </div>
             )}

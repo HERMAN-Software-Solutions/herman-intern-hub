@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { savePerformanceReview } from './actions'
+import { Button } from '@/components/ui/button'
 
 export function ReviewForm({
   internId,
@@ -18,9 +20,7 @@ export function ReviewForm({
   }
 }) {
   const router = useRouter()
-  const [mentorRating, setMentorRating] = useState(
-    initial.mentorRating ?? 0
-  )
+  const [mentorRating, setMentorRating] = useState(initial.mentorRating ?? 0)
   const [peerRating, setPeerRating] = useState(initial.peerRating ?? 0)
   const [strengths, setStrengths] = useState(initial.strengths)
   const [improvements, setImprovements] = useState(initial.improvements)
@@ -35,6 +35,7 @@ export function ReviewForm({
 
     if (mentorRating < 1) {
       setError('Please provide a mentor rating (1–5)')
+      toast.error('Mentor rating is required')
       return
     }
 
@@ -50,10 +51,12 @@ export function ReviewForm({
 
       if (res.error) {
         setError(res.error)
+        toast.error(res.error)
         return
       }
 
       setSuccess(true)
+      toast.success('Performance review saved')
       router.refresh()
     })
   }
@@ -62,10 +65,18 @@ export function ReviewForm({
     <div className="space-y-6">
       {/* Mentor rating */}
       <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <label className="block text-sm font-medium text-slate-700 mb-3">
+        <label
+          htmlFor="mentor-rating-group"
+          className="block text-sm font-medium text-slate-700 mb-3"
+        >
           Overall mentor rating <span className="text-red-500">*</span>
         </label>
-        <RatingPicker value={mentorRating} onChange={setMentorRating} />
+        <RatingPicker
+          id="mentor-rating-group"
+          value={mentorRating}
+          onChange={setMentorRating}
+          name="Mentor rating"
+        />
         <p className="text-xs text-slate-500 mt-3">
           1 = Needs improvement · 3 = Meets expectations · 5 = Outstanding
         </p>
@@ -73,18 +84,31 @@ export function ReviewForm({
 
       {/* Peer rating */}
       <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <label className="block text-sm font-medium text-slate-700 mb-3">
+        <label
+          htmlFor="peer-rating-group"
+          className="block text-sm font-medium text-slate-700 mb-3"
+        >
           Peer feedback rating <span className="text-slate-400">(optional)</span>
         </label>
-        <RatingPicker value={peerRating} onChange={setPeerRating} allowNone />
+        <RatingPicker
+          id="peer-rating-group"
+          value={peerRating}
+          onChange={setPeerRating}
+          allowNone
+          name="Peer rating"
+        />
       </div>
 
       {/* Strengths */}
       <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <label className="block text-sm font-medium text-slate-700 mb-2">
+        <label
+          htmlFor="review-strengths"
+          className="block text-sm font-medium text-slate-700 mb-2"
+        >
           Key strengths
         </label>
         <textarea
+          id="review-strengths"
           value={strengths}
           onChange={(e) => setStrengths(e.target.value)}
           rows={3}
@@ -95,10 +119,14 @@ export function ReviewForm({
 
       {/* Areas for improvement */}
       <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <label className="block text-sm font-medium text-slate-700 mb-2">
+        <label
+          htmlFor="review-improvements"
+          className="block text-sm font-medium text-slate-700 mb-2"
+        >
           Areas for improvement
         </label>
         <textarea
+          id="review-improvements"
           value={improvements}
           onChange={(e) => setImprovements(e.target.value)}
           rows={3}
@@ -109,10 +137,14 @@ export function ReviewForm({
 
       {/* Additional comments */}
       <div className="bg-white border border-slate-200 rounded-xl p-6">
-        <label className="block text-sm font-medium text-slate-700 mb-2">
+        <label
+          htmlFor="review-comments"
+          className="block text-sm font-medium text-slate-700 mb-2"
+        >
           Additional comments
         </label>
         <textarea
+          id="review-comments"
           value={comments}
           onChange={(e) => setComments(e.target.value)}
           rows={4}
@@ -122,58 +154,85 @@ export function ReviewForm({
       </div>
 
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+        <div
+          role="alert"
+          className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3"
+        >
           {error}
         </div>
       )}
 
       {success && (
-        <div className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">
+        <div
+          role="status"
+          className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg p-3"
+        >
           ✅ Review saved
         </div>
       )}
 
-      <button
+      <Button
+        type="button"
+        variant="primary"
+        size="lg"
+        fullWidth
         onClick={handleSubmit}
-        disabled={isPending}
-        className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-medium py-3 rounded-lg transition-colors"
+        loading={isPending}
       >
         {isPending ? 'Saving…' : 'Save performance review'}
-      </button>
+      </Button>
     </div>
   )
 }
 
+// ─── Rating picker ─────────────────────────────────────
+
 function RatingPicker({
+  id,
+  name,
   value,
   onChange,
   allowNone,
 }: {
+  id?: string
+  name?: string
   value: number
   onChange: (v: number) => void
   allowNone?: boolean
 }) {
   return (
-    <div className="flex gap-2">
-      {[1, 2, 3, 4, 5].map((n) => (
-        <button
-          key={n}
-          type="button"
-          onClick={() => onChange(n)}
-          className={`w-12 h-12 rounded-lg border-2 text-lg font-semibold transition-all ${
-            value === n
-              ? 'bg-slate-900 text-white border-slate-900'
-              : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
-          }`}
-        >
-          {n}
-        </button>
-      ))}
+    <div
+      id={id}
+      role="radiogroup"
+      aria-label={name ?? 'Rating'}
+      className="flex gap-2 flex-wrap"
+    >
+      {[1, 2, 3, 4, 5].map((n) => {
+        const selected = value === n
+        return (
+          <button
+            key={n}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            aria-label={`Rate ${n} out of 5`}
+            onClick={() => onChange(n)}
+            className={`w-12 h-12 rounded-lg border-2 text-lg font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 ${
+              selected
+                ? 'bg-slate-900 text-white border-slate-900'
+                : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400'
+            }`}
+          >
+            {n}
+          </button>
+        )
+      })}
       {allowNone && value > 0 && (
         <button
           type="button"
           onClick={() => onChange(0)}
-          className="ml-2 text-xs text-slate-500 hover:text-slate-900"
+          aria-label={`Clear ${name ?? 'rating'}`}
+          className="ml-2 text-xs text-slate-500 hover:text-slate-900 transition-colors self-center"
         >
           Clear
         </button>
