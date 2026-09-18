@@ -1,19 +1,34 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ChevronLeft, Star, Paperclip, Check, AlertTriangle, Clock } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { PageHeader } from '@/components/ui/page-header'
+import { Badge } from '@/components/ui/badge'
 import { SubmissionForm } from './submission-form'
 
-const STATUS_COLORS: Record<string, string> = {
-  todo: 'bg-slate-100 text-slate-700',
-  in_progress: 'bg-blue-100 text-blue-700',
-  review: 'bg-amber-100 text-amber-700',
-  done: 'bg-green-100 text-green-700',
+const STATUS_VARIANTS: Record<
+  string,
+  'default' | 'info' | 'warning' | 'success'
+> = {
+  todo: 'default',
+  in_progress: 'info',
+  review: 'warning',
+  done: 'success',
 }
 
-const SUBMISSION_COLORS: Record<string, string> = {
-  pending: 'bg-amber-100 text-amber-800',
-  approved: 'bg-green-100 text-green-800',
-  needs_revision: 'bg-red-100 text-red-800',
+const SUBMISSION_VARIANTS: Record<
+  string,
+  'success' | 'warning' | 'danger'
+> = {
+  pending: 'warning',
+  approved: 'success',
+  needs_revision: 'danger',
+}
+
+const SUBMISSION_LABELS: Record<string, string> = {
+  pending: 'Pending',
+  approved: 'Approved',
+  needs_revision: 'Needs revision',
 }
 
 type Project = { id: string; title: string }
@@ -42,7 +57,6 @@ export default async function TaskDetailPage({
 
   if (!taskRaw) notFound()
 
-  // Normalize Supabase relation (arrays)
   const projectRaw = taskRaw.project as Project | Project[] | null
   const project: Project | null = Array.isArray(projectRaw)
     ? projectRaw[0] ?? null
@@ -58,7 +72,6 @@ export default async function TaskDetailPage({
     project,
   }
 
-  // Submissions for this task
   const { data: submissions } = await supabase
     .from('submissions')
     .select(
@@ -80,51 +93,51 @@ export default async function TaskDetailPage({
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
       <Link
         href="/dashboard/tasks"
-        className="text-sm text-slate-500 hover:text-slate-900"
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-6"
       >
-        ← Back to tasks
+        <ChevronLeft className="w-4 h-4" />
+        Back to tasks
       </Link>
 
-      <div className="mt-4 flex items-start justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
+      <PageHeader
+        title={task.title}
+        description={
+          project ? (
+            <>
+              Project:{' '}
+              <Link
+                href={`/dashboard/projects/${project.id}`}
+                className="text-blue-600 hover:underline"
+              >
+                {project.title}
+              </Link>
+              {task.due_date && (
+                <>
+                  {' · '}Due{' '}
+                  {new Date(task.due_date).toLocaleDateString()}
+                </>
+              )}
+            </>
+          ) : undefined
+        }
+        action={
+          <div className="flex items-center gap-2">
             {task.is_highlight && (
-              <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">
-                ★ Highlight
+              <span className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">
+                <Star className="w-3 h-3 fill-current" />
+                Highlight
               </span>
             )}
-            <h1 className="text-3xl font-bold text-slate-900">{task.title}</h1>
+            <Badge variant={STATUS_VARIANTS[task.status] ?? 'default'}>
+              {task.status.replace('_', ' ')}
+            </Badge>
           </div>
-          <p className="text-sm text-slate-500 mt-1">
-            {project && (
-              <>
-                Project:{' '}
-                <Link
-                  href={`/dashboard/projects/${project.id}`}
-                  className="text-blue-600 hover:underline"
-                >
-                  {project.title}
-                </Link>
-                {task.due_date && (
-                  <> · Due {new Date(task.due_date).toLocaleDateString()}</>
-                )}
-              </>
-            )}
-          </p>
-        </div>
-
-        <span
-          className={`text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap ${
-            STATUS_COLORS[task.status] ?? 'bg-slate-100 text-slate-600'
-          }`}
-        >
-          {task.status.replace('_', ' ')}
-        </span>
-      </div>
+        }
+      />
 
       {task.description && (
-        <div className="mt-6 bg-white border border-slate-200 rounded-xl p-6">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 mb-6">
+          <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
             Description
           </h2>
           <p className="text-sm text-slate-700 whitespace-pre-wrap">
@@ -133,51 +146,51 @@ export default async function TaskDetailPage({
         </div>
       )}
 
-      {/* Revision banner */}
       {needsRevision && (
-        <div className="mt-6 bg-red-50 border border-red-200 rounded-xl p-4">
-          <div className="font-medium text-red-900 text-sm">
-            ⚠️ Your mentor requested revisions
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <div className="font-medium text-red-900 text-sm">
+              Your mentor requested revisions
+            </div>
+            <p className="text-xs text-red-700 mt-1">
+              Review the feedback below and submit again.
+            </p>
           </div>
-          <p className="text-xs text-red-700 mt-1">
-            Review the feedback below and submit again.
-          </p>
         </div>
       )}
 
-      {/* Pending banner */}
       {hasPending && (
-        <div className="mt-6 bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <div className="font-medium text-amber-900 text-sm">
-            ⏳ Waiting for mentor review
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+          <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <div className="font-medium text-amber-900 text-sm">
+              Waiting for mentor review
+            </div>
+            <p className="text-xs text-amber-700 mt-1">
+              You&apos;ll be notified when your submission is reviewed.
+            </p>
           </div>
-          <p className="text-xs text-amber-700 mt-1">
-            You&apos;ll be notified when your submission is reviewed.
-          </p>
         </div>
       )}
 
-      {/* Submission history */}
       {submissions && submissions.length > 0 && (
-        <div className="mt-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-3">
+        <div className="mb-6">
+          <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-3">
             Submission history
           </h2>
           <div className="space-y-3">
             {submissions.map((sub: any) => (
               <div
                 key={sub.id}
-                className="bg-white border border-slate-200 rounded-xl p-5"
+                className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5"
               >
                 <div className="flex items-start justify-between gap-4 mb-3">
-                  <span
-                    className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                      SUBMISSION_COLORS[sub.status] ??
-                      'bg-slate-100 text-slate-600'
-                    }`}
+                  <Badge
+                    variant={SUBMISSION_VARIANTS[sub.status] ?? 'default'}
                   >
-                    {sub.status.replace('_', ' ')}
-                  </span>
+                    {SUBMISSION_LABELS[sub.status] ?? sub.status}
+                  </Badge>
                   <span className="text-xs text-slate-400">
                     {new Date(sub.submitted_at).toLocaleString()}
                   </span>
@@ -194,11 +207,11 @@ export default async function TaskDetailPage({
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 mt-3 text-xs text-blue-600 hover:underline"
                   >
-                    📎 View attached file
+                    <Paperclip className="w-3.5 h-3.5" />
+                    View attached file
                   </a>
                 )}
 
-                {/* Feedback thread */}
                 {sub.feedback && sub.feedback.length > 0 && (
                   <div className="mt-4 pt-4 border-t border-slate-100">
                     <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
@@ -225,17 +238,22 @@ export default async function TaskDetailPage({
         </div>
       )}
 
-      {/* Submission form */}
       {!isLocked ? (
-        <div className="mt-8">
-          <h2 className="text-lg font-semibold text-slate-900 mb-3">
+        <div>
+          <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-3">
             {needsRevision ? 'Resubmit your work' : 'Submit your work'}
           </h2>
           <SubmissionForm taskId={task.id} currentStatus={task.status} />
         </div>
       ) : task.status === 'done' ? (
-        <div className="mt-8 bg-green-50 border border-green-200 rounded-xl p-5 text-sm text-green-800">
-          ✅ This task is complete. Great work!
+        <div className="bg-green-50 border border-green-200 rounded-xl p-5 flex items-start gap-3">
+          <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <div className="font-medium text-green-900 text-sm">
+              Task complete
+            </div>
+            <p className="text-xs text-green-700 mt-0.5">Great work!</p>
+          </div>
         </div>
       ) : null}
     </div>

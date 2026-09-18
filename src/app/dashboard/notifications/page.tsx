@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageHeader } from '@/components/ui/page-header'
 import { NotificationList } from './list'
 
 export const metadata = { title: 'Notifications — HERMAN Intern Hub' }
@@ -19,12 +20,10 @@ export default async function NotificationsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-3xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Notifications</h1>
-        <p className="text-slate-500 mt-1">
-          Updates about your internship.
-        </p>
-      </div>
+      <PageHeader
+        title="Notifications"
+        description="Updates about your internship."
+      />
 
       <NotificationList notifications={notifications ?? []} />
     </div>

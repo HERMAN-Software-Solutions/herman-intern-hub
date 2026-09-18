@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { EmptyState } from '@/components/ui/empty-state'
+import { PageHeader } from '@/components/ui/page-header'
+import { Badge } from '@/components/ui/badge'
 
 const STATUS_LABELS: Record<string, string> = {
   todo: 'To do',
@@ -9,11 +12,11 @@ const STATUS_LABELS: Record<string, string> = {
   done: 'Done',
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  todo: 'bg-slate-100 text-slate-700',
-  in_progress: 'bg-blue-100 text-blue-700',
-  review: 'bg-amber-100 text-amber-700',
-  done: 'bg-green-100 text-green-700',
+const STATUS_VARIANTS: Record<string, 'default' | 'info' | 'warning' | 'success'> = {
+  todo: 'default',
+  in_progress: 'info',
+  review: 'warning',
+  done: 'success',
 }
 
 const FILTERS = [
@@ -75,12 +78,10 @@ export default async function TasksPage({
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
-      <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">My Tasks</h1>
-        <p className="text-slate-500 mt-1">
-          All tasks assigned to you across projects.
-        </p>
-      </div>
+      <PageHeader
+        title="My Tasks"
+        description="All tasks assigned to you across projects."
+      />
 
       {/* Filter tabs */}
       <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
@@ -117,17 +118,20 @@ export default async function TasksPage({
             <Link
               key={task.id}
               href={`/dashboard/tasks/${task.id}`}
-              className="block bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 transition-colors"
+              className="block bg-white border border-slate-200 rounded-xl p-4 sm:p-5 hover:border-slate-400 hover:shadow-sm transition-all"
             >
               <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {task.is_highlight && (
-                      <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">
-                        ★ Highlight
+                      <span className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">
+                        <Star className="w-3 h-3 fill-current" />
+                        Highlight
                       </span>
                     )}
-                    <h3 className="font-medium text-slate-900">{task.title}</h3>
+                    <h3 className="font-medium text-slate-900">
+                      {task.title}
+                    </h3>
                   </div>
                   {task.description && (
                     <p className="text-sm text-slate-500 mt-1 line-clamp-2">
@@ -146,13 +150,9 @@ export default async function TasksPage({
                   </div>
                 </div>
 
-                <span
-                  className={`text-xs font-medium px-2.5 py-1 rounded-full whitespace-nowrap ${
-                    STATUS_COLORS[task.status] ?? 'bg-slate-100 text-slate-600'
-                  }`}
-                >
+                <Badge variant={STATUS_VARIANTS[task.status] ?? 'default'}>
                   {STATUS_LABELS[task.status] ?? task.status}
-                </span>
+                </Badge>
               </div>
             </Link>
           ))}

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { PageHeader } from '@/components/ui/page-header'
 import { LogsClient } from './logs-client'
 
 export const metadata = { title: 'Daily log — HERMAN Intern Hub' }
@@ -10,7 +11,6 @@ export default async function LogsPage() {
   } = await supabase.auth.getUser()
   if (!user) return null
 
-  // Fetch last 30 days of logs
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
@@ -26,18 +26,12 @@ export default async function LogsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">Daily Log</h1>
-        <p className="text-slate-500 mt-1">
-          Log your work each day. We compile weekly reports automatically.
-        </p>
-      </div>
-
-      <LogsClient
-        today={today}
-        todayLog={todayLog ?? null}
-        logs={logs ?? []}
+      <PageHeader
+        title="Daily Log"
+        description="Log your work each day. We compile weekly reports automatically."
       />
+
+      <LogsClient today={today} todayLog={todayLog ?? null} logs={logs ?? []} />
     </div>
   )
 }

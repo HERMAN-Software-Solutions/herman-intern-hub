@@ -1,13 +1,19 @@
 import Link from 'next/link'
+import { Calendar, Briefcase } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { EmptyState } from '@/components/ui/empty-state'
+import { PageHeader } from '@/components/ui/page-header'
+import { Badge } from '@/components/ui/badge'
 
-const STATUS_COLORS: Record<string, string> = {
-  planning: 'bg-slate-100 text-slate-700',
-  active: 'bg-blue-100 text-blue-700',
-  review: 'bg-amber-100 text-amber-700',
-  completed: 'bg-green-100 text-green-700',
-  archived: 'bg-slate-100 text-slate-500',
+const STATUS_VARIANTS: Record<
+  string,
+  'default' | 'info' | 'warning' | 'success' | 'neutral'
+> = {
+  planning: 'default',
+  active: 'info',
+  review: 'warning',
+  completed: 'success',
+  archived: 'neutral',
 }
 
 export const metadata = { title: 'Projects — HERMAN Intern Hub' }
@@ -32,12 +38,10 @@ export default async function ProjectsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-900">My Projects</h1>
-        <p className="text-slate-500 mt-1">
-          Projects you&apos;ve been assigned to.
-        </p>
-      </div>
+      <PageHeader
+        title="My Projects"
+        description="Projects you've been assigned to."
+      />
 
       {!assignments || assignments.length === 0 ? (
         <EmptyState
@@ -54,22 +58,18 @@ export default async function ProjectsPage() {
               <Link
                 key={a.id}
                 href={`/dashboard/projects/${p.id}`}
-                className="block bg-white border border-slate-200 rounded-xl p-6 hover:border-slate-400 transition-colors"
+                className="group block bg-white border border-slate-200 rounded-xl p-5 sm:p-6 hover:border-slate-400 hover:shadow-sm transition-all"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <span
-                    className={`text-xs font-medium px-2.5 py-1 rounded-full ${
-                      STATUS_COLORS[p.status] ?? 'bg-slate-100 text-slate-600'
-                    }`}
-                  >
+                <div className="flex items-start justify-between mb-3 gap-3">
+                  <Badge variant={STATUS_VARIANTS[p.status] ?? 'default'}>
                     {p.status}
-                  </span>
+                  </Badge>
                   <span className="text-xs text-slate-400 capitalize">
                     {a.role}
                   </span>
                 </div>
 
-                <h3 className="font-semibold text-slate-900 text-lg">
+                <h3 className="font-semibold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">
                   {p.title}
                 </h3>
 
@@ -79,15 +79,17 @@ export default async function ProjectsPage() {
                   </p>
                 )}
 
-                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                  <span>
+                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 gap-2">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar className="w-3 h-3" />
                     {p.due_date
                       ? `Due ${new Date(p.due_date).toLocaleDateString()}`
                       : 'No due date'}
                   </span>
                   {p.is_client_project && (
-                    <span className="text-blue-600 font-medium">
-                      Client project
+                    <span className="text-blue-600 font-medium inline-flex items-center gap-1">
+                      <Briefcase className="w-3 h-3" />
+                      Client
                     </span>
                   )}
                 </div>
