@@ -93,7 +93,10 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-4 overflow-y-auto">
+      <nav
+        aria-label="Admin navigation"
+        className="flex-1 px-3 py-4 overflow-y-auto"
+      >
         {NAV_GROUPS.map((group, gi) => (
           <div key={gi} className={gi > 0 ? 'mt-5' : ''}>
             {group.label && (
@@ -111,6 +114,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={active ? 'page' : undefined}
                     className={`relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
                       active
                         ? 'bg-slate-800 text-white'
@@ -118,9 +122,15 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
                     }`}
                   >
                     {active && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-blue-500 rounded-full" />
+                      <span
+                        aria-hidden="true"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-blue-500 rounded-full"
+                      />
                     )}
-                    <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+                    <Icon
+                      aria-hidden="true"
+                      className="w-[18px] h-[18px] flex-shrink-0"
+                    />
                     <span>{item.label}</span>
                   </Link>
                 )
@@ -133,7 +143,10 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
       {/* User footer */}
       <div className="border-t border-slate-800 p-3">
         <div className="flex items-center gap-3 px-2 py-1.5">
-          <div className="w-8 h-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0">
+          <div
+            aria-hidden="true"
+            className="w-8 h-8 rounded-full bg-slate-700 text-white flex items-center justify-center text-xs font-semibold flex-shrink-0"
+          >
             {adminName.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
@@ -141,10 +154,11 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
               {adminName}
             </div>
             <button
+              type="button"
               onClick={handleSignOut}
               className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-white mt-0.5 transition-colors"
             >
-              <LogOut className="w-3 h-3" />
+              <LogOut aria-hidden="true" className="w-3 h-3" />
               <span>Sign out</span>
             </button>
           </div>

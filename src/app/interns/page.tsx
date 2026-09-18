@@ -28,7 +28,7 @@ export default async function InternsDirectoryPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="min-h-screen bg-white">
+    <div id="main-content" className="min-h-screen bg-white">
       <PublicNav />
 
       <section className="max-w-6xl mx-auto px-6 py-16">
