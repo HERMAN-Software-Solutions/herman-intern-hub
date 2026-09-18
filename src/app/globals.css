@@ -107,17 +107,13 @@ select:focus {
   outline: none;
 }
 
-/* ─── Headings default to dark ────────────────────── */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+/* ─── Headings + paragraphs default to dark ──────── */
+/* Wrapped in :where() so these rules have ZERO specificity.
+   Any Tailwind class (like text-white) overrides them automatically. */
+:where(h1, h2, h3, h4, h5, h6) {
   color: #0f172a;
 }
 
-/* ─── Paragraphs default to readable dark ─────────── */
-p {
+:where(p) {
   color: #334155;
 }

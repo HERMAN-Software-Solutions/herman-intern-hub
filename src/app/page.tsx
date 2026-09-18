@@ -1,4 +1,14 @@
 import Link from 'next/link'
+import {
+  ArrowRight,
+  Palette,
+  FileText,
+  MessageSquare,
+  GitBranch,
+  ClipboardCheck,
+  Award,
+  Sparkles,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { PublicNav } from '@/components/marketing/nav'
 import { PublicFooter } from '@/components/marketing/footer'
@@ -7,7 +17,7 @@ import { AnimatedCounter } from '@/components/marketing/animated-counter'
 export const metadata = {
   title: 'HERMAN Intern Hub — Launch your software career',
   description:
-    'Join HERMAN Software Solutions as an intern. Real projects, real mentorship, real experience. Apply today.',
+    'Join HERMAN Software Solutions as an intern. Work on real projects, learn from senior engineers, and ship production software.',
 }
 
 export default async function Home() {
@@ -27,26 +37,26 @@ export default async function Home() {
     <div id="main-content" className="min-h-screen bg-white">
       <PublicNav />
 
-      {/* ─── Hero ─────────────────────────────────────── */}
+      {/* ─── HERO ──────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/40" />
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-28">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 text-xs font-medium text-blue-700 mb-6">
               <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
               Applications open
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight leading-[1.1]">
+            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight leading-[1.05]">
               Launch your software career with{' '}
               <span className="text-blue-600">HERMAN</span>
             </h1>
 
             <p className="text-lg md:text-xl text-slate-600 mt-6 leading-relaxed max-w-2xl">
-              Work on real projects with real mentors — learning the same
-              tools and patterns we use for paying clients. From Jinja, for
-              anyone with an internet connection.
+              Learn software engineering the way it&apos;s actually done — real
+              projects, code reviews, design discussions, documentation, and
+              mentorship from engineers who ship production systems every day.
             </p>
 
             <div className="flex flex-wrap gap-3 mt-8">
@@ -55,19 +65,7 @@ export default async function Home() {
                 className="group inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
               >
                 <span>Apply for internship</span>
-                <svg
-                  className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/interns"
@@ -77,7 +75,7 @@ export default async function Home() {
               </Link>
             </div>
 
-            {/* Stats — animated counter + solid numbers */}
+            {/* Stats */}
             <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl">
               <div className="text-center sm:text-left">
                 <AnimatedCounter
@@ -112,103 +110,180 @@ export default async function Home() {
                 <span className="font-medium">Now accepting applications</span>
               </div>
               <div className="hidden sm:block w-px h-4 bg-slate-200" />
-              <div className="flex items-center gap-2 text-slate-500">
-                <span>Remote-first</span>
-              </div>
+              <div className="text-slate-500">Remote-first</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── What you'll work with ─────────────────────── */}
+      {/* ─── NOT JUST CODE ─────────────────────────────── */}
+      <section className="bg-slate-50 border-y border-slate-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
+          <div className="max-w-3xl mb-12">
+            <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 text-xs font-medium text-amber-800 mb-4">
+              <Sparkles className="w-3 h-3" />
+              What sets us apart
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+              Software engineering is more than writing code
+            </h2>
+            <p className="text-slate-600 mt-4 text-lg leading-relaxed">
+              At HERMAN, interns learn the full craft — from understanding a
+              problem to shipping a solution. Real clients. Real deadlines.
+              Real reviews.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[
+              {
+                icon: Palette,
+                title: 'Design & UX',
+                body: 'Wireframes, user flows, and interface thinking. You ship screens that real people use — not just endpoints.',
+              },
+              {
+                icon: FileText,
+                title: 'Documentation',
+                body: 'Specs, API docs, and READMEs. You learn how to explain your work so teams can build on it.',
+              },
+              {
+                icon: GitBranch,
+                title: 'Version control',
+                body: 'Branches, pull requests, code reviews. Every line of code you write goes through a real review process.',
+              },
+              {
+                icon: MessageSquare,
+                title: 'Client communication',
+                body: 'Standups, demos, feedback rounds. You present your work to real stakeholders.',
+              },
+              {
+                icon: ClipboardCheck,
+                title: 'Testing & quality',
+                body: 'You write tests, handle edge cases, and learn what "production-ready" actually means.',
+              },
+              {
+                icon: Award,
+                title: 'Professional habits',
+                body: 'Time management, clear communication, and owning your work — the skills that separate juniors from engineers.',
+              },
+            ].map((item) => {
+              const Icon = item.icon
+              return (
+                <div
+                  key={item.title}
+                  className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-sm transition-all duration-200"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-slate-900 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-semibold text-slate-900 mb-1.5">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {item.body}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── LIFE AT HERMAN (Photos) ────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-        <div className="max-w-2xl mb-10 md:mb-12">
+        <div className="max-w-2xl mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-            What you&apos;ll work with
+            Life at HERMAN
           </h2>
           <p className="text-slate-600 mt-4 text-lg">
-            The same tools and patterns we use to ship real products for
-            clients — not toy exercises.
+            A working studio — pairing, designing, reviewing, shipping.
+            Remote-first, but never alone.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
           {[
-            'React',
-            'Next.js',
-            'Tailwind CSS',
-            'Node.js',
-            'Python',
-            'PostgreSQL',
-            'MongoDB',
-            'Docker',
-            'AWS',
-            'React Native',
-            'Flutter',
-            'Git',
-          ].map((tech) => (
-            <span
-              key={tech}
-              className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm font-medium text-slate-700 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-colors cursor-default"
+            { src: '/brand/team/pair-programming.avif', label: 'Pair programming' },
+            { src: '/brand/team/developers-meeting.avif', label: 'Team sync' },
+            { src: '/brand/team/whiteboard-planning.avif', label: 'Planning sessions' },
+            { src: '/brand/team/laptop-code.avif', label: 'Deep work' },
+            { src: '/brand/team/team-standup.avif', label: 'Daily standups' },
+          ].map((img, i) => (
+            <div
+              key={i}
+              className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200"
             >
-              {tech}
-            </span>
+              <img
+                src={img.src}
+                alt={img.label}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute bottom-3 left-3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                {img.label}
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ─── How it works ────────────────────────────── */}
-      <section className="bg-slate-50 border-y border-slate-200">
+      {/* ─── WHAT YOU'LL SHIP ──────────────────────────── */}
+      <section className="bg-slate-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-          <div className="max-w-2xl mb-12 md:mb-14">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-              How it works
+          <div className="max-w-2xl mb-12">
+            <h2 className="text-white text-3xl md:text-4xl font-bold tracking-tight">
+              What you&apos;ll ship
             </h2>
-            <p className="text-slate-600 mt-4 text-lg">
-              A structured path from applicant to certified intern.
+            <p className="text-slate-300 mt-4 text-lg leading-relaxed">
+              You won&apos;t build toy apps. You&apos;ll work on systems that
+              real people use every day — for schools, cooperatives, and
+              businesses across East Africa.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {[
               {
-                n: '01',
-                title: 'Apply',
-                body: 'Fill a short application online. No login needed.',
+                title: 'Web applications',
+                body: 'Next.js, React, Tailwind CSS. Full-stack dashboards, marketing sites, and admin panels.',
+                tags: ['Next.js', 'React', 'Tailwind'],
               },
               {
-                n: '02',
-                title: 'Get approved',
-                body: 'We review personally. If accepted, you get an invite by email.',
+                title: 'Backend services',
+                body: 'Node.js and Python APIs, PostgreSQL databases, authentication, and background jobs.',
+                tags: ['Node.js', 'PostgreSQL', 'Python'],
               },
               {
-                n: '03',
-                title: 'Onboard',
-                body: 'Set up your profile, pick your tech stack, sign the agreement.',
+                title: 'Mobile apps',
+                body: 'Cross-platform apps in React Native and Flutter for offline-first use cases.',
+                tags: ['React Native', 'Flutter'],
               },
               {
-                n: '04',
-                title: 'Build',
-                body: 'Work on real projects with your mentor. Log daily, submit work.',
+                title: 'Real deployments',
+                body: 'Vercel, Docker, and cloud infrastructure. Everything you build ships to real users.',
+                tags: ['Vercel', 'Docker', 'AWS'],
               },
-              {
-                n: '05',
-                title: 'Get certified',
-                body: 'Receive a verifiable certificate + experience letter.',
-              },
-            ].map((step) => (
+            ].map((item, i) => (
               <div
-                key={step.n}
-                className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
+                key={i}
+                className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors"
               >
-                <div className="text-3xl font-bold text-slate-300 group-hover:text-slate-900 transition-colors mb-3">
-                  {step.n}
-                </div>
-                <div className="font-semibold text-slate-900 mb-1">
-                  {step.title}
-                </div>
-                <div className="text-sm text-slate-600 leading-relaxed">
-                  {step.body}
+                <h3 className="text-white font-semibold mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-slate-300 text-sm leading-relaxed mb-3">
+                  {item.body}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {item.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[11px] bg-white/10 text-slate-100 px-2 py-0.5 rounded border border-white/10"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
             ))}
@@ -216,143 +291,129 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ─── Why HERMAN ──────────────────────────────── */}
+      {/* ─── HOW IT WORKS ──────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-        <div className="max-w-2xl mb-12 md:mb-14">
+        <div className="max-w-2xl mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-            Why intern with HERMAN
+            How it works
           </h2>
+          <p className="text-slate-600 mt-4 text-lg">
+            A structured path from applicant to certified software engineer.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {[
             {
-              title: 'Real projects',
-              body: 'Contribute to live client systems — schools, voting portals, enterprise apps. Your code ships.',
-              icon: (
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              ),
-              bg: 'bg-blue-50',
-              text: 'text-blue-600',
+              n: '01',
+              title: 'Apply',
+              body: 'Fill a short application online. No login needed.',
             },
             {
-              title: 'Mentor-led',
-              body: 'You are paired with an experienced engineer. Regular feedback, code reviews, and guidance.',
-              icon: (
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                  />
-                </svg>
-              ),
-              bg: 'bg-green-50',
-              text: 'text-green-600',
+              n: '02',
+              title: 'Get approved',
+              body: 'We review personally. If accepted, you get an invite by email.',
             },
             {
-              title: 'Verifiable certificate',
-              body: 'Each certificate has a unique ID and QR code. Anyone can verify it online at any time.',
-              icon: (
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-                  />
-                </svg>
-              ),
-              bg: 'bg-amber-50',
-              text: 'text-amber-600',
+              n: '03',
+              title: 'Onboard',
+              body: 'Set up your profile, pick your tech stack, sign the agreement.',
             },
-          ].map((f) => (
+            {
+              n: '04',
+              title: 'Build',
+              body: 'Work on real projects with your mentor. Log daily, submit work.',
+            },
+            {
+              n: '05',
+              title: 'Get certified',
+              body: 'Receive a verifiable certificate + experience letter.',
+            },
+          ].map((step) => (
             <div
-              key={f.title}
-              className="group bg-white border border-slate-200 rounded-2xl p-6 hover:border-slate-900 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+              key={step.n}
+              className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
             >
-              <div
-                className={`w-11 h-11 rounded-xl ${f.bg} ${f.text} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
-              >
-                {f.icon}
+              <div className="text-3xl font-bold text-slate-300 group-hover:text-slate-900 transition-colors mb-3">
+                {step.n}
               </div>
-              <h3 className="font-semibold text-slate-900 text-lg mb-2">
-                {f.title}
-              </h3>
-              <p className="text-sm text-slate-600 leading-relaxed">
-                {f.body}
-              </p>
+              <div className="font-semibold text-slate-900 mb-1">
+                {step.title}
+              </div>
+              <div className="text-sm text-slate-600 leading-relaxed">
+                {step.body}
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─── About HERMAN ────────────────────────────── */}
+      {/* ─── ABOUT HERMAN ──────────────────────────────── */}
       <section className="bg-slate-50 border-y border-slate-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-          <div className="max-w-3xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-              About HERMAN
-            </h2>
-            <div className="mt-6 space-y-4 text-slate-600 leading-relaxed">
-              <p>
-                HERMAN Software Solutions is a Ugandan software company based
-                in Jinja, building robust web, mobile, and enterprise systems
-                for clients across East Africa.
-              </p>
-              <p>
-                We&apos;ve shipped production systems for schools,
-                cooperatives, retailers, and media platforms — including a
-                school platform serving 40+ pages, a voting portal handling
-                multiple live elections, and a desktop app now live on the
-                Microsoft Store.
-              </p>
-              <p>
-                Our internship program exists because we believe the best way
-                to learn software engineering is to build real software. Our
-                mentors are engineers who ship code every day.
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+                About HERMAN
+              </h2>
+              <div className="mt-6 space-y-4 text-slate-600 leading-relaxed">
+                <p>
+                  HERMAN Software Solutions is a Ugandan software company based
+                  in Jinja, building robust web, mobile, and enterprise
+                  systems for clients across East Africa.
+                </p>
+                <p>
+                  We&apos;ve shipped production systems for schools,
+                  cooperatives, retailers, and media platforms — including a
+                  school platform serving 40+ pages, a voting portal handling
+                  multiple live elections, and a desktop app now live on the
+                  Microsoft Store.
+                </p>
+                <p>
+                  Our internship program exists because we believe the best
+                  way to learn software engineering is to build real software.
+                  Our mentors are engineers who ship code every day.
+                </p>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-3 text-sm">
+                <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700">
+                  🇺🇬 Built in Jinja, Uganda
+                </span>
+                <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700">
+                  Remote-first
+                </span>
+                <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700">
+                  Production clients since 2024
+                </span>
+              </div>
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-3 text-sm">
-              <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700 hover:border-slate-400 transition-colors">
-                🇺🇬 Built in Jinja, Uganda
-              </span>
-              <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700 hover:border-slate-400 transition-colors">
-                Remote-first
-              </span>
-              <span className="bg-white border border-slate-200 px-3 py-1.5 rounded-full text-slate-700 hover:border-slate-400 transition-colors">
-                Production clients since 2024
-              </span>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { value: '5+', label: 'Years building' },
+                { value: '10+', label: 'Production systems' },
+                { value: '100%', label: 'Mentor-led' },
+                { value: '30+', label: 'Interns planned' },
+              ].map((stat, i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-slate-200 rounded-xl p-6"
+                >
+                  <div className="text-3xl font-bold text-slate-900">
+                    {stat.value}
+                  </div>
+                  <div className="text-sm text-slate-500 mt-1">
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Current cohort ──────────────────────────── */}
+      {/* ─── CURRENT COHORT ───────────────────────────── */}
       {featuredInterns && featuredInterns.length > 0 && (
         <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
           <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
@@ -394,7 +455,7 @@ export default async function Home() {
         </section>
       )}
 
-      {/* ─── FAQ ─────────────────────────────────────── */}
+      {/* ─── FAQ ───────────────────────────────────────── */}
       <section className="bg-slate-50 border-y border-slate-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 md:py-20">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight text-center mb-12">
@@ -455,35 +516,26 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ─── CTA ─────────────────────────────────────── */}
+      {/* ─── CTA ──────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-        <div className="bg-slate-900 rounded-3xl p-8 md:p-16 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-            Ready to start?
-          </h2>
-          <p className="text-slate-300 mt-4 text-lg max-w-xl mx-auto">
-            Applications take 5 minutes. We review every one personally.
-          </p>
-          <div className="mt-8">
-            <Link
-              href="/apply"
-              className="group inline-flex items-center gap-2 bg-white text-slate-900 font-medium px-8 py-3 rounded-lg hover:bg-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-            >
-              <span>Apply for internship</span>
-              <svg
-                className="w-4 h-4 group-hover:translate-x-1 transition-transform"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
+        <div className="bg-slate-900 rounded-3xl p-8 md:p-16 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-transparent to-purple-600/30" />
+          <div className="relative">
+            <h2 className="text-white text-3xl md:text-4xl font-bold tracking-tight">
+              Ready to start your career?
+            </h2>
+            <p className="text-slate-200 mt-4 text-lg max-w-xl mx-auto">
+              Applications take 5 minutes. We review every one personally.
+            </p>
+            <div className="mt-8">
+              <Link
+                href="/apply"
+                className="group inline-flex items-center gap-2 bg-white text-slate-900 font-medium px-8 py-3 rounded-lg hover:bg-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
-            </Link>
+                <span>Apply for internship</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>
