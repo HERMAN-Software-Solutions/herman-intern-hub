@@ -27,10 +27,17 @@ export async function sendInvitation(input: {
   to: string
   fullName: string | null
   token: string
+  role?: string | null
   startDate?: string | null
   welcomeMessage?: string | null
 }): Promise<{ success: boolean; error?: string }> {
-  const t = invitationEmail(input)
+  const t = invitationEmail({
+    fullName: input.fullName,
+    token: input.token,
+    role: input.role ?? 'intern',
+    startDate: input.startDate,
+    welcomeMessage: input.welcomeMessage,
+  })
   const res = await sendEmail({
     to: input.to,
     toName: input.fullName ?? undefined,

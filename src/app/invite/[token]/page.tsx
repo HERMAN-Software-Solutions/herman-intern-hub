@@ -15,6 +15,8 @@ export default async function InvitePage({
   const { token } = await params
   const result = await validateInvitation(token)
 
+  const isMentor = result.valid && result.role === 'mentor'
+
   return (
     <StandaloneLayout showBreadcrumbs={false}>
       <div className="w-full max-w-lg">
@@ -28,8 +30,9 @@ export default async function InvitePage({
                   Welcome{result.fullName ? `, ${result.fullName}` : ''}
                 </h1>
                 <p className="text-sm text-slate-500 mt-1">
-                  You&apos;ve been invited to join HERMAN Software Solutions
-                  as an intern. Set a password to activate your account.
+                  {isMentor
+                    ? "You've been invited to join HERMAN Software Solutions as a mentor. Set a password to access your dashboard."
+                    : "You've been invited to join HERMAN Software Solutions as an intern. Set a password to activate your account."}
                 </p>
               </div>
 
@@ -37,6 +40,7 @@ export default async function InvitePage({
                 token={token}
                 email={result.email}
                 fullName={result.fullName}
+                role={result.role}
               />
             </div>
 

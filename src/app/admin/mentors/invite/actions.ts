@@ -92,15 +92,12 @@ export async function inviteMentor(input: {
 
   // ─── Send invitation email ──────────────────────────
   sendInvitation({
-    to: input.email.toLowerCase().trim(),
-    fullName: input.fullName.trim(),
-    token,
-    welcomeMessage: `Hi ${input.fullName.trim()}, we'd love to have you join HERMAN as a mentor. Please set your password to get started.`,
-  }).then((res) => {
-    if (!res.success) {
-      console.error('Invitation email failed:', res.error)
-    }
-  })
+  to: input.email.toLowerCase().trim(),
+  fullName: input.fullName.trim(),
+  token,
+  role: 'mentor',
+  welcomeMessage: `Hi ${input.fullName.trim()}, we'd love to have you join HERMAN Software Solutions as a mentor. Your experience and guidance will help shape the next generation of software engineers.`,
+})
 
   // ─── Audit ──────────────────────────────────────────
   await admin.from('audit_log').insert({

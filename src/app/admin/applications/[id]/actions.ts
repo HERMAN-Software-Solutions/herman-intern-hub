@@ -148,6 +148,7 @@ export async function approveApplication(input: {
     to: application.email,
     fullName: application.name,
     token,
+    role: 'intern',
     startDate: input.startDate,
     welcomeMessage: input.welcomeMessage,
   }).then((res) => {

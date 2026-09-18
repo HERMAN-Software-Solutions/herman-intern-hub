@@ -78,29 +78,50 @@ export function applicationReceivedEmail(name: string): {
 export function invitationEmail(input: {
   fullName: string | null
   token: string
+  role?: string | null
   startDate?: string | null
   welcomeMessage?: string | null
 }): { subject: string; html: string } {
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/invite/${input.token}`
 
+  const role = input.role ?? 'intern'
+  const isMentor = role === 'mentor'
+
+  // Role-specific copy
+  const roleLabel = isMentor ? 'mentor' : 'intern'
+  const roleTitle = isMentor ? 'Mentor' : 'Intern'
+
+  const subject = isMentor
+    ? "You're invited to join HERMAN as a mentor"
+    : "You're invited to join HERMAN as an intern"
+
+  const defaultWelcome = isMentor
+    ? `We'd love to have you join HERMAN Software Solutions as a mentor. Your experience and guidance will help shape the next generation of software engineers.`
+    : `We're excited to offer you an internship at HERMAN Software Solutions. Your application stood out and we'd love to have you on board.`
+
+  const stepCopy = isMentor
+    ? `Click the button below to set your password and access your mentor dashboard. This link expires in <strong>7 days</strong>.`
+    : `Click the button below to set your password and complete your onboarding. This link expires in <strong>7 days</strong>.`
+
+  const buttonLabel = isMentor
+    ? 'Accept invitation →'
+    : 'Accept invitation →'
+
   return {
-    subject: "You're invited to join HERMAN as an intern",
+    subject,
     html: shell(`
       ${h1(`Welcome${input.fullName ? `, ${input.fullName}` : ''}! 🎉`)}
-      ${p(
-        input.welcomeMessage ??
-          `We're excited to offer you an internship at HERMAN Software Solutions. Your application stood out and we'd love to have you on board.`
-      )}
+      ${p(input.welcomeMessage ?? defaultWelcome)}
       ${
-        input.startDate
+        !isMentor && input.startDate
           ? p(
               `<strong>Proposed start date:</strong> ${new Date(input.startDate).toLocaleDateString()}`
             )
           : ''
       }
-      ${p(`Click the button below to set your password and complete your onboarding. This link expires in <strong>7 days</strong>.`)}
+      ${p(stepCopy)}
       <div style="margin-top:24px;">
-        ${button(inviteUrl, 'Accept invitation →')}
+        ${button(inviteUrl, buttonLabel)}
       </div>
       ${p(`If the button doesn't work, copy this link into your browser:`)}
       <p style="font-size:12px;color:#64748b;word-break:break-all;background:#f1f5f9;padding:10px;border-radius:6px;font-family:monospace;">
