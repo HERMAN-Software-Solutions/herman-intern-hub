@@ -26,6 +26,10 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     ref
   ) {
     const textareaId = id || props.name
+    const errorId = `${textareaId}-error`
+    const hintId = `${textareaId}-hint`
+
+    const describedBy = error ? errorId : hint ? hintId : undefined
 
     return (
       <div className={fullWidth ? 'w-full' : ''}>
@@ -55,13 +59,22 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             ${className}
           `}
           aria-invalid={error ? 'true' : undefined}
+          aria-describedby={describedBy}
           {...props}
         />
 
         {error ? (
-          <p className="text-xs text-red-600 mt-1.5">{error}</p>
+          <p
+            id={errorId}
+            role="alert"
+            className="text-xs text-red-600 mt-1.5"
+          >
+            {error}
+          </p>
         ) : hint ? (
-          <p className="text-xs text-slate-500 mt-1.5">{hint}</p>
+          <p id={hintId} className="text-xs text-slate-500 mt-1.5">
+            {hint}
+          </p>
         ) : null}
       </div>
     )

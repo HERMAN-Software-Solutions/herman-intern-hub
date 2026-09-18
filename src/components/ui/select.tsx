@@ -27,6 +27,10 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
     ref
   ) {
     const selectId = id || props.name
+    const errorId = `${selectId}-error`
+    const hintId = `${selectId}-hint`
+
+    const describedBy = error ? errorId : hint ? hintId : undefined
 
     return (
       <div className={fullWidth ? 'w-full' : ''}>
@@ -56,17 +60,29 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
               ${className}
             `}
             aria-invalid={error ? 'true' : undefined}
+            aria-describedby={describedBy}
             {...props}
           >
             {children}
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <ChevronDown
+            aria-hidden="true"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"
+          />
         </div>
 
         {error ? (
-          <p className="text-xs text-red-600 mt-1.5">{error}</p>
+          <p
+            id={errorId}
+            role="alert"
+            className="text-xs text-red-600 mt-1.5"
+          >
+            {error}
+          </p>
         ) : hint ? (
-          <p className="text-xs text-slate-500 mt-1.5">{hint}</p>
+          <p id={hintId} className="text-xs text-slate-500 mt-1.5">
+            {hint}
+          </p>
         ) : null}
       </div>
     )

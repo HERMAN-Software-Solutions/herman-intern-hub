@@ -25,6 +25,11 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
     ref
   ) {
     const inputId = id || props.name
+    const errorId = `${inputId}-error`
+    const hintId = `${inputId}-hint`
+
+    // If both error and hint present, describe with error only (it's more important)
+    const describedBy = error ? errorId : hint ? hintId : undefined
 
     return (
       <div className={fullWidth ? 'w-full' : ''}>
@@ -53,13 +58,22 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ${className}
           `}
           aria-invalid={error ? 'true' : undefined}
+          aria-describedby={describedBy}
           {...props}
         />
 
         {error ? (
-          <p className="text-xs text-red-600 mt-1.5">{error}</p>
+          <p
+            id={errorId}
+            role="alert"
+            className="text-xs text-red-600 mt-1.5"
+          >
+            {error}
+          </p>
         ) : hint ? (
-          <p className="text-xs text-slate-500 mt-1.5">{hint}</p>
+          <p id={hintId} className="text-xs text-slate-500 mt-1.5">
+            {hint}
+          </p>
         ) : null}
       </div>
     )
