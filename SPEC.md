@@ -177,6 +177,18 @@ Intern profiles and their documents are retained indefinitely for alumni trackin
 | Notifications | Alerts on submissions, log gaps, milestone completions |
 | Audit Log | Every admin action recorded |
 
+### Mentor Invite Flow
+
+Admins invite mentors via `/admin/mentors/invite`. Mentors receive the same
+invitation email as interns, but with role-specific copy. On accepting:
+
+1. Auth user created
+2. Profile created with `role = 'mentor'`, `status = 'active'`
+3. Bio + expertise stored
+4. Redirected to `/mentor`
+
+Mentors skip the onboarding wizard and are immediately available for assignment.
+
 ### 4.4 System
 
 | Feature | Description |

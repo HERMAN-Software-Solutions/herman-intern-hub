@@ -202,6 +202,21 @@ Phased delivery plan for HERMAN Intern Hub.
 - [ ] "HERMAN People" — extend to permanent staff
 - [ ] Public API for third-party integrations
 - [ ] Open-source the codebase (optional — after case study published)
+### Phase 5 — Expansion (Ongoing)
+
+- [x] Admin analytics dashboard
+- [x] Weekly report auto-generation
+- [x] Real-time notifications
+- [x] Mentor role + invite flow
+- [x] Mentor dashboard (`/mentor`)
+- [x] Performance reviews
+- [x] Legal pages (Terms, Privacy, Cookies)
+- [x] Cookie consent banner
+- [x] Design system primitives
+- [ ] Mobile PWA
+- [ ] Bulk actions
+- [ ] Email digests
+- [ ] "HERMAN People" for staff
 
 ---
 
