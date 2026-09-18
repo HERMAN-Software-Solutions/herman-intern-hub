@@ -64,6 +64,33 @@ export default async function AdminDocumentsPage({
 
   const supabase = await createClient()
 
+  // First, get all real (non-demo) intern IDs
+  const { data: realInterns } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('role', 'intern')
+    .eq('is_demo', false)
+
+  const realInternIds = (realInterns ?? []).map((i) => i.id)
+
+  // If there are no real interns, show empty state immediately
+  if (realInternIds.length === 0) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
+        <PageHeader
+          title="Documents"
+          description="All issued certificates, letters, and agreements."
+        />
+
+        <EmptyState
+          icon="📄"
+          title="No documents yet"
+          description="Documents will appear here once you approve and onboard real interns, and issue them certificates or letters."
+        />
+      </div>
+    )
+  }
+
   let query = supabase
     .from('documents')
     .select(
@@ -71,6 +98,7 @@ export default async function AdminDocumentsPage({
        performance_score, verified, created_at,
        intern:intern_id (id, full_name, email, avatar_url)`
     )
+    .in('intern_id', realInternIds) // 🔒 Only real interns
     .order('created_at', { ascending: false })
 
   if (activeFilter !== 'all') {
@@ -79,7 +107,6 @@ export default async function AdminDocumentsPage({
 
   const { data: documentsRaw } = await query
 
-  // Filter by search client-side (fine for MVP scale)
   const documents = (documentsRaw ?? [])
     .map((d: any) => {
       const internRaw = d.intern
@@ -100,8 +127,11 @@ export default async function AdminDocumentsPage({
       return haystack.includes(search)
     })
 
-  // Counts
-  const { data: allDocs } = await supabase.from('documents').select('type')
+  // Counts (real interns only)
+  const { data: allDocs } = await supabase
+    .from('documents')
+    .select('type')
+    .in('intern_id', realInternIds)
 
   const counts = {
     all: allDocs?.length ?? 0,
@@ -168,7 +198,7 @@ export default async function AdminDocumentsPage({
           description={
             search
               ? 'Try a different keyword or clear the search.'
-              : 'Documents will appear here once certificates and letters are issued.'
+              : 'Documents will appear here once certificates and letters are issued to real interns.'
           }
         />
       ) : (
