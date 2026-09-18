@@ -29,12 +29,16 @@ export function NewTaskForm({
 
   function handleSubmit() {
     setError(null)
+
     if (!title.trim()) {
       setError('Title is required')
+      toast.error('Title is required')
       return
     }
+
     if (!assignedTo) {
-      setError('Please select an intern')
+      setError('Please select an intern to assign this task to')
+      toast.error('Please select an intern')
       return
     }
 
@@ -65,9 +69,24 @@ export function NewTaskForm({
     })
   }
 
+  // If no interns assigned yet, show a disabled state
+  if (assignedInterns.length === 0) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="inline-flex items-center gap-2 bg-slate-200 text-slate-400 text-sm font-medium px-4 py-2.5 rounded-lg cursor-not-allowed"
+      >
+        <Plus className="w-4 h-4" />
+        New task
+      </button>
+    )
+  }
+
   if (!open) {
     return (
       <button
+        type="button"
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors"
       >
@@ -143,7 +162,10 @@ export function NewTaskForm({
       </label>
 
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+        <div
+          role="alert"
+          className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3"
+        >
           {error}
         </div>
       )}
@@ -165,6 +187,7 @@ export function NewTaskForm({
           variant="primary"
           size="sm"
           onClick={handleSubmit}
+          disabled={!assignedTo || !title.trim()}
           loading={isPending}
         >
           Create task

@@ -120,7 +120,15 @@ export async function createTask(input: {
   isHighlight: boolean
 }) {
   if (!input.title?.trim()) return { error: 'Task title is required' }
-  if (!input.assignedTo) return { error: 'Assignee is required' }
+  if (!input.assignedTo || !input.assignedTo.trim()) {
+    return { error: 'Please select an intern to assign this task to' }
+  }
+
+  // Validate UUID format
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!uuidRegex.test(input.assignedTo)) {
+    return { error: 'Invalid intern selection' }
+  }
 
   const supabase = await createClient()
   const {
@@ -128,7 +136,19 @@ export async function createTask(input: {
   } = await supabase.auth.getUser()
   if (!user) return { error: 'Not authenticated' }
 
-  const admin = createAdminClient()
+    const admin = createAdminClient()
+
+  // Verify the intern exists and is assigned to this project
+  const { data: assignment } = await admin
+    .from('project_assignments')
+    .select('id')
+    .eq('project_id', input.projectId)
+    .eq('intern_id', input.assignedTo)
+    .maybeSingle()
+
+  if (!assignment) {
+    return { error: 'This intern is not assigned to this project' }
+  }
 
   const { data: task, error } = await admin
     .from('tasks')
