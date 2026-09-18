@@ -162,15 +162,34 @@ export default async function InternDetailPage({
           />
           <Check done={!!intern.mentor_id} label="Mentor assigned" />
           <Check
-            done={intern.status === 'active'}
-            label="Status: active"
+            done={intern.status === 'active' || intern.status === 'completed'}
+            label={`Status: ${intern.status}`}
             highlight
           />
         </ul>
 
-        {intern.status !== 'active' && !canActivate && (
+        {/* Status-aware message */}
+        {intern.status === 'onboarding' && !canActivate && (
           <div className="mt-4 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
             ⚠️ The intern must complete onboarding before activation.
+          </div>
+        )}
+
+        {intern.status === 'completed' && (
+          <div className="mt-4 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg p-3">
+            ✅ Internship completed. This intern is now an alumnus.
+          </div>
+        )}
+
+        {intern.status === 'paused' && (
+          <div className="mt-4 text-xs text-slate-700 bg-slate-50 border border-slate-200 rounded-lg p-3">
+            ⏸️ Internship paused. Resume or mark as completed when ready.
+          </div>
+        )}
+
+        {intern.status === 'withdrawn' && (
+          <div className="mt-4 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg p-3">
+            ❌ Intern withdrew from the program.
           </div>
         )}
       </Card>
