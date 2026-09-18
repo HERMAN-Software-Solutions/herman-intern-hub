@@ -16,7 +16,7 @@ export default async function InvitePage({
   const result = await validateInvitation(token)
 
   return (
-    <StandaloneLayout>
+    <StandaloneLayout showBreadcrumbs={false}>
       <div className="w-full max-w-lg">
         {!result.valid ? (
           <InvitationError reason={result.reason} />

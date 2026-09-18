@@ -1,12 +1,15 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 
 export function StandaloneLayout({
   children,
   showFooter = true,
+  showBreadcrumbs = true,
 }: {
   children: React.ReactNode
   showFooter?: boolean
+  showBreadcrumbs?: boolean
 }) {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -37,6 +40,15 @@ export function StandaloneLayout({
             <span className="sm:hidden">Back</span>
           </Link>
         </div>
+
+        {/* Breadcrumbs row */}
+        {showBreadcrumbs && (
+          <div className="border-t border-slate-100 bg-slate-50/50">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2">
+              <Breadcrumbs />
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main content */}

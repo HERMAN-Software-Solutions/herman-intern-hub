@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function LoginPage() {
   return (
-    <StandaloneLayout>
+    <StandaloneLayout showBreadcrumbs={false}>
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
           <div className="mb-6 sm:mb-8">
