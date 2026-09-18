@@ -6,15 +6,16 @@ export const alt = 'HERMAN Intern Hub — Launch your software career'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-// Read + cache the logo as a base64 data URL
+// Cache the base64-encoded logo
 let logoDataUrl: string | null = null
 
 function getLogoDataUrl(): string | null {
   if (logoDataUrl) return logoDataUrl
   try {
-    const path = join(process.cwd(), 'public', 'brand', 'logo.webp')
+    // Use the JPG version — @vercel/og handles JPEG reliably.
+    const path = join(process.cwd(), 'public', 'brand', 'logo-pdf.jpg')
     const buf = readFileSync(path)
-    logoDataUrl = `data:image/webp;base64,${buf.toString('base64')}`
+    logoDataUrl = `data:image/jpeg;base64,${buf.toString('base64')}`
     return logoDataUrl
   } catch (err) {
     console.error('OG logo load failed:', err)
@@ -51,11 +52,12 @@ export default async function Image() {
           }}
         >
           {logo ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
             <img
               src={logo}
               width={72}
               height={72}
-              alt="HERMAN"
+              alt=""
               style={{
                 objectFit: 'contain',
                 borderRadius: 12,
