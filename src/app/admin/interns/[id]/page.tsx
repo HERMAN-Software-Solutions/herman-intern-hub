@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '../../_components/status-badge'
+import { PageHeader } from '@/components/ui/page-header'
 import { MentorAssignment } from './mentor-assignment'
 import { IssueButton } from './issue-certificate/issue-button'
 
@@ -29,7 +31,6 @@ export default async function InternDetailPage({
 
   if (!intern) notFound()
 
-  // Load the current mentor (if any)
   let currentMentor = null
   if (intern.mentor_id) {
     const { data } = await supabase
@@ -40,7 +41,6 @@ export default async function InternDetailPage({
     currentMentor = data
   }
 
-  // Load available mentors (mentors + admins)
   const { data: mentors } = await supabase
     .from('profiles')
     .select('id, full_name, email')
@@ -48,7 +48,6 @@ export default async function InternDetailPage({
     .neq('id', intern.id)
     .order('full_name')
 
-  // Can we activate this intern? (all requirements met?)
   const canActivate =
     !!intern.full_name &&
     !!intern.university &&
@@ -59,25 +58,23 @@ export default async function InternDetailPage({
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
       <Link
         href="/admin/interns"
-        className="text-sm text-slate-500 hover:text-slate-900"
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-6"
       >
-        ← Back to interns
+        <ChevronLeft className="w-4 h-4" />
+        Back to interns
       </Link>
 
-      <div className="mt-4 flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">
-            {intern.full_name ?? 'Unnamed intern'}
-          </h1>
-          <p className="text-slate-500 mt-1">{intern.email}</p>
-          {intern.phone && (
-            <p className="text-sm text-slate-500">{intern.phone}</p>
-          )}
-        </div>
-        <StatusBadge status={intern.status} />
-      </div>
+      <PageHeader
+        title={intern.full_name ?? 'Unnamed intern'}
+        description={intern.email}
+        action={<StatusBadge status={intern.status} />}
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
+      {intern.phone && (
+        <p className="text-sm text-slate-500 -mt-4 mb-6">{intern.phone}</p>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-8">
         <Card title="Academic">
           <Row label="University" value={intern.university} />
           <Row label="Course" value={intern.course} />
@@ -124,7 +121,6 @@ export default async function InternDetailPage({
         </Card>
       )}
 
-      {/* Mentor assignment */}
       <div className="mt-6">
         <MentorAssignment
           internId={intern.id}
@@ -134,39 +130,28 @@ export default async function InternDetailPage({
         />
       </div>
 
-      {/* Performance review CTA */}
-     <div className="mt-6">
-       <div className="bg-white border border-slate-200 rounded-xl p-6">
-         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
-           Performance review
-         </h2>
-         <p className="text-sm text-slate-600 mb-4">
+      <Card title="Performance review" className="mt-6">
+        <p className="text-sm text-slate-600 mb-4">
           Complete the performance review before issuing a certificate.
-         </p>
-         <Link
-           href={`/admin/interns/${intern.id}/review`}
-           className="inline-block bg-slate-900 hover:bg-slate-800 text-white font-medium px-4 py-2 rounded-lg transition-colors text-sm"
+        </p>
+        <Link
+          href={`/admin/interns/${intern.id}/review`}
+          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium px-4 py-2.5 rounded-lg transition-colors text-sm"
         >
-           Open review form →
-         </Link>
-        </div>
-      </div>
-       
-      {/* Certificate issuance */}
-      {intern.status === 'completed' || intern.status === 'active' ? (
-       <div className="mt-6 bg-white border border-slate-200 rounded-xl p-6">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">
-            Certificate
-          </h2>
-          <p className="text-sm text-slate-600 mb-4">
-           Issue a certificate of internship and experience letter as PDFs.
-           Requires a completed performance review.
-          </p>
-         <IssueButton internId={intern.id} />
-       </div>
-      ) : null}
+          Open review form
+        </Link>
+      </Card>
 
-      {/* Activation checklist */}
+      {(intern.status === 'completed' || intern.status === 'active') && (
+        <Card title="Certificate" className="mt-6">
+          <p className="text-sm text-slate-600 mb-4">
+            Issue a certificate of internship and experience letter as PDFs.
+            Requires a completed performance review.
+          </p>
+          <IssueButton internId={intern.id} />
+        </Card>
+      )}
+
       <Card title="Activation checklist" className="mt-6">
         <ul className="space-y-2 text-sm">
           <Check done={!!intern.full_name} label="Full name set" />
@@ -184,9 +169,9 @@ export default async function InternDetailPage({
         </ul>
 
         {intern.status !== 'active' && !canActivate && (
-          <p className="mt-4 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div className="mt-4 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
             ⚠️ The intern must complete onboarding before activation.
-          </p>
+          </div>
         )}
       </Card>
     </div>
@@ -204,7 +189,7 @@ function Card({
 }) {
   return (
     <div className={`bg-white border border-slate-200 rounded-xl p-6 ${className}`}>
-      <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
+      <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
         {title}
       </h2>
       {children}
@@ -239,7 +224,7 @@ function Check({
   return (
     <li className="flex items-center gap-2">
       <span
-        className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${
+        className={`w-5 h-5 rounded-full flex items-center justify-center text-xs flex-shrink-0 ${
           done ? 'bg-green-600 text-white' : 'bg-slate-200 text-slate-400'
         }`}
       >

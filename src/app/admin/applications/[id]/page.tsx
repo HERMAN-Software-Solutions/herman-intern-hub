@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '../../_components/status-badge'
+import { PageHeader } from '@/components/ui/page-header'
 import { ApplicationActions } from './application-actions'
 
 export default async function ApplicationDetailPage({
@@ -20,14 +22,12 @@ export default async function ApplicationDetailPage({
 
   if (!app) notFound()
 
-  // Get mentors for the approve modal
   const { data: mentors } = await supabase
     .from('profiles')
     .select('id, full_name, email')
     .in('role', ['mentor', 'admin', 'super_admin'])
     .order('full_name')
 
-  // Check for existing invitation
   const { data: invitation } = await supabase
     .from('invitations')
     .select('id, token, status, expires_at, created_at')
@@ -40,23 +40,23 @@ export default async function ApplicationDetailPage({
     <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
       <Link
         href="/admin/applications"
-        className="text-sm text-slate-500 hover:text-slate-900"
+        className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-900 transition-colors mb-6"
       >
-        ← Back to applications
+        <ChevronLeft className="w-4 h-4" />
+        Back to applications
       </Link>
 
-      <div className="mt-4 flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">{app.name}</h1>
-          <p className="text-slate-500 mt-1">{app.email}</p>
-          {app.phone && (
-            <p className="text-sm text-slate-500 mt-0.5">{app.phone}</p>
-          )}
-        </div>
-        <StatusBadge status={app.status} />
-      </div>
+      <PageHeader
+        title={app.name}
+        description={app.email}
+        action={<StatusBadge status={app.status} />}
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
+      {app.phone && (
+        <p className="text-sm text-slate-500 -mt-4 mb-6">{app.phone}</p>
+      )}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-8">
         <Card title="Academic">
           <Row label="University" value={app.university} />
           <Row label="Course" value={app.course} />
@@ -74,7 +74,7 @@ export default async function ApplicationDetailPage({
               app.portfolio_url ? (
                 <a
                   href={app.portfolio_url}
-                  className="text-blue-600 hover:underline"
+                  className="text-blue-600 hover:underline break-all"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -94,11 +94,10 @@ export default async function ApplicationDetailPage({
         </p>
       </Card>
 
-      {/* Existing invitation banner */}
       {invitation && (
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="min-w-0">
               <p className="text-sm font-medium text-blue-900">
                 Invitation {invitation.status}
               </p>
@@ -108,22 +107,23 @@ export default async function ApplicationDetailPage({
                 {new Date(invitation.expires_at).toLocaleString()}
               </p>
             </div>
-            <code className="text-xs bg-white border border-blue-200 px-2 py-1 rounded">
+            <code className="text-xs bg-white border border-blue-200 px-2 py-1 rounded break-all">
               /invite/{invitation.token.slice(0, 12)}…
             </code>
           </div>
         </div>
       )}
 
-      {/* Actions */}
-      <ApplicationActions
-        applicationId={app.id}
-        applicantName={app.name}
-        applicantEmail={app.email}
-        currentStatus={app.status}
-        mentors={mentors ?? []}
-        hasInvitation={!!invitation}
-      />
+      <div className="mt-8">
+        <ApplicationActions
+          applicationId={app.id}
+          applicantName={app.name}
+          applicantEmail={app.email}
+          currentStatus={app.status}
+          mentors={mentors ?? []}
+          hasInvitation={!!invitation}
+        />
+      </div>
     </div>
   )
 }
@@ -139,7 +139,7 @@ function Card({
 }) {
   return (
     <div className={`bg-white border border-slate-200 rounded-xl p-6 ${className}`}>
-      <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">
+      <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
         {title}
       </h2>
       {children}
@@ -157,7 +157,9 @@ function Row({
   return (
     <div className="flex justify-between py-1.5 border-b border-slate-100 last:border-0 text-sm">
       <span className="text-slate-500">{label}</span>
-      <span className="text-slate-900 text-right">{value || '—'}</span>
+      <span className="text-slate-900 text-right break-words max-w-[60%]">
+        {value || '—'}
+      </span>
     </div>
   )
 }
