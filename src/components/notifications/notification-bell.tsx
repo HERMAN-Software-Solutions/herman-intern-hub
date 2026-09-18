@@ -169,10 +169,27 @@ export function NotificationBell() {
                 Loading…
               </div>
             ) : notifications.length === 0 ? (
-              <div className="p-8 text-center">
-                <div className="text-3xl mb-2">🔔</div>
-                <p className="text-sm text-slate-500">No notifications yet</p>
-              </div>
+              <div className="p-6 text-center">
+                <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                 <svg
+                  className="w-5 h-5 text-slate-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                 >
+                 <path
+                   strokeLinecap="round"
+                   strokeLinejoin="round"
+                   d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                 />
+                 </svg>
+               </div>
+               <p className="text-sm font-medium text-slate-700">You&apos;re all caught up</p>
+               <p className="text-xs text-slate-500 mt-1">
+                  No new notifications
+               </p>
+             </div>
             ) : (
               notifications.map((n) => (
                 <button

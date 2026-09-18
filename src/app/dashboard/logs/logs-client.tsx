@@ -8,6 +8,7 @@ import { upsertLog, deleteLog } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { EmptyState } from '@/components/ui/empty-state'
 
 type Log = {
   id: string
@@ -190,11 +191,12 @@ export function LogsClient({
         </h2>
 
         {logs.length === 0 ? (
-          <div className="bg-white border border-slate-200 rounded-xl p-8 text-center text-slate-500 text-sm">
-            No logs yet. Start logging your work above.
-          </div>
-        ) : (
-          <>
+         <EmptyState
+           icon="📆"
+           title="No logs yet"
+           description="Start logging your daily work above. Each entry helps your mentor track your progress and generates your weekly report automatically."
+         />
+        ) : (        <>
             {/* Mobile: cards */}
             <div className="sm:hidden space-y-3">
               {logs.map((log) => (

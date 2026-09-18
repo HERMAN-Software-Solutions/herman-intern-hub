@@ -1,5 +1,7 @@
 'use client'
 
+import { EmptyState } from '@/components/ui/empty-state'
+
 type Doc = {
   id: string
   type: string
@@ -30,16 +32,14 @@ const TYPE_ICONS: Record<string, string> = {
 
 export function DocumentList({ documents }: { documents: Doc[] }) {
   if (documents.length === 0) {
-    return (
-      <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
-        <div className="text-4xl mb-4">📁</div>
-        <p className="text-slate-500">No documents yet.</p>
-        <p className="text-sm text-slate-400 mt-1">
-          Your offer letter, agreement, and certificate will appear here.
-        </p>
-      </div>
-    )
-  }
+  return (
+    <EmptyState
+      icon="📁"
+      title="No documents yet"
+      description="Your offer letter, internship agreement, certificates, and experience letters will appear here as they're issued."
+    />
+  )
+}
 
   return (
     <div className="space-y-3">

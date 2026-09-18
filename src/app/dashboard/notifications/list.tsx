@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { markAllRead, markOneRead } from '@/app/_actions/notifications'
+import { EmptyState } from '@/components/ui/empty-state'
 
 type N = {
   id: string
@@ -64,10 +65,11 @@ export function NotificationList({ notifications }: { notifications: N[] }) {
       </div>
 
       {items.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-xl p-12 text-center">
-          <div className="text-4xl mb-3">🔔</div>
-          <p className="text-slate-500">No notifications yet.</p>
-        </div>
+        <EmptyState
+           icon="🔔"
+           title="No notifications yet"
+           description="You'll be notified when tasks are assigned, submissions are reviewed, or your certificate is issued."
+        />
       ) : (
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100">
           {items.map((n) => (
