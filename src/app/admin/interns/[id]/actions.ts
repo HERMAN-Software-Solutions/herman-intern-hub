@@ -6,18 +6,33 @@ import { revalidatePath } from 'next/cache'
 import { sendActivated } from '@/lib/email/send'
 import { createNotification } from '@/lib/notifications/create'
 
-export async function assignMentor(internId: string, mentorId: string) {
-  if (!mentorId) return { error: 'Please select a mentor' }
-
+async function getAdminUser() {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return { error: 'Not authenticated' }
+  if (!user) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) return null
+  if (profile.role !== 'admin' && profile.role !== 'super_admin') return null
+
+  return user
+}
+
+export async function assignMentor(internId: string, mentorId: string) {
+  if (!mentorId) return { error: 'Please select a mentor' }
+
+  const user = await getAdminUser()
+  if (!user) return { error: 'Only admins can assign mentors' }
 
   const admin = createAdminClient()
 
-  // Update the intern's mentor_id — the trigger fires and flips status
   const { error } = await admin
     .from('profiles')
     .update({ mentor_id: mentorId })
@@ -26,7 +41,6 @@ export async function assignMentor(internId: string, mentorId: string) {
 
   if (error) return { error: error.message }
 
-  // Fetch intern + mentor for the email + notification
   const { data: intern } = await admin
     .from('profiles')
     .select('email, full_name, status')
@@ -39,7 +53,6 @@ export async function assignMentor(internId: string, mentorId: string) {
     .eq('id', mentorId)
     .single()
 
-  // Only send if the intern just became active
   if (intern?.status === 'active' && intern.email) {
     sendActivated({
       to: intern.email,
@@ -51,7 +64,6 @@ export async function assignMentor(internId: string, mentorId: string) {
       }
     })
 
-    // In-app notification
     createNotification({
       userId: internId,
       type: 'mentor_assigned',
@@ -65,7 +77,6 @@ export async function assignMentor(internId: string, mentorId: string) {
     })
   }
 
-  // Audit
   await admin.from('audit_log').insert({
     actor_id: user.id,
     action: 'intern.mentor_assigned',
@@ -80,11 +91,8 @@ export async function assignMentor(internId: string, mentorId: string) {
 }
 
 export async function unassignMentor(internId: string) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { error: 'Not authenticated' }
+  const user = await getAdminUser()
+  if (!user) return { error: 'Only admins can unassign mentors' }
 
   const admin = createAdminClient()
 
@@ -112,11 +120,8 @@ export async function updateInternDates(
   startDate: string,
   endDate: string
 ) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { error: 'Not authenticated' }
+  const user = await getAdminUser()
+  if (!user) return { error: 'Only admins can update intern dates' }
 
   const admin = createAdminClient()
 

@@ -6,19 +6,37 @@ import { revalidatePath } from 'next/cache'
 import { randomBytes } from 'crypto'
 import { sendInvitation, sendRejection } from '@/lib/email/send'
 
-export async function rejectApplication(
-  applicationId: string,
-  reason: string
-) {
+/**
+ * Verifies the caller is an admin. Returns the user or null.
+ */
+async function getAdminUser() {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) return { error: 'Not authenticated' }
+  if (!user) return null
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) return null
+  if (profile.role !== 'admin' && profile.role !== 'super_admin') return null
+
+  return user
+}
+
+export async function rejectApplication(
+  applicationId: string,
+  reason: string
+) {
+  const user = await getAdminUser()
+  if (!user) return { error: 'Only admins can reject applications' }
 
   const admin = createAdminClient()
 
-  // 1. Update the application
   const { error } = await admin
     .from('applications')
     .update({
@@ -31,14 +49,12 @@ export async function rejectApplication(
 
   if (error) return { error: error.message }
 
-  // 2. Fetch application details for the email
   const { data: app } = await admin
     .from('applications')
     .select('email, name')
     .eq('id', applicationId)
     .single()
 
-  // 3. Send rejection email (fire-and-forget)
   if (app?.email) {
     sendRejection(app.email, app.name).then((res) => {
       if (!res.success) {
@@ -47,7 +63,6 @@ export async function rejectApplication(
     })
   }
 
-  // 4. Audit log
   await admin.from('audit_log').insert({
     actor_id: user.id,
     action: 'application.rejected',
@@ -68,15 +83,11 @@ export async function approveApplication(input: {
   mentorId: string | null
   welcomeMessage: string
 }) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { error: 'Not authenticated' }
+  const user = await getAdminUser()
+  if (!user) return { error: 'Only admins can approve applications' }
 
   const admin = createAdminClient()
 
-  // 1. Fetch the application
   const { data: application, error: fetchError } = await admin
     .from('applications')
     .select('*')
@@ -87,7 +98,6 @@ export async function approveApplication(input: {
     return { error: 'Application not found' }
   }
 
-  // 2. Check if already invited
   const { data: existingInvite } = await admin
     .from('invitations')
     .select('id, token, status')
@@ -104,7 +114,6 @@ export async function approveApplication(input: {
     }
   }
 
-  // 3. Create the invitation
   const token = randomBytes(32).toString('hex')
 
   const { data: invitation, error: inviteError } = await admin
@@ -133,7 +142,6 @@ export async function approveApplication(input: {
     return { error: inviteError?.message ?? 'Failed to create invitation' }
   }
 
-  // 4. Update application status
   await admin
     .from('applications')
     .update({
@@ -143,7 +151,6 @@ export async function approveApplication(input: {
     })
     .eq('id', input.applicationId)
 
-  // 5. Send invitation email (fire-and-forget)
   sendInvitation({
     to: application.email,
     fullName: application.name,
@@ -157,7 +164,6 @@ export async function approveApplication(input: {
     }
   })
 
-  // 6. Audit log
   await admin.from('audit_log').insert({
     actor_id: user.id,
     action: 'application.approved',
@@ -180,11 +186,8 @@ export async function approveApplication(input: {
 }
 
 export async function markAsReviewing(applicationId: string) {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-  if (!user) return { error: 'Not authenticated' }
+  const user = await getAdminUser()
+  if (!user) return { error: 'Only admins can review applications' }
 
   const admin = createAdminClient()
 

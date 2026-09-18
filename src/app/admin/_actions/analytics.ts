@@ -1,9 +1,27 @@
 'use server'
 
+import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function getAdminStats() {
-  const supabase = createAdminClient()
+  // 🔒 Verify the caller is an admin
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data: actor } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!actor || (actor.role !== 'admin' && actor.role !== 'super_admin')) {
+    return null
+  }
+
+  const admin = createAdminClient()
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString()
@@ -20,36 +38,36 @@ export async function getAdminStats() {
     submissionsPending,
     certificatesIssued,
   ] = await Promise.all([
-    supabase
+    admin
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'intern')
       .eq('status', 'active'),
-    supabase
+    admin
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'intern')
       .eq('status', 'completed'),
-    supabase
+    admin
       .from('applications')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending'),
-    supabase
+    admin
       .from('applications')
       .select('*', { count: 'exact', head: true })
       .gte('submitted_at', startOfMonth),
-    supabase
+    admin
       .from('submissions')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'pending'),
-    supabase
+    admin
       .from('documents')
       .select('*', { count: 'exact', head: true })
       .eq('type', 'certificate'),
   ])
 
-  // ─── Log gaps: active interns who haven't logged in 2+ days ───
-  const { data: activeInternProfiles } = await supabase
+  // ─── Log gaps ───────────────────────────────────────
+  const { data: activeInternProfiles } = await admin
     .from('profiles')
     .select('id, full_name, email')
     .eq('role', 'intern')
@@ -65,8 +83,7 @@ export async function getAdminStats() {
   }> = []
 
   if (internIds.length > 0) {
-    // Get the most recent log per intern
-    const { data: recentLogs } = await supabase
+    const { data: recentLogs } = await admin
       .from('daily_logs')
       .select('intern_id, date')
       .in('intern_id', internIds)
@@ -99,15 +116,17 @@ export async function getAdminStats() {
       .sort((a, b) => (b.daysSince ?? 999) - (a.daysSince ?? 999))
   }
 
-  // ─── Recent audit activity ─────────────────────────────
-  const { data: recentActivity } = await supabase
+  // ─── Recent audit activity ─────────────────────────
+  const { data: recentActivity } = await admin
     .from('audit_log')
-    .select('id, action, entity, metadata, created_at, actor:actor_id (full_name, email)')
+    .select(
+      'id, action, entity, metadata, created_at, actor:actor_id (full_name, email)'
+    )
     .order('created_at', { ascending: false })
     .limit(15)
 
-  // ─── Applications over last 30 days (grouped by day) ───
-  const { data: recentApps } = await supabase
+  // ─── Applications over last 30 days ────────────────
+  const { data: recentApps } = await admin
     .from('applications')
     .select('submitted_at, status')
     .gte('submitted_at', thirtyDaysAgo)
@@ -125,14 +144,12 @@ export async function getAdminStats() {
     }
   }
   const appsTimeline = Array.from(appsByDay.entries()).map(([date, count]) => ({
-    date: date.slice(5), // MM-DD
+    date: date.slice(5),
     count,
   }))
 
-  // ─── Submission pipeline breakdown ─────────────────
-  const { data: allSubs } = await supabase
-    .from('submissions')
-    .select('status')
+  // ─── Submission pipeline ───────────────────────────
+  const { data: allSubs } = await admin.from('submissions').select('status')
 
   const submissionsByStatus = {
     pending: allSubs?.filter((s) => s.status === 'pending').length ?? 0,

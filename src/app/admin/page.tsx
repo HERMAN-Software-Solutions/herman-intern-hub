@@ -2,6 +2,7 @@ import Link from 'next/link'
 import nextDynamic from 'next/dynamic'
 import { getAdminStats } from './_actions/analytics'
 import { KpiCard } from './_components/kpi-card'
+import { redirect } from 'next/navigation'
 
 // ─── Lazy load the chart library ────────────────────────
 // recharts is ~130 KB. Loading it dynamically means it only
@@ -39,8 +40,10 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminOverview() {
   const stats = await getAdminStats()
-  const { kpis, logGaps, recentActivity, appsTimeline, submissionsByStatus } =
-    stats
+if (!stats) {
+  redirect('/dashboard')
+}
+const { kpis, logGaps, recentActivity, appsTimeline, submissionsByStatus } = stats
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-6xl">
