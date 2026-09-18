@@ -24,6 +24,17 @@ export default async function DashboardLayout({
 
   if (!profile) redirect('/login')
 
+  // 🔒 Role guard: only interns can access /dashboard
+  if (profile.role !== 'intern') {
+    if (profile.role === 'mentor') redirect('/mentor')
+    if (profile.role === 'admin' || profile.role === 'super_admin') {
+      redirect('/admin')
+    }
+    // Unknown role → safest default
+    redirect('/login')
+  }
+
+  // Onboarding gate
   if (profile.status === 'onboarding') redirect('/onboarding')
 
   return (

@@ -17,7 +17,22 @@ export async function saveTechStacks(
 
   if (!user) return { error: 'Not authenticated' }
 
-  // Delete existing and re-insert (simplest reliable approach)
+  // 🔒 Only interns in 'onboarding' status can save tech stacks here
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, status')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) return { error: 'Profile not found' }
+  if (profile.role !== 'intern') {
+    return { error: 'Only interns can complete onboarding' }
+  }
+  if (profile.status !== 'onboarding') {
+    return { error: 'Onboarding is already complete' }
+  }
+
+  // Delete existing and re-insert
   await supabase.from('intern_tech_stacks').delete().eq('intern_id', user.id)
 
   const rows = selections.map((s) => ({

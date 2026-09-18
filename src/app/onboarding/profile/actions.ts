@@ -24,6 +24,21 @@ export async function saveProfile(input: {
 
   if (!user) return { error: 'Not authenticated' }
 
+  // 🔒 Only interns in 'onboarding' status can save onboarding data
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role, status')
+    .eq('id', user.id)
+    .single()
+
+  if (!profile) return { error: 'Profile not found' }
+  if (profile.role !== 'intern') {
+    return { error: 'Only interns can complete onboarding' }
+  }
+  if (profile.status !== 'onboarding') {
+    return { error: 'Onboarding is already complete' }
+  }
+
   const { error } = await supabase
     .from('profiles')
     .update({
