@@ -7,7 +7,7 @@ const BASE_URL =
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createAdminClient()
 
-  // Static pages
+  // ─── Static pages ──────────────────────────────────
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: `${BASE_URL}/`,
@@ -45,9 +45,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'yearly',
       priority: 0.3,
     },
+    // ─── Legal ───────────────────────────────────────
+    {
+      url: `${BASE_URL}/terms`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
+      url: `${BASE_URL}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
+    {
+      url: `${BASE_URL}/cookies`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.3,
+    },
   ]
 
-  // Dynamic: public intern profiles
+  // ─── Dynamic: public intern profiles ────────────────
   const { data: interns } = await supabase
     .from('profiles')
     .select('id, updated_at')
@@ -62,7 +81,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  // Dynamic: certificates
+  // ─── Dynamic: certificates ─────────────────────────
   const { data: certificates } = await supabase
     .from('documents')
     .select('certificate_id')
