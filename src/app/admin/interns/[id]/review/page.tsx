@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { ReviewForm } from './review-form'
+import { ReviewForm } from '@/components/reviews/review-form'
 
 export default async function ReviewPage({
   params,
