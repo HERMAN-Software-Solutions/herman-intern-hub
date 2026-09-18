@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { Logo } from './logo'
+import { Breadcrumbs } from '@/components/ui/breadcrumbs'
 
 const NAV_LINKS = [
   { href: '/interns', label: 'Interns' },
@@ -31,12 +32,15 @@ export function PublicNav() {
     }
   }, [open])
 
+  // Only show breadcrumbs on non-home pages
+  const showBreadcrumbs = pathname && pathname !== '/'
+
   return (
     <>
       {/* Fixed Header Bar */}
       <header className="sticky top-0 z-30 bg-white border-b border-slate-200">
+        {/* Row 1: Menu / Logo / Actions */}
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
-          {/* Left: menu + logo */}
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
@@ -50,20 +54,22 @@ export function PublicNav() {
             <Logo />
           </div>
 
-          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm text-slate-600 hover:text-slate-900 transition-colors"
+                className={`text-sm transition-colors ${
+                  pathname === link.href
+                    ? 'text-slate-900 font-medium'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          {/* Right actions */}
           <div className="flex items-center gap-2">
             <Link
               href="/login"
@@ -79,9 +85,18 @@ export function PublicNav() {
             </Link>
           </div>
         </div>
+
+        {/* Row 2: Breadcrumbs */}
+        {showBreadcrumbs && (
+          <div className="border-t border-slate-100 bg-slate-50/50">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2">
+              <Breadcrumbs />
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Mobile Drawer — OUTSIDE the header, in its own stacking context */}
+      {/* Mobile Drawer */}
       {open && (
         <div
           className="fixed inset-0 z-[100] md:hidden"
@@ -89,16 +104,13 @@ export function PublicNav() {
           aria-modal="true"
           aria-label="Main menu"
         >
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/60"
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Drawer panel */}
           <div className="absolute inset-y-0 left-0 w-[85vw] max-w-sm bg-white shadow-2xl flex flex-col">
-            {/* Header */}
             <div className="flex items-center justify-between px-4 h-16 border-b border-slate-200 flex-shrink-0">
               <Logo />
               <button
@@ -111,23 +123,28 @@ export function PublicNav() {
               </button>
             </div>
 
-            {/* Nav links */}
             <nav className="flex-1 overflow-y-auto p-4">
               <ul className="space-y-1">
-                {NAV_LINKS.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="block px-4 py-3 rounded-lg text-slate-800 font-medium hover:bg-slate-100 transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
+                {NAV_LINKS.map((link) => {
+                  const active = pathname === link.href
+                  return (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+                          active
+                            ? 'bg-slate-900 text-white'
+                            : 'text-slate-800 hover:bg-slate-100'
+                        }`}
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  )
+                })}
               </ul>
             </nav>
 
-            {/* Footer actions */}
             <div className="flex-shrink-0 p-4 border-t border-slate-200 space-y-2">
               <Link
                 href="/login"
