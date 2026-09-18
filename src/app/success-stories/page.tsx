@@ -12,32 +12,45 @@ export const metadata = {
 export default async function SuccessStoriesPage() {
   const supabase = await createClient()
 
-  // Fetch completed interns with certificates
-  const { data: alumni } = await supabase
+  // Step 1: Get all completed interns who are directory-visible
+  const { data: alumni, error: alumniError } = await supabase
     .from('profiles')
-    .select(
-      `id, full_name, university, course, bio, avatar_url,
-       start_date, end_date,
-       documents!inner (certificate_id, performance_score)
-      `
-    )
+    .select('id, full_name, university, course, bio, avatar_url, start_date, end_date')
     .eq('role', 'intern')
     .eq('status', 'completed')
     .eq('directory_visible', true)
     .not('full_name', 'is', null)
     .order('end_date', { ascending: false })
-    .limit(20)
+    .limit(50)
 
-  const filtered = (alumni ?? []).filter((a: any) => {
-    const docs = Array.isArray(a.documents) ? a.documents : [a.documents]
-    return docs.some((d: any) => d?.certificate_id)
-  })
+  if (alumniError) {
+    console.error('Success stories query error:', alumniError)
+  }
+
+  // Step 2: Get all certificates for these interns
+  const alumniIds = (alumni ?? []).map((a) => a.id)
+  const { data: certificates } = alumniIds.length
+    ? await supabase
+        .from('documents')
+        .select('intern_id, certificate_id, performance_score')
+        .in('intern_id', alumniIds)
+        .eq('type', 'certificate')
+        .not('certificate_id', 'is', null)
+    : { data: [] }
+
+  // Step 3: Map certificates to their interns
+  const certMap = new Map(
+    (certificates ?? []).map((c) => [c.intern_id, c])
+  )
+
+  // Step 4: Only show alumni who have a certificate
+  const filtered = (alumni ?? []).filter((a) => certMap.has(a.id))
 
   return (
-    <div id="main-content" className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white">
       <PublicNav />
 
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16">
         <div className="max-w-2xl mb-14">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
             Success stories
@@ -51,9 +64,7 @@ export default async function SuccessStoriesPage() {
         {filtered.length === 0 ? (
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-16 text-center">
             <div className="text-4xl mb-4">🌟</div>
-            <p className="text-slate-500">
-              No alumni stories yet.
-            </p>
+            <p className="text-slate-500">No alumni stories yet.</p>
             <p className="text-sm text-slate-400 mt-1">
               Check back soon as our first cohort completes.
             </p>
@@ -61,10 +72,7 @@ export default async function SuccessStoriesPage() {
         ) : (
           <div className="space-y-8">
             {filtered.map((alum: any) => {
-              const docs = Array.isArray(alum.documents)
-                ? alum.documents
-                : [alum.documents]
-              const cert = docs.find((d: any) => d?.certificate_id)
+              const cert = certMap.get(alum.id)
 
               const start = alum.start_date
                 ? new Date(alum.start_date).toLocaleDateString('en-US', {
@@ -127,7 +135,7 @@ export default async function SuccessStoriesPage() {
                         </p>
                       )}
 
-                      {cert && (
+                      {cert?.certificate_id && (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between gap-3 flex-wrap">
                           <div className="text-xs text-green-800">
                             🎓 Certified ·{' '}
@@ -135,7 +143,12 @@ export default async function SuccessStoriesPage() {
                               {cert.certificate_id}
                             </span>
                             {cert.performance_score != null && (
-                              <> · {Number(cert.performance_score).toFixed(1)}/5.0</>
+                              <>
+                                {' '}
+                                ·{' '}
+                                {Number(cert.performance_score).toFixed(1)}
+                                /5.0
+                              </>
                             )}
                           </div>
                           <Link
