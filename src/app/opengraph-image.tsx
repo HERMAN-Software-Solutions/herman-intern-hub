@@ -12,9 +12,9 @@ let logoDataUrl: string | null = null
 function getLogoDataUrl(): string | null {
   if (logoDataUrl) return logoDataUrl
   try {
-    const path = join(process.cwd(), 'public', 'brand', 'logo.png')
+    const path = join(process.cwd(), 'public', 'brand', 'logo.webp')
     const buf = readFileSync(path)
-    logoDataUrl = `data:image/png;base64,${buf.toString('base64')}`
+    logoDataUrl = `data:image/webp;base64,${buf.toString('base64')}`
     return logoDataUrl
   } catch (err) {
     console.error('OG logo load failed:', err)
