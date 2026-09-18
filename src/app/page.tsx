@@ -38,96 +38,133 @@ export default async function Home() {
       <PublicNav />
 
       {/* ─── HERO ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-blue-50/40" />
+      <section className="relative overflow-hidden bg-slate-950">
+        <div
+          className="absolute inset-0 opacity-[0.15]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l25.98 15v30L30 60 4.02 45V15z' fill='none' stroke='%23ffffff' stroke-width='0.5'/%3E%3C/svg%3E")`,
+            backgroundSize: '60px 60px',
+          }}
+        />
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-full px-3 py-1 text-xs font-medium text-blue-700 mb-6">
-              <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse" />
-              Applications open
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{
+            background:
+              'radial-gradient(ellipse 80% 50% at 50% 0%, rgba(37, 99, 235, 0.35), transparent 70%), radial-gradient(ellipse 60% 50% at 80% 100%, rgba(139, 92, 246, 0.25), transparent 70%)',
+          }}
+        />
+
+        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-b from-transparent to-white pointer-events-none" />
+
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-20 md:py-32 text-center">
+          <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-full px-3.5 py-1.5 text-xs font-medium mb-8">
+            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+            <span style={{ color: '#e2e8f0' }}>Applications open</span>
+          </div>
+
+          <h1
+            className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.05] max-w-4xl mx-auto"
+            style={{ color: '#ffffff' }}
+          >
+            Launch your software career with{' '}
+            <span className="bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500 bg-clip-text text-transparent">
+              HERMAN
+            </span>
+          </h1>
+
+          <p
+            className="text-lg md:text-xl mt-8 leading-relaxed max-w-2xl mx-auto"
+            style={{ color: '#cbd5e1' }}
+          >
+            Real projects. Real mentors. Real software engineering — learn the
+            way it&apos;s actually done, from a working team that ships
+            production systems every day.
+          </p>
+
+          <div className="flex flex-wrap gap-3 mt-10 justify-center">
+            <Link
+              href="/apply"
+              className="group inline-flex items-center gap-2 bg-white hover:bg-slate-100 font-medium px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl"
+              style={{ color: '#0f172a' }}
+            >
+              <span>Apply for internship</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/interns"
+              className="inline-flex items-center bg-white/5 hover:bg-white/10 backdrop-blur-sm border border-white/20 hover:border-white/30 font-medium px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+              style={{ color: '#ffffff' }}
+            >
+              Meet our interns
+            </Link>
+          </div>
+
+          <div
+            className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 mt-10 text-xs"
+            style={{ color: '#94a3b8' }}
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-1 h-1 bg-green-400 rounded-full" />
+              Remote-first
+            </span>
+            <span className="hidden sm:inline text-white/20">·</span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-1 h-1 bg-green-400 rounded-full" />
+              100% Mentor-led
+            </span>
+            <span className="hidden sm:inline text-white/20">·</span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-1 h-1 bg-green-400 rounded-full" />
+              Free to apply
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── STATS STRIP ──────────────────────────────── */}
+      <section className="bg-white border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center">
+            <div>
+              <AnimatedCounter
+                to={30}
+                suffix="+"
+                className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
+              />
+              <div className="text-sm text-slate-500 mt-1">
+                Intern positions planned
+              </div>
             </div>
-
-            <h1 className="text-4xl md:text-6xl font-bold text-slate-900 tracking-tight leading-[1.05]">
-              Launch your software career with{' '}
-              <span className="text-blue-600">HERMAN</span>
-            </h1>
-
-            <p className="text-lg md:text-xl text-slate-600 mt-6 leading-relaxed max-w-2xl">
-              Learn software engineering the way it&apos;s actually done — real
-              projects, code reviews, design discussions, documentation, and
-              mentorship from engineers who ship production systems every day.
-            </p>
-
-            <div className="flex flex-wrap gap-3 mt-8">
-              <Link
-                href="/apply"
-                className="group inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                <span>Apply for internship</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <Link
-                href="/interns"
-                className="inline-flex items-center border border-slate-300 hover:border-slate-500 text-slate-700 font-medium px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
-              >
-                Meet our interns
-              </Link>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
+                100%
+              </div>
+              <div className="text-sm text-slate-500 mt-1">Mentor-led</div>
             </div>
-
-            {/* Stats */}
-            <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl">
-              <div className="text-center sm:text-left">
-                <AnimatedCounter
-                  to={30}
-                  suffix="+"
-                  className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
-                />
-                <div className="text-sm text-slate-500 mt-1">
-                  Intern positions planned
-                </div>
+            <div>
+              <div className="text-4xl md:text-5xl font-bold text-green-600 tracking-tight">
+                Free
               </div>
-
-              <div className="text-center sm:text-left">
-                <div className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
-                  100%
-                </div>
-                <div className="text-sm text-slate-500 mt-1">Mentor-led</div>
-              </div>
-
-              <div className="text-center sm:text-left">
-                <div className="text-4xl md:text-5xl font-bold text-green-600 tracking-tight">
-                  Free
-                </div>
-                <div className="text-sm text-slate-500 mt-1">To apply</div>
-              </div>
-            </div>
-
-            {/* Status line */}
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-6 text-sm text-slate-600">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span className="font-medium">Now accepting applications</span>
-              </div>
-              <div className="hidden sm:block w-px h-4 bg-slate-200" />
-              <div className="text-slate-500">Remote-first</div>
+              <div className="text-sm text-slate-500 mt-1">To apply</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* ─── NOT JUST CODE ─────────────────────────────── */}
-      <section className="bg-slate-50 border-y border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-          <div className="max-w-3xl mb-12">
-            <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 text-xs font-medium text-amber-800 mb-4">
+      <section className="bg-slate-50 border-b border-slate-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+          {/* CENTERED HEADER */}
+          <div className="max-w-3xl mx-auto mb-14 text-center">
+            <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 text-xs font-medium text-amber-800 mb-5">
               <Sparkles className="w-3 h-3" />
               What sets us apart
             </div>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
               Software engineering is more than writing code
             </h2>
-            <p className="text-slate-600 mt-4 text-lg leading-relaxed">
+            <p className="text-slate-600 mt-5 text-lg leading-relaxed">
               At HERMAN, interns learn the full craft — from understanding a
               problem to shipping a solution. Real clients. Real deadlines.
               Real reviews.
@@ -171,15 +208,24 @@ export default async function Home() {
               return (
                 <div
                   key={item.title}
-                  className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-sm transition-all duration-200"
+                  className="
+                    group relative bg-white border border-slate-200 rounded-2xl p-6
+                    transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]
+                    hover:-translate-y-2 hover:border-blue-600
+                    hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.3)]
+                    cursor-default
+                  "
                 >
-                  <div className="w-10 h-10 rounded-lg bg-slate-900 text-white flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center mb-4 transition-all duration-300 group-hover:bg-blue-600 group-hover:scale-110 group-hover:rotate-3">
                     <Icon className="w-5 h-5" />
                   </div>
-                  <h3 className="font-semibold text-slate-900 mb-1.5">
+                  <h3
+                    className="font-semibold mb-2 transition-colors duration-300 group-hover:text-blue-600"
+                    style={{ color: '#0f172a' }}
+                  >
                     {item.title}
                   </h3>
-                  <p className="text-sm text-slate-600 leading-relaxed">
+                  <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
                     {item.body}
                   </p>
                 </div>
@@ -189,53 +235,64 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ─── LIFE AT HERMAN (Photos) ────────────────────── */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-        <div className="max-w-2xl mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-            Life at HERMAN
-          </h2>
-          <p className="text-slate-600 mt-4 text-lg">
-            A working studio — pairing, designing, reviewing, shipping.
-            Remote-first, but never alone.
-          </p>
-        </div>
+      {/* ─── LIFE AT HERMAN ────────────────────────────── */}
+      <section className="bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+          <div className="max-w-3xl mx-auto mb-14 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+              Life at HERMAN
+            </h2>
+            <p className="text-slate-600 mt-5 text-lg leading-relaxed">
+              A working studio — pairing, designing, reviewing, shipping.
+              Remote-first, but never alone.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-          {[
-            { src: '/brand/team/pair-programming.avif', label: 'Pair programming' },
-            { src: '/brand/team/developers-meeting.avif', label: 'Team sync' },
-            { src: '/brand/team/whiteboard-planning.avif', label: 'Planning sessions' },
-            { src: '/brand/team/laptop-code.avif', label: 'Deep work' },
-            { src: '/brand/team/team-standup.avif', label: 'Daily standups' },
-          ].map((img, i) => (
-            <div
-              key={i}
-              className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200"
-            >
-              <img
-                src={img.src}
-                alt={img.label}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute bottom-3 left-3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                {img.label}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+            {[
+              { src: '/brand/team/pair-programming.avif', label: 'Pair programming' },
+              { src: '/brand/team/developers-meeting.avif', label: 'Team sync' },
+              { src: '/brand/team/whiteboard-planning.avif', label: 'Planning sessions' },
+              { src: '/brand/team/laptop-code.avif', label: 'Deep work' },
+              { src: '/brand/team/team-standup.avif', label: 'Daily standups' },
+            ].map((img, i) => (
+              <div
+                key={i}
+                className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200"
+              >
+                <img
+                  src={img.src}
+                  alt={img.label}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div
+                  className="absolute bottom-3 left-3 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ color: '#ffffff' }}
+                >
+                  {img.label}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ─── WHAT YOU'LL SHIP ──────────────────────────── */}
       <section className="bg-slate-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-          <div className="max-w-2xl mb-12">
-            <h2 className="text-white text-3xl md:text-4xl font-bold tracking-tight">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+          <div className="max-w-3xl mx-auto mb-14 text-center">
+            <h2
+              className="text-3xl md:text-4xl font-bold tracking-tight"
+              style={{ color: '#ffffff' }}
+            >
               What you&apos;ll ship
             </h2>
-            <p className="text-slate-300 mt-4 text-lg leading-relaxed">
+            <p
+              className="mt-5 text-lg leading-relaxed"
+              style={{ color: '#cbd5e1' }}
+            >
               You won&apos;t build toy apps. You&apos;ll work on systems that
               real people use every day — for schools, cooperatives, and
               businesses across East Africa.
@@ -269,17 +326,18 @@ export default async function Home() {
                 key={i}
                 className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors"
               >
-                <h3 className="text-white font-semibold mb-2">
+                <h3 className="font-semibold mb-2" style={{ color: '#ffffff' }}>
                   {item.title}
                 </h3>
-                <p className="text-slate-300 text-sm leading-relaxed mb-3">
+                <p className="text-sm leading-relaxed mb-3" style={{ color: '#e2e8f0' }}>
                   {item.body}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {item.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="text-[11px] bg-white/10 text-slate-100 px-2 py-0.5 rounded border border-white/10"
+                      className="text-[11px] bg-white/10 px-2 py-0.5 rounded border border-white/20"
+                      style={{ color: '#f1f5f9' }}
                     >
                       {tag}
                     </span>
@@ -292,75 +350,65 @@ export default async function Home() {
       </section>
 
       {/* ─── HOW IT WORKS ──────────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-        <div className="max-w-2xl mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-            How it works
-          </h2>
-          <p className="text-slate-600 mt-4 text-lg">
-            A structured path from applicant to certified software engineer.
-          </p>
-        </div>
+      <section className="bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+          <div className="max-w-3xl mx-auto mb-14 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+              How it works
+            </h2>
+            <p className="text-slate-600 mt-5 text-lg">
+              A structured path from applicant to certified software engineer.
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          {[
-            {
-              n: '01',
-              title: 'Apply',
-              body: 'Fill a short application online. No login needed.',
-            },
-            {
-              n: '02',
-              title: 'Get approved',
-              body: 'We review personally. If accepted, you get an invite by email.',
-            },
-            {
-              n: '03',
-              title: 'Onboard',
-              body: 'Set up your profile, pick your tech stack, sign the agreement.',
-            },
-            {
-              n: '04',
-              title: 'Build',
-              body: 'Work on real projects with your mentor. Log daily, submit work.',
-            },
-            {
-              n: '05',
-              title: 'Get certified',
-              body: 'Receive a verifiable certificate + experience letter.',
-            },
-          ].map((step) => (
-            <div
-              key={step.n}
-              className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="text-3xl font-bold text-slate-300 group-hover:text-slate-900 transition-colors mb-3">
-                {step.n}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[
+              { n: '01', title: 'Apply', body: 'Fill a short application online. No login needed.' },
+              { n: '02', title: 'Get approved', body: 'We review personally. If accepted, you get an invite by email.' },
+              { n: '03', title: 'Onboard', body: 'Set up your profile, pick your tech stack, sign the agreement.' },
+              { n: '04', title: 'Build', body: 'Work on real projects with your mentor. Log daily, submit work.' },
+              { n: '05', title: 'Get certified', body: 'Receive a verifiable certificate + experience letter.' },
+            ].map((step) => (
+              <div
+                key={step.n}
+                className="group bg-white border border-slate-200 rounded-xl p-5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-2 hover:border-blue-600 hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.3)]"
+              >
+                <div className="text-3xl font-bold text-slate-300 group-hover:text-blue-600 transition-colors mb-3">
+                  {step.n}
+                </div>
+                <div className="font-semibold text-slate-900 mb-1">
+                  {step.title}
+                </div>
+                <div className="text-sm text-slate-600 leading-relaxed">
+                  {step.body}
+                </div>
               </div>
-              <div className="font-semibold text-slate-900 mb-1">
-                {step.title}
-              </div>
-              <div className="text-sm text-slate-600 leading-relaxed">
-                {step.body}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ─── ABOUT HERMAN ──────────────────────────────── */}
       <section className="bg-slate-50 border-y border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+          <div className="max-w-3xl mx-auto mb-14 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+              About HERMAN
+            </h2>
+            <p className="text-slate-600 mt-5 text-lg leading-relaxed">
+              A Ugandan software company building production systems for
+              clients across East Africa — and training the next generation
+              of engineers along the way.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start max-w-5xl mx-auto">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
-                About HERMAN
-              </h2>
-              <div className="mt-6 space-y-4 text-slate-600 leading-relaxed">
+              <div className="space-y-4 text-slate-600 leading-relaxed">
                 <p>
-                  HERMAN Software Solutions is a Ugandan software company based
-                  in Jinja, building robust web, mobile, and enterprise
-                  systems for clients across East Africa.
+                  HERMAN Software Solutions is based in Jinja, Uganda, building
+                  robust web, mobile, and enterprise systems for clients
+                  across East Africa.
                 </p>
                 <p>
                   We&apos;ve shipped production systems for schools,
@@ -387,6 +435,14 @@ export default async function Home() {
                   Production clients since 2024
                 </span>
               </div>
+
+              <Link
+                href="/about"
+                className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                Learn more about the program
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -415,87 +471,72 @@ export default async function Home() {
 
       {/* ─── CURRENT COHORT ───────────────────────────── */}
       {featuredInterns && featuredInterns.length > 0 && (
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-          <div className="flex items-end justify-between mb-12 flex-wrap gap-4">
-            <div>
+        <section className="bg-white">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+            <div className="max-w-3xl mx-auto mb-14 text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
                 Meet our interns
               </h2>
-              <p className="text-slate-600 mt-2">
+              <p className="text-slate-600 mt-5 text-lg">
                 Talented students building real software with us.
               </p>
             </div>
-            <Link
-              href="/interns"
-              className="text-sm font-medium text-blue-600 hover:underline"
-            >
-              See all →
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {featuredInterns.map((intern) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {featuredInterns.map((intern) => (
+                <Link
+                  key={intern.id}
+                  href={`/interns/${intern.id}`}
+                  className="group bg-white border border-slate-200 rounded-xl p-5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-2 hover:border-blue-600 hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.3)]"
+                >
+                  <div className="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center font-semibold text-lg mb-4 group-hover:scale-110 group-hover:bg-blue-600 transition-all duration-300">
+                    {(intern.full_name ?? 'A').charAt(0).toUpperCase()}
+                  </div>
+                  <div className="font-medium text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                    {intern.full_name}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1 truncate">
+                    {intern.course ?? intern.university ?? 'Intern'}
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="text-center mt-10">
               <Link
-                key={intern.id}
-                href={`/interns/${intern.id}`}
-                className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-900 hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+                href="/interns"
+                className="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
               >
-                <div className="w-14 h-14 bg-slate-900 text-white rounded-full flex items-center justify-center font-semibold text-lg mb-4 group-hover:scale-110 group-hover:bg-blue-600 transition-all duration-300">
-                  {(intern.full_name ?? 'A').charAt(0).toUpperCase()}
-                </div>
-                <div className="font-medium text-slate-900 truncate group-hover:text-blue-600 transition-colors">
-                  {intern.full_name}
-                </div>
-                <div className="text-xs text-slate-500 mt-1 truncate">
-                  {intern.course ?? intern.university ?? 'Intern'}
-                </div>
+                See all interns
+                <ArrowRight className="w-4 h-4" />
               </Link>
-            ))}
+            </div>
           </div>
         </section>
       )}
 
       {/* ─── FAQ ───────────────────────────────────────── */}
       <section className="bg-slate-50 border-y border-slate-200">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight text-center mb-12">
-            Common questions
-          </h2>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+          <div className="max-w-3xl mx-auto mb-14 text-center">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 tracking-tight">
+              Common questions
+            </h2>
+            <p className="text-slate-600 mt-5 text-lg">
+              Everything you need to know before applying.
+            </p>
+          </div>
 
           <div className="space-y-3">
             {[
-              {
-                q: 'Who can apply?',
-                a: 'Any student or recent graduate interested in software engineering. We welcome applicants from any university in Uganda and beyond — and from anywhere in the world that has reliable internet.',
-              },
-              {
-                q: 'Is the internship paid?',
-                a: 'Internships are unpaid by default — you gain experience, mentorship, and a verified certificate. However, if you\u2019re assigned to a client project with a signed agreement, compensation is arranged.',
-              },
-              {
-                q: 'How long is the internship?',
-                a: 'Typically 3 months, but the duration is set during registration based on your availability and track.',
-              },
-              {
-                q: 'Where is the internship based?',
-                a: 'The program is remote-first. You can work from anywhere with a reliable internet connection. In-person meetups in Jinja can be arranged when needed.',
-              },
-              {
-                q: 'How much time per week does it take?',
-                a: 'Most interns commit around 15–25 hours per week. You and your mentor will agree on a schedule that works for both of you.',
-              },
-              {
-                q: 'Do I need my own laptop?',
-                a: 'Yes. You need access to a computer and reliable internet. A laptop with at least 8GB RAM is recommended but not strictly required.',
-              },
-              {
-                q: 'Do I need to know how to code already?',
-                a: 'You should have some programming fundamentals. We\u2019ll teach you the tools, patterns, and professional workflows — but we don\u2019t start from zero.',
-              },
-              {
-                q: 'Will I get a certificate?',
-                a: 'Yes. Every intern who completes the program receives a certificate of internship and an experience letter. Each certificate has a unique ID and QR code — anyone can verify it at herman-intern-hub.vercel.app/verify.',
-              },
+              { q: 'Who can apply?', a: 'Any student or recent graduate interested in software engineering. We welcome applicants from any university in Uganda and beyond — and from anywhere in the world that has reliable internet.' },
+              { q: 'Is the internship paid?', a: 'Internships are unpaid by default — you gain experience, mentorship, and a verified certificate. However, if you\u2019re assigned to a client project with a signed agreement, compensation is arranged.' },
+              { q: 'How long is the internship?', a: 'Typically 3 months, but the duration is set during registration based on your availability and track.' },
+              { q: 'Where is the internship based?', a: 'The program is remote-first. You can work from anywhere with a reliable internet connection. In-person meetups in Jinja can be arranged when needed.' },
+              { q: 'How much time per week does it take?', a: 'Most interns commit around 15–25 hours per week. You and your mentor will agree on a schedule that works for both of you.' },
+              { q: 'Do I need my own laptop?', a: 'Yes. You need access to a computer and reliable internet. A laptop with at least 8GB RAM is recommended but not strictly required.' },
+              { q: 'Do I need to know how to code already?', a: 'You should have some programming fundamentals. We\u2019ll teach you the tools, patterns, and professional workflows — but we don\u2019t start from zero.' },
+              { q: 'Will I get a certificate?', a: 'Yes. Every intern who completes the program receives a certificate of internship and an experience letter. Each certificate has a unique ID and QR code — anyone can verify it at herman-intern-hub.vercel.app/verify.' },
             ].map((faq, i) => (
               <details
                 key={i}
@@ -517,24 +558,39 @@ export default async function Home() {
       </section>
 
       {/* ─── CTA ──────────────────────────────────────── */}
-      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-        <div className="bg-slate-900 rounded-3xl p-8 md:p-16 text-center relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600/30 via-transparent to-purple-600/30" />
-          <div className="relative">
-            <h2 className="text-white text-3xl md:text-4xl font-bold tracking-tight">
-              Ready to start your career?
-            </h2>
-            <p className="text-slate-200 mt-4 text-lg max-w-xl mx-auto">
-              Applications take 5 minutes. We review every one personally.
-            </p>
-            <div className="mt-8">
-              <Link
-                href="/apply"
-                className="group inline-flex items-center gap-2 bg-white text-slate-900 font-medium px-8 py-3 rounded-lg hover:bg-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
+        <div className="cta-border-wrapper">
+          <div className="cta-border-inner p-8 md:p-16 text-center overflow-hidden">
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  'radial-gradient(circle at top left, rgba(37, 99, 235, 0.25), transparent 55%), radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.25), transparent 55%)',
+              }}
+            />
+
+            <div className="relative">
+              <h2
+                className="text-3xl md:text-4xl font-bold tracking-tight"
+                style={{ color: '#ffffff' }}
               >
-                <span>Apply for internship</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </Link>
+                Ready to start your career?
+              </h2>
+              <p
+                className="mt-4 text-lg max-w-xl mx-auto"
+                style={{ color: '#e2e8f0' }}
+              >
+                Applications take 5 minutes. We review every one personally.
+              </p>
+              <div className="mt-8">
+                <Link
+                  href="/apply"
+                  className="group inline-flex items-center gap-2 bg-white text-slate-900 font-medium px-8 py-3 rounded-lg hover:bg-slate-100 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+                >
+                  <span>Apply for internship</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
             </div>
           </div>
         </div>

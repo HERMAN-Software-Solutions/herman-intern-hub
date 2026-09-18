@@ -117,3 +117,57 @@ select:focus {
 :where(p) {
   color: #334155;
 }
+
+/* ─── Animated gradient border for CTA card ───────── */
+@keyframes gradient-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Outer wrapper: gradient background that rotates */
+.cta-border-wrapper {
+  position: relative;
+  border-radius: 1.75rem;
+  padding: 2px; /* the visible border thickness */
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.cta-border-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 200%;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(
+    from 0deg,
+    #2563eb,
+    #06b6d4,
+    #8b5cf6,
+    #ec4899,
+    #f59e0b,
+    #2563eb
+  );
+  animation: gradient-spin 6s linear infinite;
+  z-index: 0;
+}
+
+/* Inner card sits on top */
+.cta-border-inner {
+  position: relative;
+  z-index: 1;
+  background: #0f172a;
+  border-radius: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-border-wrapper::before {
+    animation: none;
+  }
+}
