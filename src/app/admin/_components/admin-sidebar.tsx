@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Inbox,
   Users,
+  UserCog,
   FileCheck2,
   FolderKanban,
   FileText,
@@ -41,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/admin/applications', label: 'Applications', icon: Inbox },
       { href: '/admin/interns', label: 'Interns', icon: Users },
+      { href: '/admin/mentors', label: 'Mentors', icon: UserCog },
     ],
   },
   {

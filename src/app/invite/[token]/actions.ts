@@ -63,13 +63,16 @@ type AcceptResult =
  * Accepts an invitation: creates the auth user + profile, marks invitation accepted.
  * The user is NOT auto-logged in here — the client will sign in with the password
  * they just set.
+ *
+ * Handles both intern invitations (requires onboarding) and mentor invitations
+ * (skips onboarding, goes straight to /mentor).
  */
 export async function acceptInvitation(input: {
   token: string
   password: string
   agreementAccepted: boolean
 }): Promise<AcceptResult> {
-  // --- Validation ---
+  // ─── Validation ─────────────────────────────────────
   if (!input.token) return { success: false, error: 'Missing invitation token' }
 
   if (!input.password || input.password.length < 8) {
@@ -82,7 +85,7 @@ export async function acceptInvitation(input: {
 
   const supabase = createAdminClient()
 
-  // --- Fetch + re-validate the invitation ---
+  // ─── Fetch + re-validate the invitation ─────────────
   const { data: invitation, error: fetchError } = await supabase
     .from('invitations')
     .select('*')
@@ -94,7 +97,10 @@ export async function acceptInvitation(input: {
   }
 
   if (invitation.status === 'accepted') {
-    return { success: false, error: 'This invitation has already been used. Try signing in instead.' }
+    return {
+      success: false,
+      error: 'This invitation has already been used. Try signing in instead.',
+    }
   }
 
   if (invitation.status === 'revoked') {
@@ -102,10 +108,13 @@ export async function acceptInvitation(input: {
   }
 
   if (new Date(invitation.expires_at) < new Date()) {
-    return { success: false, error: 'This invitation has expired. Please contact the admin.' }
+    return {
+      success: false,
+      error: 'This invitation has expired. Please contact the admin.',
+    }
   }
 
-  // --- Check if a user with this email already exists ---
+  // ─── Check if a user with this email already exists ─
   const { data: existingProfile } = await supabase
     .from('profiles')
     .select('id')
@@ -119,12 +128,12 @@ export async function acceptInvitation(input: {
     }
   }
 
-  // --- Create the auth user ---
+  // ─── Create the auth user ───────────────────────────
   const { data: created, error: createError } =
     await supabase.auth.admin.createUser({
       email: invitation.email,
       password: input.password,
-      email_confirm: true, // already verified via invitation
+      email_confirm: true,
       user_metadata: {
         invited_via: invitation.id,
       },
@@ -140,55 +149,65 @@ export async function acceptInvitation(input: {
 
   const userId = created.user.id
   const meta = (invitation.metadata as Record<string, any>) ?? {}
+  const isMentor = invitation.role === 'mentor'
 
-  // --- Create the profile row ---
+  // ─── Create the profile row ─────────────────────────
   const { error: profileError } = await supabase.from('profiles').insert({
     id: userId,
     email: invitation.email,
     role: invitation.role,
-    status: 'onboarding',
+    // Mentors skip onboarding — they go straight to active
+    status: isMentor ? 'active' : 'onboarding',
     invited_via: invitation.id,
     approved_by: invitation.invited_by,
     approved_at: invitation.created_at,
     full_name: meta.fullName ?? null,
-    university: meta.university ?? null,
-    course: meta.course ?? null,
-    mentor_id: meta.mentorId ?? null,
-    start_date: meta.startDate ?? null,
-    end_date: meta.endDate ?? null,
-    agreement_signed_at: input.agreementAccepted
+    // Mentor-specific fields
+    bio: isMentor ? (meta.bio ?? null) : null,
+    // Intern-specific fields
+    university: isMentor ? null : (meta.university ?? null),
+    course: isMentor ? null : (meta.course ?? null),
+    mentor_id: isMentor ? null : (meta.mentorId ?? null),
+    start_date: isMentor ? null : (meta.startDate ?? null),
+    end_date: isMentor ? null : (meta.endDate ?? null),
+    agreement_signed_at: isMentor
       ? new Date().toISOString()
-      : null,
+      : input.agreementAccepted
+        ? new Date().toISOString()
+        : null,
     agreement_version: '1.0',
-    directory_visible: false, // default off until they opt in
+    directory_visible: false,
   })
 
   if (profileError) {
     console.error('profile insert error:', profileError)
-    // Roll back the auth user to avoid orphan accounts
     await supabase.auth.admin.deleteUser(userId)
     return { success: false, error: 'Failed to create profile' }
   }
 
-  // --- Attach tech stacks (from application metadata) ---
-  if (Array.isArray(meta.techStacks) && meta.techStacks.length > 0) {
+  // ─── Attach tech stacks (from invitation metadata) ──
+  // Mentors use `techStack` (their expertise).
+  // Interns use `techStacks` (interest from application).
+  const stacksToAttach = isMentor ? meta.techStack : meta.techStacks
+
+  if (Array.isArray(stacksToAttach) && stacksToAttach.length > 0) {
     const { data: stacks } = await supabase
       .from('tech_stacks')
       .select('id, name')
-      .in('name', meta.techStacks)
+      .in('name', stacksToAttach)
 
     if (stacks && stacks.length > 0) {
       await supabase.from('intern_tech_stacks').insert(
         stacks.map((s) => ({
           intern_id: userId,
           tech_stack_id: s.id,
-          proficiency: 'beginner',
+          proficiency: isMentor ? 'advanced' : 'beginner',
         }))
       )
     }
   }
 
-  // --- Mark invitation accepted ---
+  // ─── Mark invitation accepted ───────────────────────
   await supabase
     .from('invitations')
     .update({
@@ -197,14 +216,20 @@ export async function acceptInvitation(input: {
     })
     .eq('id', invitation.id)
 
-  // --- Audit ---
+  // ─── Audit ──────────────────────────────────────────
   await supabase.from('audit_log').insert({
     actor_id: userId,
     action: 'invitation.accepted',
     entity: 'invitations',
     entity_id: invitation.id,
-    metadata: { email: invitation.email },
+    metadata: {
+      email: invitation.email,
+      role: invitation.role,
+    },
   })
 
-  return { success: true, redirectTo: '/onboarding/welcome' }
+  return {
+    success: true,
+    redirectTo: isMentor ? '/mentor' : '/onboarding/welcome',
+  }
 }
