@@ -26,6 +26,15 @@ export async function getAdminStats() {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString()
 
+  // ─── Get all real (non-demo) intern IDs ─────────────
+  const { data: realInternProfiles } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('role', 'intern')
+    .eq('is_demo', false)
+
+  const realInternIds = (realInternProfiles ?? []).map((p) => p.id)
+
   // ─── KPI counts in parallel ─────────────────────────
   const [
     activeInterns,
@@ -55,14 +64,22 @@ export async function getAdminStats() {
       .from('applications')
       .select('*', { count: 'exact', head: true })
       .gte('submitted_at', startOfMonth),
-    admin
-      .from('submissions')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending'),
-    admin
-      .from('documents')
-      .select('*', { count: 'exact', head: true })
-      .eq('type', 'certificate'),
+    // Only count submissions from real interns
+    realInternIds.length > 0
+      ? admin
+          .from('submissions')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending')
+          .in('intern_id', realInternIds)
+      : Promise.resolve({ count: 0 }),
+    // Only count certificates for real interns
+    realInternIds.length > 0
+      ? admin
+          .from('documents')
+          .select('*', { count: 'exact', head: true })
+          .eq('type', 'certificate')
+          .in('intern_id', realInternIds)
+      : Promise.resolve({ count: 0 }),
   ])
 
   // ─── Log gaps (real interns only) ───────────────────
@@ -148,8 +165,14 @@ export async function getAdminStats() {
     count,
   }))
 
-  // ─── Submission pipeline ───────────────────────────
-  const { data: allSubs } = await admin.from('submissions').select('status')
+  // ─── Submission pipeline (real interns only) ───────
+  const { data: allSubs } =
+    realInternIds.length > 0
+      ? await admin
+          .from('submissions')
+          .select('status')
+          .in('intern_id', realInternIds)
+      : { data: [] }
 
   const submissionsByStatus = {
     pending: allSubs?.filter((s) => s.status === 'pending').length ?? 0,
