@@ -22,7 +22,7 @@ export function StandaloneLayout({
             aria-label="Back to HERMAN Intern Hub home"
           >
             <img
-              src="/brand/logo.png"
+              src="/brand/logo.webp"
               alt=""
               className="h-8 w-8 rounded object-contain"
             />

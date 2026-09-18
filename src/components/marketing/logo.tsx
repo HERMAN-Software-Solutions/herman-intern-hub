@@ -14,7 +14,7 @@ export function Logo({
   return (
     <Link href={href} className="flex items-center gap-2.5 group">
       <Image
-       src="/brand/logo.png"
+       src="/brand/logo.webp"
        alt="HERMAN Intern Hub"
        width={40}
        height={40}

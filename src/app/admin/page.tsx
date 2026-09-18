@@ -1,10 +1,41 @@
 import Link from 'next/link'
+import nextDynamic from 'next/dynamic'
 import { getAdminStats } from './_actions/analytics'
 import { KpiCard } from './_components/kpi-card'
-import {
-  ApplicationsChart,
-  SubmissionsPipeline,
-} from './_components/analytics-charts'
+
+// ─── Lazy load the chart library ────────────────────────
+// recharts is ~130 KB. Loading it dynamically means it only
+// downloads when someone actually visits the admin dashboard,
+// not on the public landing page.
+//
+// Note: `dynamic` from next/dynamic is imported as `nextDynamic`
+// to avoid clashing with Next.js's reserved route config export
+// `export const dynamic = 'force-dynamic'`.
+const ApplicationsChart = nextDynamic(
+  () =>
+    import('./_components/analytics-charts').then(
+      (m) => m.ApplicationsChart
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-56 bg-slate-100 rounded animate-pulse" />
+    ),
+  }
+)
+
+const SubmissionsPipeline = nextDynamic(
+  () =>
+    import('./_components/analytics-charts').then(
+      (m) => m.SubmissionsPipeline
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-56 bg-slate-100 rounded animate-pulse" />
+    ),
+  }
+)
 
 export const dynamic = 'force-dynamic'
 
@@ -42,20 +73,14 @@ export default async function AdminOverview() {
           accent={kpis.pendingApps > 0 ? 'amber' : 'default'}
           href="/admin/applications?status=pending"
         />
-        <KpiCard
-          label="Apps this month"
-          value={kpis.appsThisMonth}
-        />
+        <KpiCard label="Apps this month" value={kpis.appsThisMonth} />
         <KpiCard
           label="Pending reviews"
           value={kpis.submissionsPending}
           accent={kpis.submissionsPending > 0 ? 'amber' : 'default'}
           href="/admin/submissions?status=pending"
         />
-        <KpiCard
-          label="Certificates"
-          value={kpis.certificatesIssued}
-        />
+        <KpiCard label="Certificates" value={kpis.certificatesIssued} />
       </div>
 
       {/* ─── Charts ──────────────────────────────────── */}
@@ -168,7 +193,10 @@ export default async function AdminOverview() {
               const actor = Array.isArray(actorRaw) ? actorRaw[0] : actorRaw
               return (
                 <div key={a.id} className="p-4 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-semibold flex-shrink-0">
+                  <div
+                    aria-hidden="true"
+                    className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-semibold flex-shrink-0"
+                  >
                     {(actor?.full_name ?? actor?.email ?? 'S')
                       .charAt(0)
                       .toUpperCase()}

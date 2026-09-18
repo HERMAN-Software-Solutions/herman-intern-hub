@@ -77,7 +77,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
       <div className="px-5 py-5 border-b border-slate-800">
         <div className="flex items-center gap-2.5">
           <img
-            src="/brand/logo.png"
+            src="/brand/logo.webp"
             alt=""
             className="h-8 w-8 rounded object-contain bg-white/10 p-0.5"
           />

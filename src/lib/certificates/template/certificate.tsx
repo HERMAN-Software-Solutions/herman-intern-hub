@@ -260,7 +260,7 @@ export function CertificateDocument({ data }: { data: CertificateData }) {
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerLeft}>
-                <Image src="/brand/logo.png" style={styles.logo} />
+                <Image src="/brand/logo-pdf.jpg" style={styles.logo} />
                 <View style={styles.brandBlock}>
                   <Text style={styles.brandName}>
                     HERMAN SOFTWARE SOLUTIONS LIMITED

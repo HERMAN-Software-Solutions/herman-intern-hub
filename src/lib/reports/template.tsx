@@ -167,7 +167,7 @@ export function WeeklyReportDocument({
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <Image src="/brand/logo.png" style={styles.logo} />
+            <Image src="/brand/logo-pdf.jpg" style={styles.logo} />
             <View>
               <Text style={styles.brandName}>
                 HERMAN SOFTWARE SOLUTIONS LIMITED
