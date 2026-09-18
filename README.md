@@ -119,10 +119,10 @@ Each role gets routed to its own panel by middleware:
 - **Automatic activation** — assigning a mentor flips `onboarding → active` via a DB trigger
 - **Audit log** — every sensitive action recorded
 - **Realtime notifications** — in-app bell updates via Supabase Realtime
-- **Data-driven certificates** — performance score computed from real metrics (task completion, submission quality, log consistency, mentor rating)
-- **Design system** — hand-rolled UI primitives (`Button`, `Input`, `Card`, `Badge`, `Avatar`, …)
+- **Data-driven certificates** — performance score computed from real metrics
+- **Design system** — hand-rolled UI primitives
 - **Breadcrumbs everywhere** — consistent navigation across panels
-- **Accessibility-first** — WCAG AA contrast, ARIA labels, keyboard navigation, `role="alert"` on form errors
+- **Accessibility-first** — WCAG AA contrast, ARIA labels, keyboard navigation
 
 ## Screenshots
 
@@ -153,3 +153,136 @@ Each role gets routed to its own panel by middleware:
 ```bash
 git clone https://github.com/HERMAN-Software-Solutions/herman-intern-hub.git
 cd herman-intern-hub
+```
+
+### 2. Install
+
+```bash
+npm install
+```
+
+### 3. Configure environment
+
+```bash
+cp .env.example .env.local
+```
+
+Fill in the values (see `.env.example` for descriptions).
+
+### 4. Set up the database
+
+Run the SQL in [`docs/data-model.md`](./docs/data-model.md) in your Supabase SQL Editor. Then seed tech stacks (see `data-model.md` § Seed).
+
+### 5. Run
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+### 6. Promote yourself to admin
+
+After creating your account (via an invitation you make yourself in Supabase Studio), run:
+
+```sql
+UPDATE profiles
+SET role = 'super_admin', status = 'active'
+WHERE email = 'your-email@example.com';
+```
+
+## Project structure
+
+```
+herman-intern-hub/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx              # Landing page
+│   │   ├── about/                # About the program
+│   │   ├── apply/                # Public application flow
+│   │   ├── interns/              # Public intern directory
+│   │   ├── success-stories/      # Public alumni showcase
+│   │   ├── verify/               # Public certificate verification
+│   │   ├── invite/               # Invitation acceptance
+│   │   ├── onboarding/           # Intern onboarding wizard
+│   │   ├── dashboard/            # Intern panel
+│   │   ├── mentor/               # Mentor panel
+│   │   ├── admin/                # Admin panel
+│   │   ├── terms/                # Legal pages
+│   │   ├── privacy/
+│   │   ├── cookies/
+│   │   └── api/cron/             # Scheduled jobs
+│   ├── components/
+│   │   ├── ui/                   # Design system primitives
+│   │   ├── layout/               # Sidebars, drawers, standalone layouts
+│   │   ├── marketing/            # Public-facing components
+│   │   ├── legal/                # Cookie banner, legal layout
+│   │   ├── notifications/        # Notification bell
+│   │   └── reviews/              # Shared performance review form
+│   ├── lib/
+│   │   ├── supabase/             # 3 clients (browser, server, admin)
+│   │   ├── email/                # Brevo integration
+│   │   ├── certificates/         # PDF generation + scoring
+│   │   ├── reports/              # Weekly reports
+│   │   └── notifications/        # Notification helpers
+│   └── middleware.ts             # Role-based route gates
+├── docs/                         # Specifications
+├── public/brand/                 # Logos, screenshots, team photos
+├── SPEC.md
+├── ROADMAP.md
+└── CONTRIBUTING.md
+```
+
+## Documentation
+
+| Doc | Purpose |
+|---|---|
+| [Getting Started](./docs/getting-started.md) | Local setup guide |
+| [SPEC.md](./SPEC.md) | Full specification |
+| [ROADMAP.md](./ROADMAP.md) | Phased delivery plan |
+| [Data Model](./docs/data-model.md) | Database schema + RLS policies |
+| [Auth Flow](./docs/auth-flow.md) | Approval + invitation state machine |
+| [Certificate Spec](./docs/certificate-spec.md) | Certificate generation spec |
+| [Wireframes](./docs/wireframes.md) | Screen layouts |
+| [Brand Guide](./docs/brand.md) | Design tokens |
+| [Contributing](./CONTRIBUTING.md) | How to contribute |
+| [Security](./SECURITY.md) | Responsible disclosure |
+
+## Deploy
+
+The project is designed for **Vercel**:
+
+1. Push to GitHub
+2. Import in Vercel
+3. Add environment variables (see `.env.example`)
+4. Deploy
+
+> **Note:** Vercel's Hobby tier requires the GitHub repo to be **public**. Alternatively, keep the repo private and use Vercel Pro, or deploy to another platform that supports private repos on free tiers.
+
+## Performance
+
+Lighthouse audit on the production build:
+
+| Category | Score |
+|---|---|
+| Performance | **95** |
+| Accessibility | **100** |
+| Best Practices | **100** |
+| SEO | **100** |
+
+## License
+
+[MIT](./LICENSE) © HERMAN Software Solutions Limited
+
+## Contact
+
+- 📧 infohermansoftware@gmail.com
+- 📞 +256 772 723 188
+- 📍 Jinja, Gabula Rd, Uganda
+- 🌐 [herman-software-website.vercel.app](https://herman-software-website.vercel.app)
+
+---
+
+<div align="center">
+<sub>Built with care in Jinja, Uganda 🇺🇬</sub>
+</div>
