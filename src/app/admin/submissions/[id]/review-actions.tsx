@@ -3,7 +3,10 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Check, X, RotateCcw, AlertTriangle } from 'lucide-react'
 import { approveSubmission, requestRevision } from './actions'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 
 export function ReviewActions({
   submissionId,
@@ -60,11 +63,19 @@ export function ReviewActions({
     })
   }
 
-  // Already resolved — show status
+  // Already resolved
   if (currentStatus === 'approved') {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-xl p-5 text-sm text-green-800">
-        ✅ This submission was approved. Task marked as done.
+      <div className="bg-green-50 border border-green-200 rounded-xl p-5 flex items-start gap-3">
+        <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm text-green-900 font-medium">
+            Submission approved
+          </p>
+          <p className="text-xs text-green-700 mt-0.5">
+            Task marked as done. The intern has been notified.
+          </p>
+        </div>
       </div>
     )
   }
@@ -72,39 +83,54 @@ export function ReviewActions({
   if (currentStatus === 'needs_revision') {
     return (
       <div className="bg-red-50 border border-red-200 rounded-xl p-5">
-        <p className="text-sm text-red-800 mb-3">
-          ⚠️ Revisions were requested. Waiting for the intern to resubmit.
-        </p>
+        <div className="flex items-start gap-3 mb-4">
+          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-red-900 font-medium">
+              Revisions requested
+            </p>
+            <p className="text-xs text-red-700 mt-0.5">
+              Waiting for the intern to resubmit.
+            </p>
+          </div>
+        </div>
+
         <button
           onClick={() => setMode('approve')}
-          className="text-xs text-red-700 hover:text-red-900 font-medium"
+          className="text-xs text-red-700 hover:text-red-900 font-medium underline-offset-2 hover:underline transition-colors"
         >
           Actually, approve this submission →
         </button>
 
         {mode === 'approve' && (
-          <div className="mt-4">
-            <textarea
+          <div className="mt-4 space-y-3">
+            <Textarea
+              name="feedback"
+              label="Optional note"
+              rows={3}
+              placeholder="Any note for the intern…"
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
-              placeholder="Optional note…"
-              rows={3}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-slate-900 outline-none"
             />
-            <div className="flex gap-2 mt-3">
-              <button
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setMode('idle')}
-                className="text-xs text-slate-500 hover:text-slate-900"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                type="button"
+                variant="success"
+                size="sm"
                 onClick={handleApprove}
-                disabled={isPending}
-                className="bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-3 py-1.5 rounded"
+                loading={isPending}
               >
-                {isPending ? 'Approving…' : 'Confirm approval'}
-              </button>
+                <Check className="w-3.5 h-3.5" />
+                Confirm approval
+              </Button>
             </div>
           </div>
         )}
@@ -119,78 +145,106 @@ export function ReviewActions({
       </h2>
 
       {mode === 'idle' && (
-        <div className="flex gap-3">
-          <button
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button
+            type="button"
+            variant="success"
+            size="md"
             onClick={() => setMode('approve')}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2.5 rounded-lg transition-colors text-sm"
+            className="flex-1"
           >
-            ✅ Approve
-          </button>
-          <button
+            <Check className="w-4 h-4" />
+            Approve
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            size="md"
             onClick={() => setMode('revision')}
-            className="flex-1 border border-red-300 hover:border-red-500 text-red-600 font-medium py-2.5 rounded-lg transition-colors text-sm"
+            className="flex-1"
           >
-            ⚠️ Request revision
-          </button>
+            <RotateCcw className="w-4 h-4" />
+            Request revision
+          </Button>
         </div>
       )}
 
       {mode === 'approve' && (
-        <div>
-          <p className="text-sm text-slate-600 mb-3">
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">
             Approve this submission and mark the task as done.
           </p>
-          <textarea
+
+          <Textarea
+            name="feedback"
+            label="Optional note for the intern"
+            rows={3}
+            placeholder="e.g. Great work on the login flow!"
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
-            placeholder="Optional note for the intern…"
-            rows={3}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none text-sm"
           />
-          <div className="flex gap-3 mt-3">
-            <button
+
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
               onClick={() => setMode('idle')}
-              className="flex-1 border border-slate-300 text-slate-700 font-medium py-2 rounded-lg text-sm"
+              className="flex-1"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              type="button"
+              variant="success"
+              size="md"
               onClick={handleApprove}
-              disabled={isPending}
-              className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-green-300 text-white font-medium py-2 rounded-lg text-sm transition-colors"
+              loading={isPending}
+              className="flex-1"
             >
               {isPending ? 'Approving…' : 'Confirm approval'}
-            </button>
+            </Button>
           </div>
         </div>
       )}
 
       {mode === 'revision' && (
-        <div>
-          <p className="text-sm text-slate-600 mb-3">
+        <div className="space-y-4">
+          <p className="text-sm text-slate-600">
             Explain what needs to change. The intern will see this.
           </p>
-          <textarea
+
+          <Textarea
+            name="feedback"
+            label="Feedback"
+            required
+            rows={5}
+            placeholder="e.g. Please add error handling to the login flow…"
             value={feedback}
             onChange={(e) => setFeedback(e.target.value)}
-            placeholder="e.g. Please add error handling to the login flow…"
-            rows={5}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 outline-none text-sm"
+            hint={`${feedback.length} characters (min 10)`}
           />
-          <div className="flex gap-3 mt-3">
-            <button
+
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="secondary"
+              size="md"
               onClick={() => setMode('idle')}
-              className="flex-1 border border-slate-300 text-slate-700 font-medium py-2 rounded-lg text-sm"
+              className="flex-1"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
+              type="button"
+              variant="danger"
+              size="md"
               onClick={handleRequestRevision}
-              disabled={isPending}
-              className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white font-medium py-2 rounded-lg text-sm transition-colors"
+              loading={isPending}
+              className="flex-1"
             >
               {isPending ? 'Sending…' : 'Request revision'}
-            </button>
+            </Button>
           </div>
         </div>
       )}

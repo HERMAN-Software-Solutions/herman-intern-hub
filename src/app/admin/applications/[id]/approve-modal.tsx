@@ -3,7 +3,12 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Copy, Check, X } from 'lucide-react'
 import { approveApplication } from './actions'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Select } from '@/components/ui/select'
 
 type Mentor = { id: string; full_name: string | null; email: string }
 
@@ -74,35 +79,67 @@ export function ApproveModal({
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6 border-b border-slate-100">
-          <h2 className="text-xl font-bold text-slate-900">
-            Approve {applicantName}
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">{applicantEmail}</p>
+        <div className="p-6 border-b border-slate-100 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">
+              Approve {applicantName}
+            </h2>
+            <p className="text-sm text-slate-500 mt-1">{applicantEmail}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-700 transition-colors -mt-1"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {invitationLink ? (
           <div className="p-6">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-              <p className="text-sm text-green-800 font-medium">
-                ✅ Invitation created
-              </p>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4 flex items-start gap-3">
+              <Check className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm text-green-800 font-medium">
+                  Invitation created
+                </p>
+                <p className="text-xs text-green-700 mt-0.5">
+                  Email sent. You can also share this link directly.
+                </p>
+              </div>
             </div>
+
             <p className="text-sm text-slate-600 mb-3">
               Share this link with the applicant. It expires in 7 days.
             </p>
+
             <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 break-all text-xs font-mono text-slate-700 mb-4">
               {invitationLink}
             </div>
-            <button
+
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              fullWidth
               onClick={copyLink}
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 rounded-lg transition-colors"
             >
-              {copied ? '✓ Copied' : 'Copy invitation link'}
-            </button>
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Copied
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copy invitation link
+                </>
+              )}
+            </Button>
+
             <button
               onClick={onClose}
-              className="w-full text-slate-500 hover:text-slate-900 text-sm mt-3"
+              className="w-full text-slate-500 hover:text-slate-900 text-sm mt-3 transition-colors"
             >
               Close
             </button>
@@ -110,47 +147,43 @@ export function ApproveModal({
         ) : (
           <div className="p-6 space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="Start date">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className={inputClass}
-                />
-              </Field>
-              <Field label="End date">
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className={inputClass}
-                />
-              </Field>
+              <Input
+                name="startDate"
+                type="date"
+                label="Start date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+              <Input
+                name="endDate"
+                type="date"
+                label="End date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
             </div>
 
-            <Field label="Mentor (optional — can assign later)">
-              <select
-                value={mentorId}
-                onChange={(e) => setMentorId(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">— Select mentor —</option>
-                {mentors.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.full_name ?? m.email}
-                  </option>
-                ))}
-              </select>
-            </Field>
+            <Select
+              name="mentorId"
+              label="Mentor (optional — can assign later)"
+              value={mentorId}
+              onChange={(e) => setMentorId(e.target.value)}
+            >
+              <option value="">— Select mentor —</option>
+              {mentors.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.full_name ?? m.email}
+                </option>
+              ))}
+            </Select>
 
-            <Field label="Welcome message">
-              <textarea
-                value={welcome}
-                onChange={(e) => setWelcome(e.target.value)}
-                rows={3}
-                className={inputClass}
-              />
-            </Field>
+            <Textarea
+              name="welcome"
+              label="Welcome message"
+              rows={3}
+              value={welcome}
+              onChange={(e) => setWelcome(e.target.value)}
+            />
 
             {error && (
               <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
@@ -159,43 +192,29 @@ export function ApproveModal({
             )}
 
             <div className="flex gap-3 pt-2">
-              <button
+              <Button
+                type="button"
+                variant="secondary"
+                size="md"
                 onClick={onClose}
-                className="flex-1 border border-slate-300 hover:border-slate-500 text-slate-700 font-medium py-2.5 rounded-lg transition-colors"
+                className="flex-1"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
                 onClick={handleApprove}
-                disabled={isPending}
-                className="flex-1 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-medium py-2.5 rounded-lg transition-colors"
+                loading={isPending}
+                className="flex-1"
               >
-                {isPending ? 'Creating…' : 'Send invitation →'}
-              </button>
+                {isPending ? 'Creating…' : 'Send invitation'}
+              </Button>
             </div>
           </div>
         )}
       </div>
-    </div>
-  )
-}
-
-const inputClass =
-  'w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-sm'
-
-function Field({
-  label,
-  children,
-}: {
-  label: string
-  children: React.ReactNode
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">
-        {label}
-      </label>
-      {children}
     </div>
   )
 }

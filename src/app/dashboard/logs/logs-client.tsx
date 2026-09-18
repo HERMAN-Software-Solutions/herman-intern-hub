@@ -3,7 +3,11 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Trash2, Calendar, Clock } from 'lucide-react'
 import { upsertLog, deleteLog } from './actions'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 type Log = {
   id: string
@@ -23,7 +27,7 @@ export function LogsClient({
   logs: Log[]
 }) {
   const router = useRouter()
-  const [hours, setHours] = useState(todayLog?.hours_worked ?? '')
+  const [hours, setHours] = useState(todayLog?.hours_worked?.toString() ?? '')
   const [description, setDescription] = useState(todayLog?.description ?? '')
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
@@ -76,7 +80,6 @@ export function LogsClient({
     })
   }
 
-  // Week summary
   const oneWeekAgo = new Date()
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
   const weeklyLogs = logs.filter((l) => new Date(l.date) >= oneWeekAgo)
@@ -87,73 +90,61 @@ export function LogsClient({
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* ─── Today's log form ────────────────────────── */}
+      {/* Today's log form */}
       <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6">
         <h2 className="font-semibold text-slate-900 mb-4 text-base sm:text-lg">
           {todayLog ? "Update today's log" : "Log today's work"}
         </h2>
 
         <div className="space-y-4">
-          {/* Date + Hours — stacked on mobile, side-by-side on tablet+ */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label
-                htmlFor="log-date"
-                className="block text-sm font-medium text-slate-700 mb-1.5"
-              >
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Date
               </label>
-              <input
-                id="log-date"
-                type="date"
-                value={today}
-                disabled
-                className="w-full px-3.5 py-2.5 border border-slate-200 rounded-lg bg-slate-50 text-slate-500 text-sm"
-              />
+              <div className="flex items-center gap-2 w-full px-3.5 py-2.5 border border-slate-200 rounded-lg bg-slate-50 text-slate-500 text-sm">
+                <Calendar className="w-4 h-4 flex-shrink-0" />
+                <span>
+                  {new Date(today).toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </span>
+              </div>
             </div>
 
             <div>
-              <label
-                htmlFor="log-hours"
-                className="block text-sm font-medium text-slate-700 mb-1.5"
-              >
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">
                 Hours worked
               </label>
-              <input
-                id="log-hours"
-                type="number"
-                step="0.5"
-                min="0"
-                max="24"
-                inputMode="decimal"
-                value={hours}
-                onChange={(e) => setHours(e.target.value)}
-                placeholder="e.g. 6"
-                className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-sm"
-              />
+              <div className="relative">
+                <Clock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                <input
+                  type="number"
+                  step="0.5"
+                  min="0"
+                  max="24"
+                  inputMode="decimal"
+                  value={hours}
+                  onChange={(e) => setHours(e.target.value)}
+                  placeholder="e.g. 6"
+                  className="w-full pl-10 pr-3.5 py-2.5 text-sm border border-slate-300 rounded-lg bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-colors"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Description — full width, textarea on all sizes */}
-          <div>
-            <label
-              htmlFor="log-description"
-              className="block text-sm font-medium text-slate-700 mb-1.5"
-            >
-              What did you work on?
-            </label>
-            <textarea
-              id="log-description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              placeholder="Brief summary of your work today…"
-              className="w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-sm resize-none"
-            />
-            <p className="text-xs text-slate-400 mt-1">
-              {description.length} characters (min 5)
-            </p>
-          </div>
+          <Textarea
+            name="description"
+            label="What did you work on?"
+            rows={3}
+            placeholder="Brief summary of your work today…"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            hint={`${description.length} characters (min 5)`}
+          />
         </div>
 
         {error && (
@@ -163,17 +154,20 @@ export function LogsClient({
         )}
 
         <div className="mt-4">
-          <button
+          <Button
+            type="button"
+            variant="primary"
+            size="md"
             onClick={handleSave}
-            disabled={isPending}
-            className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-medium px-5 py-2.5 rounded-lg transition-colors text-sm"
+            loading={isPending}
+            className="w-full sm:w-auto"
           >
             {isPending ? 'Saving…' : todayLog ? 'Update log' : 'Save log'}
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* ─── Week summary ────────────────────────────── */}
+      {/* Week summary */}
       <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 grid grid-cols-2 gap-4">
         <div>
           <div className="text-xs sm:text-sm text-slate-500">Last 7 days</div>
@@ -189,7 +183,7 @@ export function LogsClient({
         </div>
       </div>
 
-      {/* ─── History ─────────────────────────────────── */}
+      {/* History */}
       <div>
         <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">
           History (last 30 days)
@@ -201,7 +195,7 @@ export function LogsClient({
           </div>
         ) : (
           <>
-            {/* Mobile: card list */}
+            {/* Mobile: cards */}
             <div className="sm:hidden space-y-3">
               {logs.map((log) => (
                 <div
@@ -210,7 +204,7 @@ export function LogsClient({
                 >
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="text-sm font-medium text-slate-900">
-                      {new Date(log.date).toLocaleDateString(undefined, {
+                      {new Date(log.date).toLocaleDateString('en-US', {
                         weekday: 'short',
                         month: 'short',
                         day: 'numeric',
@@ -225,8 +219,9 @@ export function LogsClient({
                   </p>
                   <button
                     onClick={() => handleDelete(log.id)}
-                    className="text-xs text-red-500 hover:text-red-700 font-medium"
+                    className="inline-flex items-center gap-1.5 text-xs text-red-600 hover:text-red-700 font-medium transition-colors"
                   >
+                    <Trash2 className="w-3.5 h-3.5" />
                     Delete
                   </button>
                 </div>
@@ -248,10 +243,10 @@ export function LogsClient({
                   {logs.map((log) => (
                     <tr
                       key={log.id}
-                      className="border-t border-slate-100 hover:bg-slate-50"
+                      className="border-t border-slate-100 hover:bg-slate-50 transition-colors"
                     >
                       <td className="px-4 py-3 text-slate-700 whitespace-nowrap">
-                        {new Date(log.date).toLocaleDateString(undefined, {
+                        {new Date(log.date).toLocaleDateString('en-US', {
                           weekday: 'short',
                           month: 'short',
                           day: 'numeric',
@@ -266,9 +261,10 @@ export function LogsClient({
                       <td className="px-4 py-3 text-right">
                         <button
                           onClick={() => handleDelete(log.id)}
-                          className="text-xs text-red-500 hover:text-red-700"
+                          className="text-slate-400 hover:text-red-600 transition-colors"
+                          aria-label="Delete log"
                         >
-                          Delete
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
