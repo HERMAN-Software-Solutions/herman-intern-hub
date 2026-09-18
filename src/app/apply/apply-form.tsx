@@ -3,13 +3,12 @@
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { ArrowRight, ArrowLeft } from 'lucide-react'
 import { submitApplication } from './actions'
-
-type TechStack = {
-  id: string
-  name: string
-  category: string
-}
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Select } from '@/components/ui/select'
 
 type FormData = {
   name: string
@@ -35,23 +34,31 @@ const INITIAL: FormData = {
   message: '',
 }
 
-const TECH_STACKS: TechStack[] = [
-  { id: 'React', name: 'React', category: 'frontend' },
-  { id: 'Next.js', name: 'Next.js', category: 'frontend' },
-  { id: 'Tailwind CSS', name: 'Tailwind CSS', category: 'frontend' },
-  { id: 'Node.js', name: 'Node.js', category: 'backend' },
-  { id: 'Express', name: 'Express', category: 'backend' },
-  { id: 'Python', name: 'Python', category: 'backend' },
-  { id: 'Django', name: 'Django', category: 'backend' },
-  { id: 'PostgreSQL', name: 'PostgreSQL', category: 'database' },
-  { id: 'MongoDB', name: 'MongoDB', category: 'database' },
-  { id: 'React Native', name: 'React Native', category: 'mobile' },
-  { id: 'Flutter', name: 'Flutter', category: 'mobile' },
-  { id: 'Docker', name: 'Docker', category: 'devops' },
-  { id: 'AWS', name: 'AWS', category: 'devops' },
+const TECH_STACKS = [
+  'React',
+  'Next.js',
+  'Tailwind CSS',
+  'Node.js',
+  'Express',
+  'Python',
+  'Django',
+  'PostgreSQL',
+  'MongoDB',
+  'React Native',
+  'Flutter',
+  'Docker',
+  'AWS',
 ]
 
 const YEARS = ['Year 1', 'Year 2', 'Year 3', 'Year 4', 'Graduate']
+
+const STEP_LABELS = [
+  'Personal details',
+  'Academic info',
+  'Tech interests',
+  'About you',
+  'Review & submit',
+]
 
 export function ApplyForm() {
   const router = useRouter()
@@ -72,6 +79,7 @@ export function ApplyForm() {
         ? prev.tech_stack_interest.filter((t) => t !== name)
         : [...prev.tech_stack_interest, name],
     }))
+    setError(null)
   }
 
   function validateStep(current: number): string | null {
@@ -138,13 +146,7 @@ export function ApplyForm() {
       <div className="mb-8">
         <div className="flex items-center justify-between text-xs text-slate-500 mb-2">
           <span>Step {step} of 5</span>
-          <span>
-            {step === 1 && 'Personal details'}
-            {step === 2 && 'Academic info'}
-            {step === 3 && 'Tech interests'}
-            {step === 4 && 'About you'}
-            {step === 5 && 'Review & submit'}
-          </span>
+          <span>{STEP_LABELS[step - 1]}</span>
         </div>
         <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
           <div
@@ -157,71 +159,70 @@ export function ApplyForm() {
       {/* Step 1 — Personal */}
       {step === 1 && (
         <div className="space-y-4">
-          <Field label="Full name" required>
-            <input
-              type="text"
-              value={data.name}
-              onChange={(e) => update('name', e.target.value)}
-              className={inputClass}
-              placeholder="Jane Nakato"
-            />
-          </Field>
-          <Field label="Email" required>
-            <input
-              type="email"
-              value={data.email}
-              onChange={(e) => update('email', e.target.value)}
-              className={inputClass}
-              placeholder="jane@example.com"
-            />
-          </Field>
-          <Field label="Phone (optional)">
-            <input
-              type="tel"
-              value={data.phone}
-              onChange={(e) => update('phone', e.target.value)}
-              className={inputClass}
-              placeholder="+256 700 000 000"
-            />
-          </Field>
+          <Input
+            name="name"
+            label="Full name"
+            required
+            placeholder="Jane Nakato"
+            value={data.name}
+            onChange={(e) => update('name', e.target.value)}
+            autoComplete="name"
+          />
+          <Input
+            name="email"
+            type="email"
+            label="Email"
+            required
+            placeholder="jane@example.com"
+            value={data.email}
+            onChange={(e) => update('email', e.target.value)}
+            autoComplete="email"
+          />
+          <Input
+            name="phone"
+            type="tel"
+            label="Phone (optional)"
+            placeholder="+256 700 000 000"
+            value={data.phone}
+            onChange={(e) => update('phone', e.target.value)}
+            autoComplete="tel"
+          />
         </div>
       )}
 
       {/* Step 2 — Academic */}
       {step === 2 && (
         <div className="space-y-4">
-          <Field label="University" required>
-            <input
-              type="text"
-              value={data.university}
-              onChange={(e) => update('university', e.target.value)}
-              className={inputClass}
-              placeholder="Makerere University"
-            />
-          </Field>
-          <Field label="Course" required>
-            <input
-              type="text"
-              value={data.course}
-              onChange={(e) => update('course', e.target.value)}
-              className={inputClass}
-              placeholder="BSc Computer Science"
-            />
-          </Field>
-          <Field label="Year of study" required>
-            <select
-              value={data.year_of_study}
-              onChange={(e) => update('year_of_study', e.target.value)}
-              className={inputClass}
-            >
-              <option value="">Select…</option>
-              {YEARS.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </Field>
+          <Input
+            name="university"
+            label="University"
+            required
+            placeholder="Makerere University"
+            value={data.university}
+            onChange={(e) => update('university', e.target.value)}
+          />
+          <Input
+            name="course"
+            label="Course"
+            required
+            placeholder="BSc Computer Science"
+            value={data.course}
+            onChange={(e) => update('course', e.target.value)}
+          />
+          <Select
+            name="year_of_study"
+            label="Year of study"
+            required
+            value={data.year_of_study}
+            onChange={(e) => update('year_of_study', e.target.value)}
+          >
+            <option value="">Select…</option>
+            {YEARS.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </Select>
         </div>
       )}
 
@@ -229,55 +230,58 @@ export function ApplyForm() {
       {step === 3 && (
         <div>
           <p className="text-sm text-slate-600 mb-4">
-            Select all the technologies you'd like to work with. You can learn
-            as you go — no need to be an expert.
+            Select all the technologies you&apos;d like to work with. You can
+            learn as you go — no need to be an expert.
           </p>
           <div className="flex flex-wrap gap-2">
             {TECH_STACKS.map((tech) => {
-              const selected = data.tech_stack_interest.includes(tech.name)
+              const selected = data.tech_stack_interest.includes(tech)
               return (
                 <button
-                  key={tech.id}
+                  key={tech}
                   type="button"
-                  onClick={() => toggleTech(tech.name)}
-                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                  onClick={() => toggleTech(tech)}
+                  className={`px-3.5 py-2 rounded-full text-sm border transition-all ${
                     selected
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white text-slate-700 border-slate-300 hover:border-slate-500'
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                      : 'bg-white text-slate-700 border-slate-300 hover:border-slate-500 hover:bg-slate-50'
                   }`}
                 >
-                  {tech.name}
+                  {tech}
                 </button>
               )
             })}
           </div>
+          {data.tech_stack_interest.length > 0 && (
+            <p className="text-xs text-slate-500 mt-4">
+              Selected {data.tech_stack_interest.length}{' '}
+              {data.tech_stack_interest.length === 1 ? 'stack' : 'stacks'}
+            </p>
+          )}
         </div>
       )}
 
       {/* Step 4 — About */}
       {step === 4 && (
         <div className="space-y-4">
-          <Field label="Portfolio / GitHub (optional)">
-            <input
-              type="url"
-              value={data.portfolio_url}
-              onChange={(e) => update('portfolio_url', e.target.value)}
-              className={inputClass}
-              placeholder="https://github.com/yourhandle"
-            />
-          </Field>
-          <Field label="Why do you want to intern with us?" required>
-            <textarea
-              value={data.message}
-              onChange={(e) => update('message', e.target.value)}
-              rows={5}
-              className={inputClass}
-              placeholder="Tell us about your goals, what you want to learn, and why HERMAN…"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              {data.message.length} characters
-            </p>
-          </Field>
+          <Input
+            name="portfolio_url"
+            type="url"
+            label="Portfolio / GitHub (optional)"
+            placeholder="https://github.com/yourhandle"
+            value={data.portfolio_url}
+            onChange={(e) => update('portfolio_url', e.target.value)}
+          />
+          <Textarea
+            name="message"
+            label="Why do you want to intern with us?"
+            required
+            rows={5}
+            placeholder="Tell us about your goals, what you want to learn, and why HERMAN…"
+            value={data.message}
+            onChange={(e) => update('message', e.target.value)}
+            hint={`${data.message.length} characters (min 20)`}
+          />
         </div>
       )}
 
@@ -310,62 +314,49 @@ export function ApplyForm() {
       )}
 
       {/* Navigation */}
-      <div className="mt-8 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={back}
-          disabled={step === 1}
-          className="text-sm text-slate-600 hover:text-slate-900 disabled:opacity-30 disabled:cursor-not-allowed"
-        >
-          ← Back
-        </button>
+      <div className="mt-8 flex items-center justify-between gap-3">
+        {step > 1 ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="md"
+            onClick={back}
+            disabled={isPending}
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Back</span>
+          </Button>
+        ) : (
+          <div />
+        )}
 
         {step < 5 ? (
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="md"
             onClick={next}
-            className="bg-slate-900 hover:bg-slate-800 text-white font-medium px-5 py-2.5 rounded-lg transition-colors"
           >
-            Continue →
-          </button>
+            Continue
+            <ArrowRight className="w-4 h-4" />
+          </Button>
         ) : (
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="md"
             onClick={handleSubmit}
-            disabled={isPending}
-            className="bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-medium px-5 py-2.5 rounded-lg transition-colors"
+            loading={isPending}
           >
             {isPending ? 'Submitting…' : 'Submit application'}
-          </button>
+          </Button>
         )}
       </div>
     </div>
   )
 }
 
-// — Small helpers —
-
-const inputClass =
-  'w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-slate-900 focus:border-slate-900 outline-none text-slate-900'
-
-function Field({
-  label,
-  required,
-  children,
-}: {
-  label: string
-  required?: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-slate-700 mb-1">
-        {label} {required && <span className="text-red-500">*</span>}
-      </label>
-      {children}
-    </div>
-  )
-}
+// ─── Review row ───────────────────────────────────────
 
 function ReviewRow({
   label,
@@ -377,14 +368,14 @@ function ReviewRow({
   multiline?: boolean
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-4 py-2 border-b border-slate-100 last:border-0">
+    <div className="grid grid-cols-3 gap-4 py-3 border-b border-slate-100 last:border-0">
       <div className="text-sm text-slate-500">{label}</div>
       <div
         className={`col-span-2 text-sm text-slate-900 ${
           multiline ? 'whitespace-pre-wrap' : ''
         }`}
       >
-        {value}
+        {value || '—'}
       </div>
     </div>
   )
