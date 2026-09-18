@@ -17,7 +17,6 @@ const ApplicationsChart = nextDynamic(
       (m) => m.ApplicationsChart
     ),
   {
-    ssr: false,
     loading: () => (
       <div className="h-56 bg-slate-100 rounded animate-pulse" />
     ),
@@ -30,7 +29,6 @@ const SubmissionsPipeline = nextDynamic(
       (m) => m.SubmissionsPipeline
     ),
   {
-    ssr: false,
     loading: () => (
       <div className="h-56 bg-slate-100 rounded animate-pulse" />
     ),
