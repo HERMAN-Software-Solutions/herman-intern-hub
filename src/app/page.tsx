@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import Link from 'next/link'
 import {
   ArrowRight,
@@ -124,50 +125,47 @@ export default async function Home() {
       </section>
 
       {/* ─── STATS STRIP ──────────────────────────────── */}
-<section className="bg-white border-b border-slate-200">
-  <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center">
-      <div>
-        <AnimatedCounter
-          to={30}
-          suffix="+"
-          className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
-        />
-        <div className="text-sm text-slate-500 mt-1">
-          Intern positions planned
-        </div>
-      </div>
+      <section className="bg-white border-b border-slate-200">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 text-center">
+            <div>
+              <AnimatedCounter
+                to={30}
+                suffix="+"
+                className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
+              />
+              <div className="text-sm text-slate-500 mt-1">
+                Intern positions planned
+              </div>
+            </div>
 
-      {/* Animated 100% */}
-      <div>
-        <AnimatedCounter
-          to={100}
-          suffix="%"
-          className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
-        />
-        <div className="text-sm text-slate-500 mt-1">Mentor-led</div>
-      </div>
+            <div>
+              <AnimatedCounter
+                to={100}
+                suffix="%"
+                className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight"
+              />
+              <div className="text-sm text-slate-500 mt-1">Mentor-led</div>
+            </div>
 
-      {/* Typewriter "Free" */}
-      <div>
-        <div className="text-4xl md:text-5xl font-bold text-green-600 tracking-tight">
-          <TypewriterText
-            text="Free"
-            typingSpeed={180}
-            deletingSpeed={120}
-            pauseTime={2200}
-          />
+            <div>
+              <div className="text-4xl md:text-5xl font-bold text-green-600 tracking-tight">
+                <TypewriterText
+                  text="Free"
+                  typingSpeed={180}
+                  deletingSpeed={120}
+                  pauseTime={2200}
+                />
+              </div>
+              <div className="text-sm text-slate-500 mt-1">To apply</div>
+            </div>
+          </div>
         </div>
-        <div className="text-sm text-slate-500 mt-1">To apply</div>
-      </div>
-    </div>
-  </div>
-</section>
+      </section>
 
       {/* ─── NOT JUST CODE ─────────────────────────────── */}
       <section className="bg-slate-50 border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-24">
-          {/* CENTERED HEADER */}
           <div className="max-w-3xl mx-auto mb-14 text-center">
             <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 text-xs font-medium text-amber-800 mb-5">
               <Sparkles className="w-3 h-3" />
@@ -229,7 +227,7 @@ export default async function Home() {
                   "
                 >
                   <div className="w-11 h-11 rounded-xl bg-slate-900 text-white flex items-center justify-center mb-4 transition-all duration-300 group-hover:bg-blue-600 group-hover:scale-110 group-hover:rotate-3">
-                    <Icon className="w-5 h-5" />
+                    <Icon className="w-5 h-5" aria-hidden="true" />
                   </div>
                   <h3
                     className="font-semibold mb-2 transition-colors duration-300 group-hover:text-blue-600"
@@ -237,7 +235,10 @@ export default async function Home() {
                   >
                     {item.title}
                   </h3>
-                  <p className="text-sm leading-relaxed" style={{ color: '#475569' }}>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: '#475569' }}
+                  >
                     {item.body}
                   </p>
                 </div>
@@ -262,20 +263,39 @@ export default async function Home() {
 
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
             {[
-              { src: '/brand/team/pair-programming.avif', label: 'Pair programming' },
-              { src: '/brand/team/developers-meeting.avif', label: 'Team sync' },
-              { src: '/brand/team/whiteboard-planning.avif', label: 'Planning sessions' },
-              { src: '/brand/team/laptop-code.avif', label: 'Deep work' },
-              { src: '/brand/team/team-standup.avif', label: 'Daily standups' },
+              {
+                src: '/brand/team/pair-programming.avif',
+                label: 'Pair programming',
+              },
+              {
+                src: '/brand/team/developers-meeting.avif',
+                label: 'Team sync',
+              },
+              {
+                src: '/brand/team/whiteboard-planning.avif',
+                label: 'Planning sessions',
+              },
+              {
+                src: '/brand/team/laptop-code.avif',
+                label: 'Deep work',
+              },
+              {
+                src: '/brand/team/team-standup.avif',
+                label: 'Daily standups',
+              },
             ].map((img, i) => (
               <div
                 key={i}
+                role="img"
+                aria-label={img.label}
                 className="group relative aspect-[4/3] rounded-xl overflow-hidden bg-slate-100 border border-slate-200"
               >
-                <img
+                <Image
                   src={img.src}
-                  alt={img.label}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                   loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -338,10 +358,16 @@ export default async function Home() {
                 key={i}
                 className="bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 transition-colors"
               >
-                <h3 className="font-semibold mb-2" style={{ color: '#ffffff' }}>
+                <h3
+                  className="font-semibold mb-2"
+                  style={{ color: '#ffffff' }}
+                >
                   {item.title}
                 </h3>
-                <p className="text-sm leading-relaxed mb-3" style={{ color: '#e2e8f0' }}>
+                <p
+                  className="text-sm leading-relaxed mb-3"
+                  style={{ color: '#e2e8f0' }}
+                >
                   {item.body}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
@@ -375,17 +401,40 @@ export default async function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {[
-              { n: '01', title: 'Apply', body: 'Fill a short application online. No login needed.' },
-              { n: '02', title: 'Get approved', body: 'We review personally. If accepted, you get an invite by email.' },
-              { n: '03', title: 'Onboard', body: 'Set up your profile, pick your tech stack, sign the agreement.' },
-              { n: '04', title: 'Build', body: 'Work on real projects with your mentor. Log daily, submit work.' },
-              { n: '05', title: 'Get certified', body: 'Receive a verifiable certificate + experience letter.' },
+              {
+                n: '01',
+                title: 'Apply',
+                body: 'Fill a short application online. No login needed.',
+              },
+              {
+                n: '02',
+                title: 'Get approved',
+                body: 'We review personally. If accepted, you get an invite by email.',
+              },
+              {
+                n: '03',
+                title: 'Onboard',
+                body: 'Set up your profile, pick your tech stack, sign the agreement.',
+              },
+              {
+                n: '04',
+                title: 'Build',
+                body: 'Work on real projects with your mentor. Log daily, submit work.',
+              },
+              {
+                n: '05',
+                title: 'Get certified',
+                body: 'Receive a verifiable certificate + experience letter.',
+              },
             ].map((step) => (
               <div
                 key={step.n}
                 className="group bg-white border border-slate-200 rounded-xl p-5 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:-translate-y-2 hover:border-blue-600 hover:shadow-[0_20px_40px_-15px_rgba(37,99,235,0.3)]"
               >
-                <div className="text-3xl font-bold text-slate-300 group-hover:text-blue-600 transition-colors mb-3">
+                <div
+                  className="text-3xl font-bold transition-colors mb-3"
+                  style={{ color: '#64748b' }}
+                >
                   {step.n}
                 </div>
                 <div className="font-semibold text-slate-900 mb-1">
@@ -541,14 +590,38 @@ export default async function Home() {
 
           <div className="space-y-3">
             {[
-              { q: 'Who can apply?', a: 'Any student or recent graduate interested in software engineering. We welcome applicants from any university in Uganda and beyond — and from anywhere in the world that has reliable internet.' },
-              { q: 'Is the internship paid?', a: 'Internships are unpaid by default — you gain experience, mentorship, and a verified certificate. However, if you\u2019re assigned to a client project with a signed agreement, compensation is arranged.' },
-              { q: 'How long is the internship?', a: 'Typically 3 months, but the duration is set during registration based on your availability and track.' },
-              { q: 'Where is the internship based?', a: 'The program is remote-first. You can work from anywhere with a reliable internet connection. In-person meetups in Jinja can be arranged when needed.' },
-              { q: 'How much time per week does it take?', a: 'Most interns commit around 15–25 hours per week. You and your mentor will agree on a schedule that works for both of you.' },
-              { q: 'Do I need my own laptop?', a: 'Yes. You need access to a computer and reliable internet. A laptop with at least 8GB RAM is recommended but not strictly required.' },
-              { q: 'Do I need to know how to code already?', a: 'You should have some programming fundamentals. We\u2019ll teach you the tools, patterns, and professional workflows — but we don\u2019t start from zero.' },
-              { q: 'Will I get a certificate?', a: 'Yes. Every intern who completes the program receives a certificate of internship and an experience letter. Each certificate has a unique ID and QR code — anyone can verify it at herman-intern-hub.vercel.app/verify.' },
+              {
+                q: 'Who can apply?',
+                a: 'Any student or recent graduate interested in software engineering. We welcome applicants from any university in Uganda and beyond — and from anywhere in the world that has reliable internet.',
+              },
+              {
+                q: 'Is the internship paid?',
+                a: 'Internships are unpaid by default — you gain experience, mentorship, and a verified certificate. However, if you\u2019re assigned to a client project with a signed agreement, compensation is arranged.',
+              },
+              {
+                q: 'How long is the internship?',
+                a: 'Typically 3 months, but the duration is set during registration based on your availability and track.',
+              },
+              {
+                q: 'Where is the internship based?',
+                a: 'The program is remote-first. You can work from anywhere with a reliable internet connection. In-person meetups in Jinja can be arranged when needed.',
+              },
+              {
+                q: 'How much time per week does it take?',
+                a: 'Most interns commit around 15–25 hours per week. You and your mentor will agree on a schedule that works for both of you.',
+              },
+              {
+                q: 'Do I need my own laptop?',
+                a: 'Yes. You need access to a computer and reliable internet. A laptop with at least 8GB RAM is recommended but not strictly required.',
+              },
+              {
+                q: 'Do I need to know how to code already?',
+                a: 'You should have some programming fundamentals. We\u2019ll teach you the tools, patterns, and professional workflows — but we don\u2019t start from zero.',
+              },
+              {
+                q: 'Will I get a certificate?',
+                a: 'Yes. Every intern who completes the program receives a certificate of internship and an experience letter. Each certificate has a unique ID and QR code — anyone can verify it at herman-intern-hub.vercel.app/verify.',
+              },
             ].map((faq, i) => (
               <details
                 key={i}
@@ -556,7 +629,10 @@ export default async function Home() {
               >
                 <summary className="cursor-pointer px-5 py-4 font-medium text-slate-900 hover:bg-slate-50 transition-colors list-none flex items-center justify-between gap-4">
                   <span>{faq.q}</span>
-                  <span className="text-slate-400 group-open:rotate-180 transition-transform flex-shrink-0">
+                  <span
+                    aria-hidden="true"
+                    className="text-slate-400 group-open:rotate-180 transition-transform flex-shrink-0"
+                  >
                     ▾
                   </span>
                 </summary>
