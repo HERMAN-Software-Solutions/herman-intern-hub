@@ -128,7 +128,7 @@ export function ApplyForm() {
       toast.success('Application submitted!', {
         description: "We'll review it within 5 working days.",
       })
-      router.push('/apply/success')
+      router.push('/apply/success?submitted=1')
     })
   }
 
