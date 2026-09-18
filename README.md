@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/brand/logo.png" alt="HERMAN" width="100" />
+<img src="https://raw.githubusercontent.com/HERMAN-Software-Solutions/herman-intern-hub/main/public/brand/logo.webp" alt="HERMAN" width="100" />
 
 # HERMAN Intern Hub
 
@@ -12,6 +12,7 @@ Apply → Approve → Onboard → Build → Review → Certify — all in one pl
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](./LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=flat-square&logo=next.js)](https://nextjs.org)
 [![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e?style=flat-square&logo=supabase)](https://supabase.com)
+[![Lighthouse](https://img.shields.io/badge/Lighthouse-95%2F100%2F100%2F100-10b981?style=flat-square)](https://herman-intern-hub.vercel.app)
 
 </div>
 
@@ -45,6 +46,7 @@ The platform supports three distinct user roles with dedicated experiences:
 - **Admins** — full management: applications, interns, mentors, projects, certificates, analytics
 
 Each role gets routed to its own panel by middleware:
+
 - Interns → `/dashboard`
 - Mentors → `/mentor`
 - Admins → `/admin`
@@ -52,11 +54,13 @@ Each role gets routed to its own panel by middleware:
 ## Features
 
 ### For applicants
+
 - 📝 Public multi-step application form — no login required
 - 🔍 Application status checker by email
 - 📧 Email confirmation on submission
 
 ### For interns
+
 - 🚀 Onboarding wizard (profile → tech stack → agreement)
 - 📋 Task workspace with file submissions
 - 📆 Daily work log
@@ -65,6 +69,7 @@ Each role gets routed to its own panel by middleware:
 - 🔔 Real-time notifications
 
 ### For mentors
+
 - 👥 Assigned intern roster with stats
 - ✅ Submission review queue (approve / request revision)
 - 💬 Feedback threads on every submission
@@ -72,14 +77,18 @@ Each role gets routed to its own panel by middleware:
 - 👤 Own profile management
 
 ### For admins
+
 - 📥 Applications inbox with approve / reject
 - 🧑‍💼 Intern management (mentor assignment, dates, status)
 - 👔 Mentor management (invite flow, assigned interns, overview)
+- 📁 Project management (create, assign interns, tasks)
+- 📄 Document registry (certificates, letters, revoke/restore)
 - 📈 Analytics dashboard (KPIs, charts, log gaps, activity feed)
 - 🎓 Certificate issuance (auto-computes performance score)
 - 📜 Full audit log of every action
 
 ### For the public
+
 - 🏠 Marketing landing page
 - 👥 Browsable intern directory (opt-in)
 - 🌟 Alumni success stories
@@ -98,7 +107,7 @@ Each role gets routed to its own panel by middleware:
 | Storage | **Supabase Storage** |
 | PDF | `@react-pdf/renderer` |
 | QR codes | `qrcode` |
-| Charts | `recharts` |
+| Charts | `recharts` (lazy-loaded) |
 | Email | **Brevo** |
 | Hosting | **Vercel** |
 
@@ -113,6 +122,22 @@ Each role gets routed to its own panel by middleware:
 - **Data-driven certificates** — performance score computed from real metrics (task completion, submission quality, log consistency, mentor rating)
 - **Design system** — hand-rolled UI primitives (`Button`, `Input`, `Card`, `Badge`, `Avatar`, …)
 - **Breadcrumbs everywhere** — consistent navigation across panels
+- **Accessibility-first** — WCAG AA contrast, ARIA labels, keyboard navigation, `role="alert"` on form errors
+
+## Screenshots
+
+<div align="center">
+
+### Landing page
+<img src="https://raw.githubusercontent.com/HERMAN-Software-Solutions/herman-intern-hub/main/public/brand/screenshot-landing.png" alt="Landing page" width="720" />
+
+### Admin dashboard
+<img src="https://raw.githubusercontent.com/HERMAN-Software-Solutions/herman-intern-hub/main/public/brand/screenshot-admin.png" alt="Admin dashboard" width="720" />
+
+### Login
+<img src="https://raw.githubusercontent.com/HERMAN-Software-Solutions/herman-intern-hub/main/public/brand/screenshot-login.png" alt="Login" width="720" />
+
+</div>
 
 ## Quick start
 
@@ -128,111 +153,3 @@ Each role gets routed to its own panel by middleware:
 ```bash
 git clone https://github.com/HERMAN-Software-Solutions/herman-intern-hub.git
 cd herman-intern-hub
-
-2. Install
-bash
-npm install
-3. Configure environment
-bash
-cp .env.example .env.local
-Fill in the values (see .env.example for descriptions).
-
-4. Set up the database
-Run the SQL in docs/data-model.md in your Supabase SQL Editor. Then seed tech stacks (see data-model.md § Seed).
-
-5. Run
-bash
-npm run dev
-Open http://localhost:3000.
-
-6. Promote yourself to admin
-After creating your account (via an invitation you make yourself in Supabase Studio), run:
-
-sql
-UPDATE profiles
-SET role = 'super_admin', status = 'active'
-WHERE email = 'your-email@example.com';
-Project structure
-text
-herman-intern-hub/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx              # Landing page
-│   │   ├── apply/                # Public application flow
-│   │   ├── interns/              # Public intern directory
-│   │   ├── success-stories/      # Public alumni showcase
-│   │   ├── verify/               # Public certificate verification
-│   │   ├── invite/               # Invitation acceptance
-│   │   ├── onboarding/           # Intern onboarding wizard
-│   │   ├── dashboard/            # Intern panel
-│   │   ├── mentor/               # Mentor panel
-│   │   ├── admin/                # Admin panel
-│   │   ├── terms/                # Legal pages
-│   │   ├── privacy/
-│   │   ├── cookies/
-│   │   └── api/cron/             # Scheduled jobs
-│   ├── components/
-│   │   ├── ui/                   # Design system primitives
-│   │   ├── layout/               # Sidebars, drawers, standalone layouts
-│   │   ├── marketing/            # Public-facing components
-│   │   ├── legal/                # Cookie banner, legal layout
-│   │   ├── notifications/        # Notification bell
-│   │   └── reviews/              # Shared performance review form
-│   ├── lib/
-│   │   ├── supabase/             # 3 clients (browser, server, admin)
-│   │   ├── email/                # Brevo integration
-│   │   ├── certificates/         # PDF generation + scoring
-│   │   ├── reports/              # Weekly reports
-│   │   └── notifications/        # Notification helpers
-│   └── middleware.ts             # Role-based route gates
-├── docs/                         # Specifications
-├── public/brand/                 # Logos, screenshots
-├── SPEC.md
-├── ROADMAP.md
-└── CONTRIBUTING.md
-Documentation
-Doc	Purpose
-docs/getting-started.md	Local setup guide
-SPEC.md	Full specification
-ROADMAP.md	Phased delivery plan
-docs/data-model.md	Database schema + RLS policies
-docs/auth-flow.md	Approval + invitation state machine
-docs/certificate-spec.md	Certificate generation spec
-docs/wireframes.md	Screen layouts
-docs/brand.md	Design tokens
-CONTRIBUTING.md	How to contribute
-SECURITY.md	Responsible disclosure
-Screenshots
-<div align="center">
-Admin dashboard
-<img src="public/brand/screenshot-admin.png" alt="Admin dashboard" width="720" />
-Public landing page
-<img src="public/brand/screenshot-landing.png" alt="Landing page" width="720" />
-Certificate
-<img src="public/brand/screenshot-certificate.png" alt="Certificate" width="720" /></div>
-Deploy
-The project is designed for Vercel:
-
-Push to GitHub
-
-Import in Vercel
-
-Add environment variables (see .env.example)
-
-Deploy
-
-Note: Vercel's Hobby tier requires the GitHub repo to be public. Alternatively, keep the repo private and use Vercel Pro, or deploy to another platform that supports private repos on free tiers.
-
-License
-MIT © HERMAN Software Solutions Limited
-
-Contact
-📧 infohermansoftware@gmail.com
-
-📞 +256 772 723 188
-
-📍 Jinja, Gabula Rd, Uganda
-
-🌐 herman-software-website.vercel.app
-
-<div align="center"> <sub>Built with care in Jinja, Uganda 🇺🇬</sub> </div> ```
