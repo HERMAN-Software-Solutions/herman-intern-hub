@@ -46,23 +46,6 @@ export default async function SuccessStoriesPage() {
   // Step 4: Only show alumni who have a certificate
   const filtered = (alumni ?? []).filter((a) => certMap.has(a.id))
 
-  // 🔍 DEBUG LOGS — remove after fixing
-console.log('=== SUCCESS STORIES DEBUG ===')
-console.log('Alumni count:', alumni?.length ?? 0)
-console.log('Alumni error:', alumniError)
-console.log('Alumni IDs:', alumniIds)
-console.log('Certificates count:', certificates?.length ?? 0)
-console.log('Certificates:', certificates)
-console.log('CertMap size:', certMap.size)
-console.log('CertMap keys:', Array.from(certMap.keys()))
-console.log('Filtered count:', filtered.length)
-console.log('Filtered:', filtered.map((a) => ({
-  id: a.id,
-  name: a.full_name,
-  hasCert: certMap.has(a.id)
-})))
-console.log('=== END DEBUG ===')
-
   return (
     <div className="min-h-screen bg-white">
       <PublicNav />
