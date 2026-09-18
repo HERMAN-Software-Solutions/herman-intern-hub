@@ -25,9 +25,6 @@ export async function getAdminStats() {
   const now = new Date()
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString()
-  const twoDaysAgo = new Date(now.getTime() - 2 * 86400000)
-    .toISOString()
-    .slice(0, 10)
 
   // ─── KPI counts in parallel ─────────────────────────
   const [
@@ -42,12 +39,14 @@ export async function getAdminStats() {
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'intern')
-      .eq('status', 'active'),
+      .eq('status', 'active')
+      .eq('is_demo', false),
     admin
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .eq('role', 'intern')
-      .eq('status', 'completed'),
+      .eq('status', 'completed')
+      .eq('is_demo', false),
     admin
       .from('applications')
       .select('*', { count: 'exact', head: true })
@@ -66,12 +65,13 @@ export async function getAdminStats() {
       .eq('type', 'certificate'),
   ])
 
-  // ─── Log gaps ───────────────────────────────────────
+  // ─── Log gaps (real interns only) ───────────────────
   const { data: activeInternProfiles } = await admin
     .from('profiles')
     .select('id, full_name, email')
     .eq('role', 'intern')
     .eq('status', 'active')
+    .eq('is_demo', false)
 
   const internIds = (activeInternProfiles ?? []).map((p) => p.id)
   let logGaps: Array<{

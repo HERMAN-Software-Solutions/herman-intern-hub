@@ -33,6 +33,7 @@ export default async function InternsPage({
        start_date, end_date`
     )
     .eq('role', 'intern')
+    .eq('is_demo', false)
     .order('created_at', { ascending: false })
 
   if (activeFilter !== 'all') {
@@ -45,12 +46,15 @@ export default async function InternsPage({
     .from('profiles')
     .select('status')
     .eq('role', 'intern')
+    .eq('is_demo', false)
 
   const counts = {
     all: allForCount?.length ?? 0,
-    onboarding: allForCount?.filter((i) => i.status === 'onboarding').length ?? 0,
+    onboarding:
+      allForCount?.filter((i) => i.status === 'onboarding').length ?? 0,
     active: allForCount?.filter((i) => i.status === 'active').length ?? 0,
-    completed: allForCount?.filter((i) => i.status === 'completed').length ?? 0,
+    completed:
+      allForCount?.filter((i) => i.status === 'completed').length ?? 0,
   }
 
   return (
@@ -95,7 +99,9 @@ export default async function InternsPage({
           <div className="sm:hidden space-y-3">
             {interns.map((intern: any) => {
               const mentorRaw = intern.mentor
-              const mentor = Array.isArray(mentorRaw) ? mentorRaw[0] : mentorRaw
+              const mentor = Array.isArray(mentorRaw)
+                ? mentorRaw[0]
+                : mentorRaw
 
               return (
                 <Link
@@ -104,7 +110,11 @@ export default async function InternsPage({
                   className="block bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-400 transition-colors"
                 >
                   <div className="flex items-start gap-3 mb-3">
-                    <Avatar name={intern.full_name} src={intern.avatar_url} size="sm" />
+                    <Avatar
+                      name={intern.full_name}
+                      src={intern.avatar_url}
+                      size="sm"
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-slate-900 truncate">
                         {intern.full_name ?? '—'}
@@ -119,11 +129,15 @@ export default async function InternsPage({
                     {intern.university && <div>{intern.university}</div>}
                     <div className="flex items-center gap-1.5">
                       {mentor ? (
-                        <span>Mentor: {mentor.full_name ?? mentor.email}</span>
+                        <span>
+                          Mentor: {mentor.full_name ?? mentor.email}
+                        </span>
                       ) : (
                         <>
                           <AlertTriangle className="w-3 h-3 text-amber-500" />
-                          <span className="text-amber-700">No mentor assigned</span>
+                          <span className="text-amber-700">
+                            No mentor assigned
+                          </span>
                         </>
                       )}
                     </div>
