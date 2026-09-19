@@ -99,6 +99,15 @@ export function PublicFooter() {
               </Link>
             </li>
             <li>
+            <Link
+               href="/case-study"
+               className="transition-colors hover:text-white"
+               style={{ color: '#94a3b8' }}
+            >
+                Case study
+            </Link>
+            </li>
+            <li>
               <Link
                 href="/verify"
                 className="transition-colors hover:text-white"
