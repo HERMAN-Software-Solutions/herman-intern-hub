@@ -6,7 +6,6 @@ import {
   CheckCircle2,
   Clock,
   FileText,
-  AlertTriangle,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
@@ -15,6 +14,7 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar } from '@/components/ui/avatar'
 import { NewTaskForm } from './new-task-form'
+import { TaskActionsMenu } from '@/components/tasks/task-actions-menu'
 
 const STATUS_VARIANTS: Record<
   string,
@@ -75,9 +75,27 @@ export default async function MentorInternDetailPage({
   // Fetch all tasks for this intern
   const { data: tasks } = await supabase
     .from('tasks')
-    .select('id, title, status, due_date, is_highlight')
+    .select(
+      'id, title, description, status, due_date, is_highlight, project_id'
+    )
     .eq('assigned_to', id)
     .order('due_date', { ascending: true, nullsFirst: false })
+
+  // ─── Projects this intern is assigned to (for the edit modal) ───
+  const { data: internProjectsRaw } = await supabase
+    .from('project_assignments')
+    .select('project:project_id (id, title, status)')
+    .eq('intern_id', id)
+
+  const availableProjects: { id: string; title: string }[] = []
+  for (const row of (internProjectsRaw ?? []) as any[]) {
+    const projRaw = row.project
+    const proj = Array.isArray(projRaw) ? projRaw[0] : projRaw
+    if (!proj || proj.status === 'archived') continue
+    if (!availableProjects.find((p) => p.id === proj.id)) {
+      availableProjects.push({ id: proj.id, title: proj.title })
+    }
+  }
 
   // Recent logs
   const { data: logs } = await supabase
@@ -224,12 +242,26 @@ export default async function MentorInternDetailPage({
                     </span>
                   )}
                 </div>
-                <Badge
-                  variant={TASK_STATUS_VARIANTS[t.status] ?? 'default'}
-                  size="sm"
-                >
-                  {t.status.replace('_', ' ')}
-                </Badge>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Badge
+                    variant={TASK_STATUS_VARIANTS[t.status] ?? 'default'}
+                    size="sm"
+                  >
+                    {t.status.replace('_', ' ')}
+                  </Badge>
+                  <TaskActionsMenu
+                    task={{
+                      id: t.id,
+                      title: t.title,
+                      description: t.description ?? null,
+                      status: t.status as any,
+                      due_date: t.due_date,
+                      project_id: t.project_id,
+                      is_highlight: t.is_highlight ?? false,
+                    }}
+                    availableProjects={availableProjects}
+                  />
+                </div>
               </li>
             ))}
           </ul>

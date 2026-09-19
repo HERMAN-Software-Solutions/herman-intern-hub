@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
 import { AssignmentPanel } from './assignment-panel'
 import { NewTaskForm } from './new-task-form'
+import { TaskActionsMenu } from '@/components/tasks/task-actions-menu'
 
 const STATUS_VARIANTS: Record<
   string,
@@ -84,7 +85,7 @@ export default async function AdminProjectDetailPage({
     .from('tasks')
     .select(
       `id, title, description, status, due_date, is_highlight,
-       assigned_to,
+       assigned_to, project_id,
        intern:assigned_to (full_name, email)`
     )
     .eq('project_id', id)
@@ -95,6 +96,28 @@ export default async function AdminProjectDetailPage({
     const intern = Array.isArray(internRaw) ? internRaw[0] : internRaw
     return { ...t, intern }
   })
+
+  // ─── For the edit modal: projects each task's intern is assigned to ───
+  const internIds = [...new Set(tasks.map((t: any) => t.assigned_to))]
+
+  const { data: internProjectAssignments } = internIds.length
+    ? await supabase
+        .from('project_assignments')
+        .select('intern_id, project:project_id (id, title, status)')
+        .in('intern_id', internIds)
+    : { data: [] as any[] }
+
+  const projectsByIntern = new Map<string, { id: string; title: string }[]>()
+  for (const row of (internProjectAssignments ?? []) as any[]) {
+    const projRaw = row.project
+    const proj = Array.isArray(projRaw) ? projRaw[0] : projRaw
+    if (!proj || proj.status === 'archived') continue
+    const arr = projectsByIntern.get(row.intern_id) ?? []
+    if (!arr.find((p) => p.id === proj.id)) {
+      arr.push({ id: proj.id, title: proj.title })
+    }
+    projectsByIntern.set(row.intern_id, arr)
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
@@ -196,12 +219,28 @@ export default async function AdminProjectDetailPage({
                     )}
                   </div>
                 </div>
-                <Badge
-                  variant={TASK_STATUS_VARIANTS[t.status] ?? 'default'}
-                  size="sm"
-                >
-                  {t.status.replace('_', ' ')}
-                </Badge>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Badge
+                    variant={TASK_STATUS_VARIANTS[t.status] ?? 'default'}
+                    size="sm"
+                  >
+                    {t.status.replace('_', ' ')}
+                  </Badge>
+                  <TaskActionsMenu
+                    task={{
+                      id: t.id,
+                      title: t.title,
+                      description: t.description ?? null,
+                      status: t.status,
+                      due_date: t.due_date,
+                      project_id: t.project_id,
+                      is_highlight: t.is_highlight ?? false,
+                    }}
+                    availableProjects={
+                      projectsByIntern.get(t.assigned_to) ?? []
+                    }
+                  />
+                </div>
               </div>
             </Card>
           ))}
