@@ -11,6 +11,7 @@ import {
   FileCheck2,
   FolderKanban,
   FileText,
+  BarChart3,
   LogOut,
 } from 'lucide-react'
 
@@ -56,6 +57,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Records',
     items: [
       { href: '/admin/documents', label: 'Documents', icon: FileText },
+      { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     ],
   },
 ]
