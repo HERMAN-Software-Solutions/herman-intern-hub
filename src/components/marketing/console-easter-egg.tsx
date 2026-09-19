@@ -25,10 +25,6 @@ const MUTED_STYLE =
 
 export function ConsoleEasterEgg() {
   useEffect(() => {
-    // Only print once per tab session
-    if (sessionStorage.getItem('herman-console-shown')) return
-    sessionStorage.setItem('herman-console-shown', '1')
-
     const appUrl =
       typeof window !== 'undefined'
         ? window.location.origin
