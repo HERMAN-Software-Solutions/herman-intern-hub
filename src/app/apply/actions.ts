@@ -1,8 +1,14 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { sendApplicationReceived } from '@/lib/email/send'
 import { notifyAdmins } from '@/lib/notifications/create'
+import { rateLimit, formatRetryAfter } from '@/lib/rate-limit'
+
+// ─── Rate limit config ────────────────────────────────────
+const APPLY_LIMIT = 5                       // submissions
+const APPLY_WINDOW_MS = 60 * 60 * 1000      // per hour
 
 type ApplicationInput = {
   name: string
@@ -29,6 +35,25 @@ export async function submitApplication(input: ApplicationInput) {
     return { error: 'Select at least one tech stack' }
   if (!input.message?.trim() || input.message.trim().length < 20)
     return { error: 'Message must be at least 20 characters' }
+
+  // ─── Rate limit by IP (per hour) ──────────────────────
+  const h = await headers()
+  const ip =
+    h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    h.get('x-real-ip')?.trim() ||
+    'unknown'
+
+  const { ok, retryAfterMs } = rateLimit(
+    `apply:${ip}`,
+    APPLY_LIMIT,
+    APPLY_WINDOW_MS
+  )
+
+  if (!ok) {
+    return {
+      error: `Too many applications from this network. Please try again in ${formatRetryAfter(retryAfterMs)}.`,
+    }
+  }
 
   const supabase = createAdminClient()
 
