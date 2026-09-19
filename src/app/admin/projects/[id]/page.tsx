@@ -1,11 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import {
-  ChevronLeft,
-  Calendar,
-  Briefcase,
-  Star,
-} from 'lucide-react'
+import { ChevronLeft, Calendar, Briefcase, Star } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { PageHeader } from '@/components/ui/page-header'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +8,7 @@ import { Card } from '@/components/ui/card'
 import { AssignmentPanel } from './assignment-panel'
 import { NewTaskForm } from './new-task-form'
 import { TaskActionsMenu } from '@/components/tasks/task-actions-menu'
+import { ProjectActionsMenu } from '@/components/projects/project-actions-menu'
 
 const STATUS_VARIANTS: Record<
   string,
@@ -129,28 +125,44 @@ export default async function AdminProjectDetailPage({
         Back to projects
       </Link>
 
-      <PageHeader
-        title={project.title}
-        description={
-          <div className="flex flex-wrap items-center gap-3">
-            <Badge variant={STATUS_VARIANTS[project.status] ?? 'default'}>
-              {project.status}
-            </Badge>
-            {project.is_client_project && (
-              <span className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">
-                <Briefcase className="w-3 h-3" />
-                Client project
-              </span>
-            )}
-            {project.due_date && (
-              <span className="inline-flex items-center gap-1 text-xs text-slate-500">
-                <Calendar className="w-3 h-3" />
-                Due {new Date(project.due_date).toLocaleDateString()}
-              </span>
-            )}
-          </div>
-        }
-      />
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <PageHeader
+          title={project.title}
+          description={
+            <div className="flex flex-wrap items-center gap-3">
+              <Badge variant={STATUS_VARIANTS[project.status] ?? 'default'}>
+                {project.status}
+              </Badge>
+              {project.is_client_project && (
+                <span className="inline-flex items-center gap-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">
+                  <Briefcase className="w-3 h-3" />
+                  Client project
+                </span>
+              )}
+              {project.due_date && (
+                <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                  <Calendar className="w-3 h-3" />
+                  Due {new Date(project.due_date).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+          }
+        />
+        <div className="flex-shrink-0 mt-1">
+          <ProjectActionsMenu
+            project={{
+              id: project.id,
+              title: project.title,
+              description: project.description ?? null,
+              status: project.status,
+              start_date: project.start_date ?? null,
+              due_date: project.due_date ?? null,
+              is_client_project: project.is_client_project,
+            }}
+            taskCount={tasks.length}
+          />
+        </div>
+      </div>
 
       {project.description && (
         <Card className="mb-6">

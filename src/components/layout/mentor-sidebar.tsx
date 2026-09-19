@@ -11,6 +11,7 @@ import {
   User,
   LogOut,
   ExternalLink,
+  FolderKanban,
 } from 'lucide-react'
 
 type NavItem = {
@@ -40,6 +41,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Interns',
     items: [
       { href: '/mentor/interns', label: 'My interns', icon: Users },
+      { href: '/mentor/projects', label: 'My projects', icon: FolderKanban },
       { href: '/mentor/submissions', label: 'Review queue', icon: FileCheck2 },
       { href: '/mentor/reviews', label: 'Performance reviews', icon: Star },
     ],
