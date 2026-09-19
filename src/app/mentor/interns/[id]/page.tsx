@@ -14,6 +14,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar } from '@/components/ui/avatar'
+import { NewTaskForm } from './new-task-form'
 
 const STATUS_VARIANTS: Record<
   string,
@@ -64,13 +65,19 @@ export default async function MentorInternDetailPage({
 
   if (!intern) notFound()
 
-  // Fetch tasks
+  // Fetch all active projects (for the task form dropdown)
+  const { data: projects } = await supabase
+    .from('projects')
+    .select('id, title, status, is_client_project')
+    .neq('status', 'archived')
+    .order('title', { ascending: true })
+
+  // Fetch all tasks for this intern
   const { data: tasks } = await supabase
     .from('tasks')
     .select('id, title, status, due_date, is_highlight')
     .eq('assigned_to', id)
     .order('due_date', { ascending: true, nullsFirst: false })
-    .limit(10)
 
   // Recent logs
   const { data: logs } = await supabase
@@ -91,23 +98,11 @@ export default async function MentorInternDetailPage({
     .order('submitted_at', { ascending: false })
     .limit(5)
 
-  // Aggregate stats
+  // Stats
   const totalTasks = tasks?.length ?? 0
   const doneTasks = tasks?.filter((t) => t.status === 'done').length ?? 0
   const totalHours =
     logs?.reduce((sum, l) => sum + Number(l.hours_worked), 0) ?? 0
-
-  // Get total tasks (not limited to 10)
-  const { count: totalTaskCount } = await supabase
-    .from('tasks')
-    .select('*', { count: 'exact', head: true })
-    .eq('assigned_to', id)
-
-  const { count: doneTaskCount } = await supabase
-    .from('tasks')
-    .select('*', { count: 'exact', head: true })
-    .eq('assigned_to', id)
-    .eq('status', 'done')
 
   const { count: pendingSubCount } = await supabase
     .from('submissions')
@@ -153,7 +148,7 @@ export default async function MentorInternDetailPage({
         <KPI
           icon={<CheckCircle2 className="w-4 h-4" />}
           label="Tasks done"
-          value={`${doneTaskCount ?? 0}/${totalTaskCount ?? 0}`}
+          value={`${doneTasks}/${totalTasks}`}
           accent="green"
         />
         <KPI
@@ -183,7 +178,6 @@ export default async function MentorInternDetailPage({
         />
       </div>
 
-      {/* Bio */}
       {intern.bio && (
         <Card className="mb-6">
           <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
@@ -195,20 +189,18 @@ export default async function MentorInternDetailPage({
         </Card>
       )}
 
-      {/* Tasks */}
+      {/* Tasks section with New Task form */}
       <Card className="mb-6">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
           <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
             Tasks
           </h2>
-          <span className="text-xs text-slate-400">
-            {totalTaskCount ?? 0} total
-          </span>
+          <NewTaskForm internId={id} projects={projects ?? []} />
         </div>
 
         {!tasks || tasks.length === 0 ? (
           <p className="text-sm text-slate-500">
-            No tasks assigned to this intern yet.
+            No tasks assigned to this intern yet. Create one to get started.
           </p>
         ) : (
           <ul className="space-y-2">
@@ -222,6 +214,15 @@ export default async function MentorInternDetailPage({
                     <span className="text-amber-500 flex-shrink-0">★</span>
                   )}
                   <span className="text-slate-700 truncate">{t.title}</span>
+                  {t.due_date && (
+                    <span className="text-xs text-slate-400 flex-shrink-0 hidden sm:inline">
+                      · Due{' '}
+                      {new Date(t.due_date).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </span>
+                  )}
                 </div>
                 <Badge
                   variant={TASK_STATUS_VARIANTS[t.status] ?? 'default'}
