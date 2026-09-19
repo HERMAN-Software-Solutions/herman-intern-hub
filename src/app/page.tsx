@@ -15,6 +15,7 @@ import { PublicNav } from '@/components/marketing/nav'
 import { PublicFooter } from '@/components/marketing/footer'
 import { AnimatedCounter } from '@/components/marketing/animated-counter'
 import { TypewriterText } from '@/components/marketing/typewriter-text'
+import { ConsoleEasterEgg } from '@/components/marketing/console-easter-egg'
 
 export const metadata = {
   title: 'HERMAN Intern Hub — Launch your software career',
@@ -37,6 +38,7 @@ export default async function Home() {
 
   return (
     <div id="main-content" className="min-h-screen bg-white">
+      <ConsoleEasterEgg />
       <PublicNav />
 
       {/* ─── HERO ──────────────────────────────────────── */}
