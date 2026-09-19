@@ -53,10 +53,16 @@ export function NewTaskForm({
       return
     }
 
+    if (!projectId) {
+      setError('Please select a project, or create a new one')
+      toast.error('Please select a project')
+      return
+    }
+
     startTransition(async () => {
       const res = await mentorCreateTask({
         internId,
-        projectId: projectId || null,
+        projectId,
         title,
         description,
         dueDate,
@@ -185,11 +191,12 @@ export function NewTaskForm({
             <div>
               <Select
                 name="projectId"
-                label="Project (optional)"
+                label="Project"
+                required
                 value={projectId}
                 onChange={(e) => setProjectId(e.target.value)}
               >
-                <option value="">— No project —</option>
+                <option value="">— Select project —</option>
                 {projects.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.title}
@@ -320,7 +327,7 @@ export function NewTaskForm({
             size="sm"
             onClick={handleCreateTask}
             loading={isPending}
-            disabled={!title.trim()}
+            disabled={!title.trim() || !projectId}
           >
             Create task
           </Button>

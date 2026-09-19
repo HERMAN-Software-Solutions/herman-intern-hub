@@ -138,11 +138,11 @@ export async function mentorCreateProject(input: {
 
 /**
  * Creates a task for an intern.
- * If a projectId is provided, verifies mentor has permission on that project.
+ * Project is required (tasks.project_id is NOT NULL in the DB).
  */
 export async function mentorCreateTask(input: {
   internId: string
-  projectId: string | null
+  projectId: string
   title: string
   description: string
   dueDate: string
@@ -150,6 +150,10 @@ export async function mentorCreateTask(input: {
 }) {
   if (!input.title?.trim()) {
     return { error: 'Task title is required' }
+  }
+
+  if (!input.projectId?.trim()) {
+    return { error: 'Please select a project, or create a new one' }
   }
 
   const verified = await verifyMentorOwnsIntern(input.internId)
@@ -160,21 +164,19 @@ export async function mentorCreateTask(input: {
   const { user, isAdmin } = verified
   const admin = createAdminClient()
 
-  // If a project is provided, verify it exists and the intern is assigned
-  let projectId: string | null = input.projectId
+  // Verify the intern is assigned to this project
+  const projectId = input.projectId
 
-  if (projectId) {
-    const { data: assignment } = await admin
-      .from('project_assignments')
-      .select('id')
-      .eq('project_id', projectId)
-      .eq('intern_id', input.internId)
-      .maybeSingle()
+  const { data: assignment } = await admin
+    .from('project_assignments')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('intern_id', input.internId)
+    .maybeSingle()
 
-    if (!assignment) {
-      return {
-        error: 'This intern is not assigned to that project. Create a project first.',
-      }
+  if (!assignment) {
+    return {
+      error: 'This intern is not assigned to that project. Create a project first.',
     }
   }
 
