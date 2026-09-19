@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -63,21 +64,34 @@ export function LoginForm() {
         disabled={isPending}
       />
 
-      <Input
-        id="password"
-        name="password"
-        type="password"
-        label="Password"
-        required
-        autoComplete="current-password"
-        placeholder="••••••••"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        disabled={isPending}
-      />
+      <div>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          label="Password"
+          required
+          autoComplete="current-password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          disabled={isPending}
+        />
+        <div className="flex justify-end mt-1.5">
+          <Link
+            href="/forgot-password"
+            className="text-xs text-blue-600 hover:text-blue-700 transition-colors font-medium"
+          >
+            Forgot password?
+          </Link>
+        </div>
+      </div>
 
       {error && (
-        <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3">
+        <div
+          role="alert"
+          className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3"
+        >
           {error}
         </div>
       )}
