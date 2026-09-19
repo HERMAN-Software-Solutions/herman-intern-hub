@@ -1,9 +1,9 @@
 import Link from 'next/link'
-import { ArrowRight, Calendar, User } from 'lucide-react'
+import { ArrowRight, Calendar } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { Card } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+import { TasksRealtimeRefresher } from './tasks/tasks-realtime-refresher'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -56,6 +56,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
+      {/* Realtime: refresh this page when a new task is assigned */}
+      <TasksRealtimeRefresher userId={user.id} />
+
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
@@ -114,10 +117,10 @@ export default async function DashboardPage() {
             </p>
             <Link
               href="/dashboard/logs"
-               className="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-sm font-medium px-4 py-2.5 rounded-lg shadow-sm transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2"
             >
               Log today&apos;s work
-           </Link>
+            </Link>
           </div>
         )}
       </Card>

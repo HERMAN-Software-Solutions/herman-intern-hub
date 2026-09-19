@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { EmptyState } from '@/components/ui/empty-state'
 import { PageHeader } from '@/components/ui/page-header'
 import { Badge } from '@/components/ui/badge'
+import { TasksRealtimeRefresher } from './tasks-realtime-refresher'
 
 const STATUS_LABELS: Record<string, string> = {
   todo: 'To do',
@@ -78,6 +79,9 @@ export default async function TasksPage({
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-5xl">
+      {/* Realtime: refresh this page when tasks are assigned or updated */}
+      <TasksRealtimeRefresher userId={user.id} />
+
       <PageHeader
         title="My Tasks"
         description="All tasks assigned to you across projects."
