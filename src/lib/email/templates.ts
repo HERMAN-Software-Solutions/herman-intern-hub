@@ -72,6 +72,102 @@ export function applicationReceivedEmail(name: string): {
   }
 }
 
+// ─────────────────────────────────────────────────────
+// 6. New application — admin notification
+// ─────────────────────────────────────────────────────
+export function newApplicationAdminEmail(input: {
+  applicationId: string
+  applicantName: string
+  applicantEmail: string
+  university: string
+  course: string
+  phone: string | null
+  techStackInterest: string[]
+  portfolioUrl: string | null
+  message: string
+}): { subject: string; html: string } {
+  const reviewUrl = `${process.env.NEXT_PUBLIC_APP_URL}/admin/applications/${input.applicationId}`
+
+  const techTags = input.techStackInterest
+    .map(
+      (t) =>
+        `<span style="display:inline-block;background:#f1f5f9;color:#334155;font-size:12px;padding:4px 10px;border-radius:12px;margin:2px 4px 2px 0;">${t}</span>`
+    )
+    .join('')
+
+  const messagePreview =
+    input.message.length > 400
+      ? input.message.slice(0, 400) + '…'
+      : input.message
+
+  return {
+    subject: `New application: ${input.applicantName}`,
+    html: shell(`
+      ${h1('📥 New internship application')}
+      ${p(`<strong>${input.applicantName}</strong> from ${input.university} just submitted an application to the HERMAN Intern Hub.`)}
+
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin:20px 0;">
+        <table style="width:100%;font-size:13px;color:#334155;border-collapse:collapse;">
+          <tr>
+            <td style="padding:6px 0;width:120px;color:#64748b;">Name</td>
+            <td style="padding:6px 0;font-weight:600;">${input.applicantName}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#64748b;">Email</td>
+            <td style="padding:6px 0;">
+              <a href="mailto:${input.applicantEmail}" style="color:${BRAND.accent};text-decoration:none;">${input.applicantEmail}</a>
+            </td>
+          </tr>
+          ${
+            input.phone
+              ? `<tr>
+                  <td style="padding:6px 0;color:#64748b;">Phone</td>
+                  <td style="padding:6px 0;">${input.phone}</td>
+                </tr>`
+              : ''
+          }
+          <tr>
+            <td style="padding:6px 0;color:#64748b;">University</td>
+            <td style="padding:6px 0;">${input.university}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#64748b;">Course</td>
+            <td style="padding:6px 0;">${input.course}</td>
+          </tr>
+          ${
+            input.portfolioUrl
+              ? `<tr>
+                  <td style="padding:6px 0;color:#64748b;">Portfolio</td>
+                  <td style="padding:6px 0;">
+                    <a href="${input.portfolioUrl}" style="color:${BRAND.accent};text-decoration:none;word-break:break-all;">${input.portfolioUrl}</a>
+                  </td>
+                </tr>`
+              : ''
+          }
+        </table>
+      </div>
+
+      ${
+        techTags
+          ? p(`<strong>Tech interests:</strong><br>${techTags}`)
+          : ''
+      }
+
+      <p style="font-size:13px;color:#64748b;margin:20px 0 8px;"><strong>Message:</strong></p>
+      <div style="background:#f1f5f9;border-radius:8px;padding:14px;font-size:13px;line-height:1.6;color:#334155;white-space:pre-wrap;">${messagePreview}</div>
+
+      <div style="margin-top:24px;">
+        ${button(reviewUrl, 'Review application →')}
+      </div>
+
+      <p style="font-size:12px;color:#64748b;margin-top:20px;">
+        Or open your dashboard:
+        <a href="${process.env.NEXT_PUBLIC_APP_URL}/admin/applications" style="color:${BRAND.accent};text-decoration:none;">/admin/applications</a>
+      </p>
+    `),
+  }
+}
+
 // ─────────────────────────────────────────────
 // 2. Invitation email (with token link)
 // ─────────────────────────────────────────────

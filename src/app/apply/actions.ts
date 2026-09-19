@@ -2,7 +2,10 @@
 
 import { headers } from 'next/headers'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { sendApplicationReceived } from '@/lib/email/send'
+import {
+  sendApplicationReceived,
+  sendNewApplicationToAdmin,
+} from '@/lib/email/send'
 import { notifyAdmins } from '@/lib/notifications/create'
 import { rateLimit, formatRetryAfter } from '@/lib/rate-limit'
 
@@ -73,25 +76,29 @@ export async function submitApplication(input: ApplicationInput) {
     }
   }
 
-  const { error } = await supabase.from('applications').insert({
-    name: input.name.trim(),
-    email: input.email.toLowerCase().trim(),
-    phone: input.phone?.trim() || null,
-    university: input.university.trim(),
-    course: input.course.trim(),
-    year_of_study: input.year_of_study.trim(),
-    tech_stack_interest: input.tech_stack_interest,
-    portfolio_url: input.portfolio_url?.trim() || null,
-    message: input.message.trim(),
-    status: 'pending',
-  })
+  const { data: inserted, error } = await supabase
+    .from('applications')
+    .insert({
+      name: input.name.trim(),
+      email: input.email.toLowerCase().trim(),
+      phone: input.phone?.trim() || null,
+      university: input.university.trim(),
+      course: input.course.trim(),
+      year_of_study: input.year_of_study.trim(),
+      tech_stack_interest: input.tech_stack_interest,
+      portfolio_url: input.portfolio_url?.trim() || null,
+      message: input.message.trim(),
+      status: 'pending',
+    })
+    .select('id')
+    .single()
 
-  if (error) {
+  if (error || !inserted) {
     console.error('Application insert error:', error)
     return { error: 'Something went wrong. Please try again.' }
   }
 
-  // Send confirmation email (fire-and-forget, don't block the response)
+  // Send confirmation email to applicant (fire-and-forget)
   sendApplicationReceived(input.email.toLowerCase().trim(), input.name.trim())
     .then((res) => {
       if (!res.success) {
@@ -99,7 +106,24 @@ export async function submitApplication(input: ApplicationInput) {
       }
     })
 
-  // Notify all admins (fire-and-forget)
+  // Send notification email to admin (fire-and-forget)
+  sendNewApplicationToAdmin({
+    applicationId: inserted.id,
+    applicantName: input.name.trim(),
+    applicantEmail: input.email.toLowerCase().trim(),
+    university: input.university.trim(),
+    course: input.course.trim(),
+    phone: input.phone?.trim() || null,
+    techStackInterest: input.tech_stack_interest,
+    portfolioUrl: input.portfolio_url?.trim() || null,
+    message: input.message.trim(),
+  }).then((res) => {
+    if (!res.success) {
+      console.error('Admin notification email failed:', res.error)
+    }
+  })
+
+  // Notify all admins in-app (fire-and-forget)
   notifyAdmins({
     type: 'application_received',
     title: '📥 New application',
