@@ -6,6 +6,8 @@ import { StatusBadge } from '../../_components/status-badge'
 import { PageHeader } from '@/components/ui/page-header'
 import { MentorAssignment } from './mentor-assignment'
 import { IssueButton } from './issue-certificate/issue-button'
+import { StatusControl } from './status-control'
+import type { InternStatus } from './actions'
 
 export default async function InternDetailPage({
   params,
@@ -67,7 +69,16 @@ export default async function InternDetailPage({
       <PageHeader
         title={intern.full_name ?? 'Unnamed intern'}
         description={intern.email}
-        action={<StatusBadge status={intern.status} />}
+        action={
+          <div className="flex items-center gap-2 flex-wrap">
+            <StatusBadge status={intern.status} />
+            <StatusControl
+              internId={intern.id}
+              internName={intern.full_name ?? intern.email}
+              currentStatus={intern.status as InternStatus}
+            />
+          </div>
+        }
       />
 
       {intern.phone && (
@@ -168,7 +179,6 @@ export default async function InternDetailPage({
           />
         </ul>
 
-        {/* Status-aware message */}
         {intern.status === 'onboarding' && !canActivate && (
           <div className="mt-4 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-3">
             ⚠️ The intern must complete onboarding before activation.

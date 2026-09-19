@@ -138,3 +138,124 @@ export async function updateInternDates(
   revalidatePath(`/admin/interns/${internId}`)
   return { success: true }
 }
+
+/* ─────────────────────── STATUS CHANGE ─────────────────────── */
+
+export type InternStatus =
+  | 'onboarding'
+  | 'active'
+  | 'paused'
+  | 'completed'
+  | 'withdrawn'
+
+const VALID_STATUSES: InternStatus[] = [
+  'onboarding',
+  'active',
+  'paused',
+  'completed',
+  'withdrawn',
+]
+
+export async function updateInternStatus(
+  internId: string,
+  newStatus: InternStatus
+): Promise<{ success: true } | { error: string }> {
+  if (!VALID_STATUSES.includes(newStatus)) {
+    return { error: 'Invalid status' }
+  }
+
+  const user = await getAdminUser()
+  if (!user) return { error: 'Only admins can change intern status' }
+
+  const admin = createAdminClient()
+
+  // Load current intern
+  const { data: intern } = await admin
+    .from('profiles')
+    .select('id, email, full_name, status, mentor_id')
+    .eq('id', internId)
+    .eq('role', 'intern')
+    .single()
+
+  if (!intern) return { error: 'Intern not found' }
+
+  const current = intern.status as InternStatus
+
+  if (current === newStatus) {
+    return { error: 'Status is already set to that value' }
+  }
+
+  // Guard: cannot move to 'active' from this control.
+  // Activation happens via mentor-assignment flow (signed agreement + mentor).
+  if (newStatus === 'active' && current === 'onboarding') {
+    return {
+      error:
+        'Activation happens automatically once a mentor is assigned and the agreement is signed. Assign a mentor to activate.',
+    }
+  }
+
+  // Guard: cannot activate a completed/withdrawn intern without admin reset
+  if (
+    newStatus === 'active' &&
+    (current === 'completed' || current === 'withdrawn')
+  ) {
+    return {
+      error:
+        'This internship has already ended. Restore to "onboarding" first if you need to reactivate.',
+    }
+  }
+
+  // Set end_date when moving to completed/withdrawn
+  const patch: Record<string, unknown> = { status: newStatus }
+
+  if (newStatus === 'completed' || newStatus === 'withdrawn') {
+    // Only set if not already set
+    const { data: fresh } = await admin
+      .from('profiles')
+      .select('end_date')
+      .eq('id', internId)
+      .single()
+    if (fresh && !fresh.end_date) {
+      patch.end_date = new Date().toISOString().slice(0, 10)
+    }
+  }
+
+  const { error } = await admin
+    .from('profiles')
+    .update(patch)
+    .eq('id', internId)
+
+  if (error) {
+    console.error('Status update error:', error)
+    return { error: error.message }
+  }
+
+  // Audit
+  await admin.from('audit_log').insert({
+    actor_id: user.id,
+    action: 'intern.status_changed',
+    entity: 'profiles',
+    entity_id: internId,
+    metadata: { from: current, to: newStatus },
+  })
+
+  // Notify the intern when paused (and no other notification makes sense)
+  if (newStatus === 'paused' && intern.email) {
+    createNotification({
+      userId: internId,
+      type: 'mentor_assigned', // closest existing type
+      title: '⏸️ Internship paused',
+      body: 'Your internship has been paused. Contact your mentor or admin for details.',
+      link: '/account-status',
+    }).catch((err) => {
+      console.error('Pause notification failed:', err)
+    })
+  }
+
+  revalidatePath('/admin/interns')
+  revalidatePath(`/admin/interns/${internId}`)
+  revalidatePath(`/mentor/interns/${internId}`)
+  revalidatePath('/dashboard')
+
+  return { success: true }
+}
