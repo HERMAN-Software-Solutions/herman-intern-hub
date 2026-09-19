@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { Menu, X } from 'lucide-react'
 import { Logo } from './logo'
 import { Breadcrumbs } from '@/components/ui/breadcrumbs'
+import { ConsoleEasterEgg } from './console-easter-egg'
 
 const NAV_LINKS = [
   { href: '/interns', label: 'Interns' },
@@ -37,6 +38,8 @@ export function PublicNav() {
 
   return (
     <>
+      <ConsoleEasterEgg />
+
       {/* Fixed Header Bar */}
       <header className="sticky top-0 z-30 bg-white border-b border-slate-200">
         {/* Row 1: Menu / Logo / Actions */}
