@@ -1,0 +1,212 @@
+'use client'
+
+import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { X } from 'lucide-react'
+import { updateProject } from '@/lib/projects/mutations'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Select } from '@/components/ui/select'
+
+export type EditableProject = {
+  id: string
+  title: string
+  description: string | null
+  status: 'planning' | 'active' | 'review' | 'completed' | 'archived'
+  start_date: string | null
+  due_date: string | null
+  is_client_project: boolean
+}
+
+const STATUSES: {
+  value: EditableProject['status']
+  label: string
+}[] = [
+  { value: 'planning', label: 'Planning' },
+  { value: 'active', label: 'Active' },
+  { value: 'review', label: 'Review' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'archived', label: 'Archived' },
+]
+
+export function ProjectEditModal({
+  project,
+  onClose,
+}: {
+  project: EditableProject
+  onClose: () => void
+}) {
+  const router = useRouter()
+  const [title, setTitle] = useState(project.title)
+  const [description, setDescription] = useState(project.description ?? '')
+  const [status, setStatus] = useState<EditableProject['status']>(project.status)
+  const [startDate, setStartDate] = useState(project.start_date ?? '')
+  const [dueDate, setDueDate] = useState(project.due_date ?? '')
+  const [isClientProject, setIsClientProject] = useState(
+    project.is_client_project
+  )
+  const [error, setError] = useState<string | null>(null)
+  const [isPending, startTransition] = useTransition()
+
+  function handleSubmit() {
+    setError(null)
+
+    if (!title.trim()) {
+      setError('Title is required')
+      return
+    }
+
+    startTransition(async () => {
+      const res = await updateProject({
+        projectId: project.id,
+        title,
+        description,
+        status,
+        startDate,
+        dueDate,
+        isClientProject,
+      })
+
+      if ('error' in res) {
+        setError(res.error)
+        toast.error(res.error)
+        return
+      }
+
+      toast.success('Project updated')
+      onClose()
+      router.refresh()
+    })
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isPending) onClose()
+      }}
+    >
+      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-slate-100">
+          <h3 className="font-semibold text-slate-900">Edit project</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isPending}
+            className="text-slate-400 hover:text-slate-700 transition-colors disabled:opacity-50"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-5 space-y-4">
+          <Input
+            name="title"
+            label="Title"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={isPending}
+          />
+
+          <Textarea
+            name="description"
+            label="Description"
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={isPending}
+          />
+
+          <Select
+            name="status"
+            label="Status"
+            required
+            value={status}
+            onChange={(e) =>
+              setStatus(e.target.value as EditableProject['status'])
+            }
+            disabled={isPending}
+          >
+            {STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </Select>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              name="startDate"
+              type="date"
+              label="Start date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              disabled={isPending}
+            />
+            <Input
+              name="dueDate"
+              type="date"
+              label="Due date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              disabled={isPending}
+            />
+          </div>
+
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isClientProject}
+              onChange={(e) => setIsClientProject(e.target.checked)}
+              disabled={isPending}
+              className="mt-1 w-4 h-4"
+            />
+            <div>
+              <div className="text-sm font-medium text-slate-900">
+                This is a client project
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Interns can optionally be compensated.
+              </p>
+            </div>
+          </label>
+
+          {error && (
+            <div
+              role="alert"
+              className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg p-3"
+            >
+              {error}
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-2 justify-end p-5 border-t border-slate-100">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={handleSubmit}
+            loading={isPending}
+            disabled={!title.trim()}
+          >
+            Save changes
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}

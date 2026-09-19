@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PageHeader } from '@/components/ui/page-header'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Badge } from '@/components/ui/badge'
+import { ProjectActionsMenu } from '@/components/projects/project-actions-menu'
 
 export const metadata = { title: 'Projects — HERMAN Admin' }
 
@@ -50,7 +51,6 @@ export default async function AdminProjectsPage({
 
   const { data: projects } = await query
 
-  // Counts
   const { data: allProjects } = await supabase
     .from('projects')
     .select('status')
@@ -64,22 +64,30 @@ export default async function AdminProjectsPage({
     archived: allProjects?.filter((p) => p.status === 'archived').length ?? 0,
   }
 
-  // Assignments per project
   const projectIds = (projects ?? []).map((p) => p.id)
   const assignmentCounts = new Map<string, number>()
+  const taskCounts = new Map<string, number>()
 
   if (projectIds.length > 0) {
     const { data: assignments } = await supabase
       .from('project_assignments')
       .select('project_id')
+      .in('project_id', projectIds)
 
     for (const a of assignments ?? []) {
-      if (projectIds.includes(a.project_id)) {
-        assignmentCounts.set(
-          a.project_id,
-          (assignmentCounts.get(a.project_id) ?? 0) + 1
-        )
-      }
+      assignmentCounts.set(
+        a.project_id,
+        (assignmentCounts.get(a.project_id) ?? 0) + 1
+      )
+    }
+
+    const { data: taskRows } = await supabase
+      .from('tasks')
+      .select('project_id')
+      .in('project_id', projectIds)
+
+    for (const t of taskRows ?? []) {
+      taskCounts.set(t.project_id, (taskCounts.get(t.project_id) ?? 0) + 1)
     }
   }
 
@@ -99,7 +107,6 @@ export default async function AdminProjectsPage({
         }
       />
 
-      {/* Filters */}
       <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
         {FILTERS.map((f) => {
           const active = activeFilter === f.key
@@ -132,10 +139,10 @@ export default async function AdminProjectsPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {projects.map((p) => {
             const internCount = assignmentCounts.get(p.id) ?? 0
+            const taskCount = taskCounts.get(p.id) ?? 0
             return (
-              <Link
+              <div
                 key={p.id}
-                href={`/admin/projects/${p.id}`}
                 className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-400 hover:shadow-sm transition-all"
               >
                 <div className="flex items-start justify-between gap-3 mb-3">
@@ -150,32 +157,54 @@ export default async function AdminProjectsPage({
                       </span>
                     )}
                   </div>
-                  <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-500 transition-colors flex-shrink-0" />
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <ProjectActionsMenu
+                      project={{
+                        id: p.id,
+                        title: p.title,
+                        description: p.description ?? null,
+                        status: p.status as any,
+                        start_date: p.start_date ?? null,
+                        due_date: p.due_date ?? null,
+                        is_client_project: p.is_client_project,
+                      }}
+                      taskCount={taskCount}
+                    />
+                    <Link
+                      href={`/admin/projects/${p.id}`}
+                      className="p-1.5 rounded-md text-slate-300 hover:text-slate-500 transition-colors"
+                      aria-label="Open project"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </div>
                 </div>
 
-                <h3 className="font-semibold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">
-                  {p.title}
-                </h3>
+                <Link href={`/admin/projects/${p.id}`} className="block">
+                  <h3 className="font-semibold text-slate-900 text-lg group-hover:text-blue-600 transition-colors">
+                    {p.title}
+                  </h3>
 
-                {p.description && (
-                  <p className="text-sm text-slate-500 mt-2 line-clamp-2">
-                    {p.description}
-                  </p>
-                )}
+                  {p.description && (
+                    <p className="text-sm text-slate-500 mt-2 line-clamp-2">
+                      {p.description}
+                    </p>
+                  )}
 
-                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 gap-3 flex-wrap">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Users className="w-3 h-3" />
-                    {internCount} {internCount === 1 ? 'intern' : 'interns'}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar className="w-3 h-3" />
-                    {p.due_date
-                      ? `Due ${new Date(p.due_date).toLocaleDateString()}`
-                      : 'No due date'}
-                  </span>
-                </div>
-              </Link>
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400 gap-3 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Users className="w-3 h-3" />
+                      {internCount} {internCount === 1 ? 'intern' : 'interns'}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Calendar className="w-3 h-3" />
+                      {p.due_date
+                        ? `Due ${new Date(p.due_date).toLocaleDateString()}`
+                        : 'No due date'}
+                    </span>
+                  </div>
+                </Link>
+              </div>
             )
           })}
         </div>
