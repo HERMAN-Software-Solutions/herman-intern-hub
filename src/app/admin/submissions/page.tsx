@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Badge } from '@/components/ui/badge'
 import { Avatar } from '@/components/ui/avatar'
+import { ExportButton } from '@/components/admin/export-button'
 
 const SUBMISSION_VARIANTS: Record<string, 'success' | 'warning' | 'danger'> = {
   pending: 'warning',
@@ -89,9 +90,13 @@ export default async function SubmissionsPage({
       <PageHeader
         title="Submissions"
         description="Review work submitted by your interns."
+        action={
+          <ExportButton
+            href={`/api/admin/export/submissions?status=${activeFilter}`}
+          />
+        }
       />
 
-      {/* Filter tabs */}
       <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
         {FILTERS.map((f) => {
           const active = activeFilter === f.key

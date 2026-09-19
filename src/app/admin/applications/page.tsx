@@ -1,10 +1,11 @@
 import Link from 'next/link'
-import { Inbox, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { StatusBadge } from '../_components/status-badge'
 import { EmptyState } from '@/components/ui/empty-state'
 import { PageHeader } from '@/components/ui/page-header'
 import { Card } from '@/components/ui/card'
+import { ExportButton } from '@/components/admin/export-button'
 
 const FILTERS = [
   { key: 'pending', label: 'Pending' },
@@ -27,7 +28,9 @@ export default async function ApplicationsPage({
 
   let query = supabase
     .from('applications')
-    .select('id, name, email, university, course, tech_stack_interest, status, submitted_at')
+    .select(
+      'id, name, email, university, course, tech_stack_interest, status, submitted_at'
+    )
     .order('submitted_at', { ascending: false })
 
   if (activeFilter !== 'all') {
@@ -41,6 +44,11 @@ export default async function ApplicationsPage({
       <PageHeader
         title="Applications"
         description="Review and approve incoming applications."
+        action={
+          <ExportButton
+            href={`/api/admin/export/applications?status=${activeFilter}`}
+          />
+        }
       />
 
       {/* Filter tabs */}
@@ -71,7 +79,6 @@ export default async function ApplicationsPage({
         />
       ) : (
         <>
-          {/* Mobile: cards */}
           <div className="sm:hidden space-y-3">
             {applications.map((app) => (
               <Link
@@ -101,7 +108,6 @@ export default async function ApplicationsPage({
             ))}
           </div>
 
-          {/* Desktop: table */}
           <Card padding="none" className="hidden sm:block overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-slate-500 text-left text-xs uppercase tracking-wider">

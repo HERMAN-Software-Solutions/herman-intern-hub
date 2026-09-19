@@ -6,6 +6,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { PageHeader } from '@/components/ui/page-header'
 import { Card } from '@/components/ui/card'
 import { Avatar } from '@/components/ui/avatar'
+import { ExportButton } from '@/components/admin/export-button'
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -62,9 +63,13 @@ export default async function InternsPage({
       <PageHeader
         title="Interns"
         description="Manage interns, assign mentors, and track progress."
+        action={
+          <ExportButton
+            href={`/api/admin/export/interns?status=${activeFilter}`}
+          />
+        }
       />
 
-      {/* Filter tabs */}
       <div className="flex gap-1 mb-6 border-b border-slate-200 overflow-x-auto">
         {FILTERS.map((f) => {
           const active = activeFilter === f.key
@@ -95,7 +100,6 @@ export default async function InternsPage({
         />
       ) : (
         <>
-          {/* Mobile: cards */}
           <div className="sm:hidden space-y-3">
             {interns.map((intern: any) => {
               const mentorRaw = intern.mentor
@@ -147,7 +151,6 @@ export default async function InternsPage({
             })}
           </div>
 
-          {/* Desktop: table */}
           <Card padding="none" className="hidden sm:block overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-slate-500 text-left text-xs uppercase tracking-wider">
