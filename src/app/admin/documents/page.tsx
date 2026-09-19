@@ -15,6 +15,7 @@ import { EmptyState } from '@/components/ui/empty-state'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Avatar } from '@/components/ui/avatar'
+import { ExportButton } from '@/components/admin/export-button'
 
 export const metadata = { title: 'Documents — HERMAN Admin' }
 
@@ -148,6 +149,7 @@ export default async function AdminDocumentsPage({
       <PageHeader
         title="Documents"
         description="All issued certificates, letters, and agreements."
+        action={<ExportButton href="/api/admin/export/documents" />}
       />
 
       {/* Search + filter */}
