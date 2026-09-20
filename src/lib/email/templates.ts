@@ -346,3 +346,80 @@ export function announcementEmail(input: {
     `),
   }
 }
+
+// ─────────────────────────────────────────────────────
+// 8. Client error alert (admin)
+// ─────────────────────────────────────────────────────
+export function clientErrorAlertEmail(input: {
+  label: string
+  message: string
+  url: string | null
+  userAgent: string | null
+  stack: string | null
+  digest: string | null
+  timestamp: string
+}): { subject: string; html: string } {
+  // Sanitize stack for HTML
+  const safeStack = (input.stack ?? 'No stack trace')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .slice(0, 3000)
+
+  const subjectLine = `🚨 Client error: ${input.message.slice(0, 80)}`
+
+  return {
+    subject: subjectLine,
+    html: shell(`
+      ${h1('🚨 A user hit an error')}
+      ${p('Someone just experienced an error in HERMAN Intern Hub. Here are the details.')}
+
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;margin:20px 0;">
+        <table style="width:100%;font-size:13px;color:#334155;border-collapse:collapse;">
+          <tr>
+            <td style="padding:6px 0;width:120px;color:#64748b;">Where</td>
+            <td style="padding:6px 0;font-weight:600;">${input.label}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#64748b;">When</td>
+            <td style="padding:6px 0;">${new Date(input.timestamp).toLocaleString()}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0;color:#64748b;">URL</td>
+            <td style="padding:6px 0;word-break:break-all;">
+              ${input.url ? `<a href="${input.url}" style="color:${BRAND.accent};text-decoration:none;">${input.url}</a>` : '—'}
+            </td>
+          </tr>
+          ${input.digest ? `
+          <tr>
+            <td style="padding:6px 0;color:#64748b;">Error ID</td>
+            <td style="padding:6px 0;font-family:monospace;">${input.digest}</td>
+          </tr>` : ''}
+          <tr>
+            <td style="padding:6px 0;color:#64748b;">Device</td>
+            <td style="padding:6px 0;font-size:12px;word-break:break-all;">${input.userAgent ?? '—'}</td>
+          </tr>
+        </table>
+      </div>
+
+      ${p(`<strong>Error message:</strong>`)}
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px;font-family:monospace;font-size:12px;color:#991b1b;word-break:break-word;">
+        ${input.message}
+      </div>
+
+      ${p(`<strong>Stack trace (top of it):</strong>`)}
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px;font-family:monospace;font-size:11px;color:#334155;white-space:pre-wrap;word-break:break-word;max-height:300px;overflow:auto;">
+        ${safeStack}
+      </div>
+
+      <div style="margin-top:24px;">
+        ${button(
+          'https://vercel.com/dashboard',
+          'Open Vercel Logs →'
+        )}
+      </div>
+
+      ${p(`<span style="color:#94a3b8;font-size:12px;">This alert is rate-limited to 1 per unique error per 30 minutes. If the same error keeps happening, you won't be flooded.</span>`)}
+    `),
+  }
+}

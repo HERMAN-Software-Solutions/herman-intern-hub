@@ -8,6 +8,7 @@ import {
   certificateIssuedEmail,
   newApplicationAdminEmail,
   announcementEmail,
+  clientErrorAlertEmail,
 } from './templates'
 
 const ADMIN_NOTIFICATION_EMAIL = 'infohermansoftware@gmail.com'
@@ -152,6 +153,28 @@ export async function sendAnnouncementEmail(input: {
     subject: t.subject,
     htmlContent: t.html,
     replyTo: input.senderEmail,
+  })
+  return res.success ? { success: true } : { success: false, error: res.error }
+}
+
+/**
+ * Alert the admin when a client-side error is reported.
+ */
+export async function sendClientErrorAlert(input: {
+  label: string
+  message: string
+  url: string | null
+  userAgent: string | null
+  stack: string | null
+  digest: string | null
+  timestamp: string
+}): Promise<{ success: boolean; error?: string }> {
+  const t = clientErrorAlertEmail(input)
+  const res = await sendEmail({
+    to: ADMIN_NOTIFICATION_EMAIL,
+    toName: 'HERMAN Admin',
+    subject: t.subject,
+    htmlContent: t.html,
   })
   return res.success ? { success: true } : { success: false, error: res.error }
 }
