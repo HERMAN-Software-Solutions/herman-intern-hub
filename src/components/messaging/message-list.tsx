@@ -20,12 +20,10 @@ export function MessageList({
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages.length])
 
-  // Realtime subscription
   useEffect(() => {
     const channel = supabase
       .channel(`thread-${threadId}`)
@@ -38,7 +36,6 @@ export function MessageList({
           filter: `thread_id=eq.${threadId}`,
         },
         async (payload) => {
-          // We only get the raw row — refetch to get the sender join
           const { data } = await supabase
             .from('messages')
             .select(
@@ -54,7 +51,6 @@ export function MessageList({
             const enriched = { ...data, sender } as Message
 
             setMessages((prev) => {
-              // Avoid duplicates
               if (prev.some((m) => m.id === enriched.id)) return prev
               return [...prev, enriched]
             })
@@ -105,6 +101,15 @@ export function MessageList({
       {messages.map((m) => {
         const isMe = m.sender_id === currentUserId
         const isDeleted = !!m.deleted_at
+        const isImage =
+          m.file_url &&
+          /\.(png|jpe?g|gif|webp)$/i.test(m.file_url) &&
+          m.file_name
+
+        // Use the API route for auth-gated access
+        const attachmentHref = m.file_url
+          ? `/api/messaging/attachment?path=${encodeURIComponent(m.file_url)}`
+          : null
 
         return (
           <div
@@ -120,30 +125,53 @@ export function MessageList({
               className={`max-w-[75%] ${isMe ? 'items-end' : 'items-start'} flex flex-col`}
             >
               <div
-                className={`rounded-2xl px-3.5 py-2 text-sm leading-relaxed ${
+                className={`rounded-2xl text-sm leading-relaxed ${
                   isDeleted
-                    ? 'bg-slate-100 text-slate-400 italic'
+                    ? 'bg-slate-100 text-slate-400 italic px-3.5 py-2'
                     : isMe
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-900'
+                      ? 'bg-slate-900 text-white px-3.5 py-2'
+                      : 'bg-slate-100 text-slate-900 px-3.5 py-2'
                 }`}
               >
                 {isDeleted ? (
                   'This message was deleted'
                 ) : (
                   <>
-                    <p className="whitespace-pre-wrap break-words">{m.body}</p>
-                    {m.file_url && (
+                    {/* Attachment preview */}
+                    {m.file_url && isImage && attachmentHref && (
                       <a
-                        href={m.file_url}
+                        href={attachmentHref}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`mt-1.5 inline-flex items-center gap-1 text-xs underline ${
-                          isMe ? 'text-white/80' : 'text-blue-600'
-                        }`}
+                        className="block mb-2 -mx-1 -mt-1"
+                      >
+                        <img
+                          src={attachmentHref}
+                          alt={m.file_name ?? 'Attachment'}
+                          className="max-w-full max-h-64 rounded-lg object-cover"
+                        />
+                      </a>
+                    )}
+
+                    {m.file_url && !isImage && attachmentHref && (
+                      <a
+                        href={attachmentHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`inline-flex items-center gap-1.5 mb-1.5 text-xs px-2.5 py-1.5 rounded-lg ${
+                          isMe
+                            ? 'bg-white/10 text-white hover:bg-white/20'
+                            : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                        } transition-colors`}
                       >
                         📎 {m.file_name ?? 'Attachment'}
                       </a>
+                    )}
+
+                    {m.body && m.body.trim() && (
+                      <p className="whitespace-pre-wrap break-words">
+                        {m.body}
+                      </p>
                     )}
                   </>
                 )}
