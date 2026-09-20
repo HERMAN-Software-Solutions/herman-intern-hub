@@ -13,6 +13,7 @@ import {
   ExternalLink,
   FolderKanban,
 } from 'lucide-react'
+import { SidebarMessagesLink } from '@/components/messaging/sidebar-messages-link'
 
 type NavItem = {
   href: string
@@ -133,6 +134,11 @@ export function MentorSidebar({
                   </Link>
                 )
               })}
+
+              {/* Messages — inserted after Interns group items */}
+              {group.label === 'Interns' && (
+                <SidebarMessagesLink href="/mentor/messages" />
+              )}
             </div>
           </div>
         ))}

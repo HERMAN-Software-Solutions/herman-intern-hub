@@ -14,6 +14,7 @@ import {
   User,
   LogOut,
 } from 'lucide-react'
+import { SidebarMessagesLink } from '@/components/messaging/sidebar-messages-link'
 
 type NavItem = {
   href: string
@@ -141,6 +142,11 @@ export function InternSidebar({ internName }: { internName: string }) {
                   </Link>
                 )
               })}
+
+              {/* Messages — inserted after Work group items, inside the group */}
+              {group.label === 'Work' && (
+                <SidebarMessagesLink href="/dashboard/messages" />
+              )}
             </div>
           </div>
         ))}
