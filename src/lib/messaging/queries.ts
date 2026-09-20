@@ -63,9 +63,12 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
       return []
     }
   } else if (me.role === 'mentor') {
-    threadQuery = threadQuery.eq('mentor_id', me.id)
+    // Mentors see their own 1-on-1 + team threads AND the shared mentor room
+    threadQuery = threadQuery.or(
+      `mentor_id.eq.${me.id},type.eq.mentor_admin`
+    )
   } else if (me.role === 'admin' || me.role === 'super_admin') {
-    // admins see all
+    // Admins see everything (including mentor room)
   } else {
     return []
   }
@@ -80,20 +83,21 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
 
   const { data: recentMessages } = await admin
     .from('messages')
-    .select('thread_id, body, created_at')
+    .select('thread_id, body, created_at, sender_id')
     .in('thread_id', threadIds)
     .is('deleted_at', null)
     .order('created_at', { ascending: false })
 
   const lastByThread = new Map<
     string,
-    { body: string; created_at: string }
+    { body: string; created_at: string; sender_id: string }
   >()
   for (const m of recentMessages ?? []) {
     if (!lastByThread.has(m.thread_id)) {
       lastByThread.set(m.thread_id, {
         body: m.body,
         created_at: m.created_at,
+        sender_id: m.sender_id,
       })
     }
   }
@@ -109,11 +113,15 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
     readByThread.set(r.thread_id, r.last_read_at)
   }
 
+  // Unread: only count messages NOT sent by me, created after my last read
   const unread = new Map<string, number>()
   for (const t of threads) {
     const lastRead = readByThread.get(t.id) ?? '1970-01-01'
     const count = (recentMessages ?? []).filter(
-      (m) => m.thread_id === t.id && m.created_at > lastRead
+      (m) =>
+        m.thread_id === t.id &&
+        m.created_at > lastRead &&
+        m.sender_id !== me.id
     ).length
     unread.set(t.id, count)
   }
@@ -122,6 +130,10 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
   for (const t of threads) {
     if (t.mentor_id) profileIds.add(t.mentor_id)
     if (t.intern_id) profileIds.add(t.intern_id)
+  }
+  // Also add senders of last messages (for mentor room previews)
+  for (const m of lastByThread.values()) {
+    if (m.sender_id) profileIds.add(m.sender_id)
   }
 
   const { data: profiles } = await admin
@@ -156,6 +168,19 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
       subtitle = 'Mentors + admins'
     }
 
+    let preview: string | null = null
+    if (last?.body) {
+      const senderName =
+        last.sender_id === me.id
+          ? 'You'
+          : nameById.get(last.sender_id)?.split(' ')[0] ?? 'Someone'
+      const text =
+        last.body.length > 60 ? last.body.slice(0, 60) + '…' : last.body
+      // Mentor room: prefix with sender name for context
+      preview =
+        t.type === 'mentor_admin' ? `${senderName}: ${text}` : text
+    }
+
     return {
       id: t.id,
       type: t.type,
@@ -165,11 +190,7 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
       title,
       subtitle,
       lastMessageAt: last?.created_at ?? null,
-      lastMessagePreview: last?.body
-        ? last.body.length > 80
-          ? last.body.slice(0, 80) + '…'
-          : last.body
-        : null,
+      lastMessagePreview: preview,
       unreadCount: unread.get(t.id) ?? 0,
     }
   })

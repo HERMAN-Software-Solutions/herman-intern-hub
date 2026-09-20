@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { EmptyState } from '@/components/ui/empty-state'
 import { Card } from '@/components/ui/card'
 import { getMyThreads } from '@/lib/messaging/queries'
+import { ensureMentorRoom } from '@/lib/messaging/ensure-room'
 
 export const metadata = { title: 'Messages — HERMAN Mentor' }
 export const dynamic = 'force-dynamic'
@@ -16,9 +17,11 @@ export default async function MentorMessagesPage() {
   } = await supabase.auth.getUser()
   if (!user) return null
 
+  // Ensure the mentor room exists (idempotent)
+  await ensureMentorRoom()
+
   const threads = await getMyThreads()
 
-  // Group: 1-on-1s first, then team threads
   const oneOnOne = threads.filter((t) => t.type === 'mentor_intern')
   const teamThreads = threads.filter((t) => t.type === 'mentor_team')
   const mentorRoom = threads.filter((t) => t.type === 'mentor_admin')

@@ -96,13 +96,16 @@ export async function sendMessage(input: {
         }
       }
     } else if (thread.type === 'mentor_admin') {
+      // Notify all mentors + admins except sender
       const { data: staff } = await admin
         .from('profiles')
-        .select('id')
+        .select('id, role')
         .in('role', ['mentor', 'admin', 'super_admin'])
         .neq('id', user.id)
 
       for (const s of staff ?? []) {
+        // Admins get notified too, but link them to the mentor panel
+        // (they have access to /mentor since they're staff)
         createNotification({
           userId: s.id,
           type: 'message' as any,
