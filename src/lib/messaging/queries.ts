@@ -8,7 +8,6 @@ export type ThreadSummary = {
   mentor_id: string | null
   intern_id: string | null
   updated_at: string
-  // Enriched for UI
   title: string
   subtitle: string | null
   lastMessageAt: string | null
@@ -33,10 +32,6 @@ export type Message = {
   } | null
 }
 
-/**
- * Returns all threads the current user is a member of,
- * enriched with last-message preview + unread count.
- */
 export async function getMyThreads(): Promise<ThreadSummary[]> {
   const supabase = await createClient()
   const {
@@ -46,7 +41,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
 
   const admin = createAdminClient()
 
-  // Fetch my profile to know my role + mentor_id
   const { data: me } = await admin
     .from('profiles')
     .select('id, role, mentor_id')
@@ -55,16 +49,11 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
 
   if (!me) return []
 
-  // Fetch threads I can see (RLS on the client already filters, but
-  // we use admin here for the enriched joins and filter manually for safety)
   let threadQuery = admin
     .from('threads')
     .select('id, type, mentor_id, intern_id, updated_at')
 
   if (me.role === 'intern') {
-    // Interns see:
-    //   - their 1-on-1 thread with their CURRENT mentor
-    //   - their current mentor's team thread
     if (me.mentor_id) {
       threadQuery = threadQuery.or(
         `and(type.eq.mentor_intern,intern_id.eq.${me.id},mentor_id.eq.${me.mentor_id}),` +
@@ -76,7 +65,7 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
   } else if (me.role === 'mentor') {
     threadQuery = threadQuery.eq('mentor_id', me.id)
   } else if (me.role === 'admin' || me.role === 'super_admin') {
-    // Admins see everything — no filter
+    // admins see all
   } else {
     return []
   }
@@ -89,7 +78,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
 
   const threadIds = threads.map((t) => t.id)
 
-  // Last message per thread
   const { data: recentMessages } = await admin
     .from('messages')
     .select('thread_id, body, created_at')
@@ -110,7 +98,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
     }
   }
 
-  // Read state
   const { data: reads } = await admin
     .from('thread_reads')
     .select('thread_id, last_read_at')
@@ -122,7 +109,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
     readByThread.set(r.thread_id, r.last_read_at)
   }
 
-  // Unread counts (count messages created after last_read_at, not by me)
   const unread = new Map<string, number>()
   for (const t of threads) {
     const lastRead = readByThread.get(t.id) ?? '1970-01-01'
@@ -132,7 +118,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
     unread.set(t.id, count)
   }
 
-  // Enrich titles — need mentor + intern names
   const profileIds = new Set<string>()
   for (const t of threads) {
     if (t.mentor_id) profileIds.add(t.mentor_id)
@@ -158,7 +143,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
     let subtitle: string | null = null
 
     if (t.type === 'mentor_intern') {
-      // From the other party's perspective, show the other person's name
       if (me.role === 'intern') {
         title = mentorName ?? 'Your mentor'
       } else {
@@ -191,10 +175,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
   })
 }
 
-/**
- * Fetch the last N messages in a thread.
- * Returns [] if the user can't access the thread.
- */
 export async function getThreadMessages(
   threadId: string,
   limit = 100
@@ -207,10 +187,9 @@ export async function getThreadMessages(
 
   const admin = createAdminClient()
 
-  // Verify the user can access this thread (RLS-checked at query time below,
-  // but we short-circuit here for a fast 403 in server components)
-  const { data: membership } = await admin.rpc('is_thread_member', {
+  const { data: membership } = await admin.rpc('is_thread_member_for_user', {
     p_thread_id: threadId,
+    p_user_id: user.id,
   })
   if (!membership) return []
 
@@ -231,10 +210,6 @@ export async function getThreadMessages(
   }) as Message[]
 }
 
-/**
- * Returns thread metadata (title, members) for the header of a thread view.
- * Returns null if the user can't access it.
- */
 export async function getThreadById(threadId: string) {
   const supabase = await createClient()
   const {
@@ -244,8 +219,9 @@ export async function getThreadById(threadId: string) {
 
   const admin = createAdminClient()
 
-  const { data: membership } = await admin.rpc('is_thread_member', {
+  const { data: membership } = await admin.rpc('is_thread_member_for_user', {
     p_thread_id: threadId,
+    p_user_id: user.id,
   })
   if (!membership) return null
 
@@ -257,7 +233,6 @@ export async function getThreadById(threadId: string) {
 
   if (!thread) return null
 
-  // Enrich with names
   const profileIds = [thread.mentor_id, thread.intern_id].filter(
     Boolean
   ) as string[]
@@ -283,7 +258,6 @@ export async function getThreadById(threadId: string) {
 
   let title: string
   if (thread.type === 'mentor_intern') {
-    // Determine who "I" am relative to this thread
     const isIntern = user.id === thread.intern_id
     title = isIntern ? mentorName ?? 'Your mentor' : internName ?? 'Intern'
   } else if (thread.type === 'mentor_team') {

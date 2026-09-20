@@ -5,10 +5,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { createNotification } from '@/lib/notifications/create'
 
-/**
- * Send a message in a thread.
- * RLS enforces that the sender is a member of the thread.
- */
 export async function sendMessage(input: {
   threadId: string
   body: string
@@ -27,9 +23,9 @@ export async function sendMessage(input: {
 
   const admin = createAdminClient()
 
-  // Verify access
-  const { data: membership } = await admin.rpc('is_thread_member', {
+  const { data: membership } = await admin.rpc('is_thread_member_for_user', {
     p_thread_id: input.threadId,
+    p_user_id: user.id,
   })
   if (!membership) return { error: 'You do not have access to this thread' }
 
@@ -50,7 +46,6 @@ export async function sendMessage(input: {
     return { error: error?.message ?? 'Failed to send message' }
   }
 
-  // Fetch thread to notify the right people
   const { data: thread } = await admin
     .from('threads')
     .select('id, type, mentor_id, intern_id')
@@ -68,13 +63,12 @@ export async function sendMessage(input: {
     const preview = body.length > 60 ? body.slice(0, 60) + '…' : body
 
     if (thread.type === 'mentor_intern') {
-      // Notify the other party
       const recipientId =
         user.id === thread.intern_id ? thread.mentor_id : thread.intern_id
       if (recipientId) {
         createNotification({
           userId: recipientId,
-          type: 'message' as any, // new type — falls back to generic if not mapped
+          type: 'message' as any,
           title: `💬 ${senderName}`,
           body: preview,
           link: `/dashboard/messages/${thread.id}`,
@@ -82,7 +76,6 @@ export async function sendMessage(input: {
         }).catch((err) => console.error('Notification failed:', err))
       }
     } else if (thread.type === 'mentor_team') {
-      // Notify all interns currently assigned to this mentor
       if (thread.mentor_id) {
         const { data: teamInterns } = await admin
           .from('profiles')
@@ -103,7 +96,6 @@ export async function sendMessage(input: {
         }
       }
     } else if (thread.type === 'mentor_admin') {
-      // Notify all mentors + admins except sender
       const { data: staff } = await admin
         .from('profiles')
         .select('id')
@@ -123,7 +115,6 @@ export async function sendMessage(input: {
     }
   }
 
-  // Revalidate
   revalidatePath('/dashboard/messages')
   revalidatePath('/mentor/messages')
   revalidatePath(`/dashboard/messages/${input.threadId}`)
@@ -132,10 +123,6 @@ export async function sendMessage(input: {
   return { success: true, messageId: inserted.id }
 }
 
-/**
- * Mark a thread as read for the current user.
- * Updates thread_reads.last_read_at = now().
- */
 export async function markThreadRead(
   threadId: string
 ): Promise<{ success: true } | { error: string }> {
@@ -147,8 +134,9 @@ export async function markThreadRead(
 
   const admin = createAdminClient()
 
-  const { data: membership } = await admin.rpc('is_thread_member', {
+  const { data: membership } = await admin.rpc('is_thread_member_for_user', {
     p_thread_id: threadId,
+    p_user_id: user.id,
   })
   if (!membership) return { error: 'No access' }
 
@@ -169,10 +157,6 @@ export async function markThreadRead(
   return { success: true }
 }
 
-/**
- * Delete a message. Only the sender, only within 5 minutes.
- * Soft delete: sets deleted_at, keeps the row for audit.
- */
 export async function deleteMessage(
   messageId: string
 ): Promise<{ success: true } | { error: string }> {
