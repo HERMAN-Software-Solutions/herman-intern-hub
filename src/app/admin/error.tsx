@@ -12,6 +12,26 @@ export default function AdminError({
 }) {
   useEffect(() => {
     console.error('Admin error:', error)
+
+    try {
+      fetch('/api/log-client-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          label: 'admin-error-boundary',
+          message: error?.message ?? 'Unknown',
+          digest: error?.digest ?? null,
+          stack: error?.stack ?? null,
+          url: typeof window !== 'undefined' ? window.location.href : null,
+          userAgent:
+            typeof navigator !== 'undefined' ? navigator.userAgent : null,
+          timestamp: new Date().toISOString(),
+        }),
+        keepalive: true,
+      }).catch(() => {})
+    } catch {
+      // Silent
+    }
   }, [error])
 
   return (

@@ -10,7 +10,31 @@ export default function GlobalError({
   reset: () => void
 }) {
   useEffect(() => {
+    // Log to console (works on desktop)
     console.error('App error:', error)
+
+    // Report to server (works on mobile — readable in Vercel Logs)
+    try {
+      fetch('/api/log-client-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          label: 'app-error-boundary',
+          message: error?.message ?? 'Unknown',
+          digest: error?.digest ?? null,
+          stack: error?.stack ?? null,
+          url: typeof window !== 'undefined' ? window.location.href : null,
+          userAgent:
+            typeof navigator !== 'undefined' ? navigator.userAgent : null,
+          timestamp: new Date().toISOString(),
+        }),
+        keepalive: true,
+      }).catch(() => {
+        // Silent — we don't want the logger to cause another error
+      })
+    } catch {
+      // Silent
+    }
   }, [error])
 
   return (
