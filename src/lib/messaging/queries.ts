@@ -73,11 +73,44 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
     return []
   }
 
-  const { data: threads } = await threadQuery.order('updated_at', {
+    const { data: rawThreads } = await threadQuery.order('updated_at', {
     ascending: false,
   })
 
-  if (!threads || threads.length === 0) return []
+  if (!rawThreads || rawThreads.length === 0) return []
+
+  // ─── Filter out stale mentor_intern threads ─────────────
+  // A mentor_intern thread is only valid if the intern's current mentor_id
+  // still points to this mentor. If the intern was reassigned or unassigned,
+  // the thread should disappear from the mentor's list.
+  let threads = rawThreads
+
+  if (me.role === 'mentor') {
+    const internIdsInThreads = rawThreads
+      .filter((t) => t.type === 'mentor_intern' && t.intern_id)
+      .map((t) => t.intern_id as string)
+
+    if (internIdsInThreads.length > 0) {
+      const { data: currentInterns } = await admin
+        .from('profiles')
+        .select('id, mentor_id')
+        .in('id', internIdsInThreads)
+        .eq('mentor_id', me.id)
+
+      const stillMyInterns = new Set(
+        (currentInterns ?? []).map((i) => i.id)
+      )
+
+      threads = rawThreads.filter((t) => {
+        // Keep team + admin threads as-is
+        if (t.type !== 'mentor_intern') return true
+        // Keep 1-on-1 threads only if the intern is still assigned
+        return t.intern_id ? stillMyInterns.has(t.intern_id) : false
+      })
+    }
+  }
+
+  if (threads.length === 0) return []
 
   const threadIds = threads.map((t) => t.id)
 
