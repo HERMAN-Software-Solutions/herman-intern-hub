@@ -47,29 +47,41 @@ export function SidebarAnnouncementsLink({
   useEffect(() => {
     if (!userId) return
 
-    const channel = supabase
-      .channel(`sidebar-ann-count-${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'announcement_recipients',
-          filter: `user_id=eq.${userId}`,
-        },
-        () => fetchCount()
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'announcement_recipients',
-          filter: `user_id=eq.${userId}`,
-        },
-        () => fetchCount()
-      )
-      .subscribe()
+    const channelName = `sidebar-ann-count-${userId}`
+
+    // Remove any lingering channel with the same name BEFORE creating a new one.
+    const existing = supabase
+      .getChannels()
+      .find((c) => c.topic === `realtime:${channelName}`)
+    if (existing) {
+      supabase.removeChannel(existing)
+    }
+
+    const channel = supabase.channel(channelName)
+
+    channel.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'announcement_recipients',
+        filter: `user_id=eq.${userId}`,
+      },
+      () => fetchCount()
+    )
+
+    channel.on(
+      'postgres_changes',
+      {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'announcement_recipients',
+        filter: `user_id=eq.${userId}`,
+      },
+      () => fetchCount()
+    )
+
+    channel.subscribe()
 
     return () => {
       supabase.removeChannel(channel)

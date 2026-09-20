@@ -20,7 +20,6 @@ export function SidebarMessagesLink({
 
   const active = pathname.startsWith(href)
 
-  // Fetch unread count via API (avoids importing server-only code into client)
   async function fetchCount() {
     try {
       const res = await fetch('/api/messaging/unread-count', {
@@ -48,16 +47,31 @@ export function SidebarMessagesLink({
   useEffect(() => {
     if (!userId) return
 
-    const channel = supabase
-      .channel(`sidebar-msg-count-${userId}`)
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'messages' },
-        () => {
-          fetchCount()
-        }
-      )
-      .subscribe()
+    const channelName = `sidebar-msg-count-${userId}`
+
+    // Remove any lingering channel with the same name BEFORE creating a new one.
+    // This prevents "cannot add postgres_changes callbacks after subscribe"
+    // caused by React StrictMode double-mounts and mobile navigation races.
+    const existing = supabase
+      .getChannels()
+      .find((c) => c.topic === `realtime:${channelName}`)
+    if (existing) {
+      supabase.removeChannel(existing)
+    }
+
+    // Build the channel with its callback FIRST, then subscribe once.
+    const channel = supabase.channel(channelName)
+
+    channel.on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'messages' },
+      () => {
+        fetchCount()
+      }
+    )
+
+    // Subscribe AFTER all .on() calls are attached.
+    channel.subscribe()
 
     return () => {
       supabase.removeChannel(channel)

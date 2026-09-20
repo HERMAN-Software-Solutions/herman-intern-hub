@@ -38,43 +38,54 @@ export function AnnouncementPopup({
   useEffect(() => {
     if (!userId) return
 
-    const channel = supabase
-      .channel(`ann-popup-${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'announcement_recipients',
-          filter: `user_id=eq.${userId}`,
-        },
-        async (payload) => {
-          const annId = (payload.new as any).announcement_id
-          if (!annId) return
+       const channelName = `ann-popup-${userId}`
 
-          const { data: ann } = await supabase
-            .from('announcements')
-            .select(
-              'id, subject, body, created_at, sender:sender_id (full_name, email)'
-            )
-            .eq('id', annId)
-            .single()
+    // Remove stale channel with the same name first
+    const existing = supabase
+      .getChannels()
+      .find((c) => c.topic === `realtime:${channelName}`)
+    if (existing) {
+      supabase.removeChannel(existing)
+    }
 
-          if (!ann) return
+    const channel = supabase.channel(channelName)
 
-          const sRaw = (ann as any).sender
-          const s = Array.isArray(sRaw) ? sRaw[0] : sRaw
+    channel.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'announcement_recipients',
+        filter: `user_id=eq.${userId}`,
+      },
+      async (payload) => {
+        const annId = (payload.new as any).announcement_id
+        if (!annId) return
 
-          setCurrent({
-            id: ann.id,
-            subject: ann.subject,
-            body: ann.body,
-            senderName: s?.full_name ?? s?.email ?? 'HERMAN',
-            created_at: ann.created_at,
-          })
-        }
-      )
-      .subscribe()
+        const { data: ann } = await supabase
+          .from('announcements')
+          .select(
+            'id, subject, body, created_at, sender:sender_id (full_name, email)'
+          )
+          .eq('id', annId)
+          .single()
+
+        if (!ann) return
+
+        const sRaw = (ann as any).sender
+        const s = Array.isArray(sRaw) ? sRaw[0] : sRaw
+
+        setCurrent({
+          id: ann.id,
+          subject: ann.subject,
+          body: ann.body,
+          senderName: s?.full_name ?? s?.email ?? 'HERMAN',
+          created_at: ann.created_at,
+        })
+      }
+    )
+
+    channel.subscribe()
 
     return () => {
       supabase.removeChannel(channel)
