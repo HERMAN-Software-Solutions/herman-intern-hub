@@ -14,6 +14,7 @@ import {
   BarChart3,
   LogOut,
 } from 'lucide-react'
+import { SidebarMessagesLink } from '@/components/messaging/sidebar-messages-link'
 
 type NavItem = {
   href: string
@@ -137,6 +138,19 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
                   </Link>
                 )
               })}
+
+              {/* Communication — Messages link (goes to mentor panel since
+                  the messaging UI lives there and admins can access it) */}
+              {group.label === 'Records' && (
+                <>
+                  <div className="mt-5">
+                    <div className="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+                      Communication
+                    </div>
+                  </div>
+                  <SidebarMessagesLink href="/mentor/messages" />
+                </>
+              )}
             </div>
           </div>
         ))}
