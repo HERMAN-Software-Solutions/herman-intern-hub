@@ -5,6 +5,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { sendActivated } from '@/lib/email/send'
 import { createNotification } from '@/lib/notifications/create'
+import {
+  ensureMentorInternThread,
+  ensureMentorTeamThread,
+} from '@/lib/messaging/ensure-thread'
 
 async function getAdminUser() {
   const supabase = await createClient()
@@ -40,6 +44,14 @@ export async function assignMentor(internId: string, mentorId: string) {
     .eq('role', 'intern')
 
   if (error) return { error: error.message }
+
+  // ─── Ensure messaging threads exist ──────────────────
+  // Runs silently. If it fails, the assignment still succeeded —
+  // a thread can be created later when the user opens Messages.
+  await Promise.all([
+    ensureMentorInternThread(mentorId, internId),
+    ensureMentorTeamThread(mentorId),
+  ])
 
   const { data: intern } = await admin
     .from('profiles')
