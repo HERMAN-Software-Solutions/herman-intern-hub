@@ -62,12 +62,6 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     ],
   },
-  {
-    label: 'Communication',
-    items: [
-      { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
-    ],
-  }
 ]
 
 export function AdminSidebar({ adminName }: { adminName: string }) {
@@ -145,22 +139,42 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
                   </Link>
                 )
               })}
-
-              {/* Communication — Messages link (goes to mentor panel since
-                  the messaging UI lives there and admins can access it) */}
-              {group.label === 'Records' && (
-                <>
-                  <div className="mt-5">
-                    <div className="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-                      Communication
-                    </div>
-                  </div>
-                  <SidebarMessagesLink href="/mentor/messages" />
-                </>
-              )}
             </div>
           </div>
         ))}
+
+        {/* Communication — sits as its own section, no duplicate heading */}
+        <div className="mt-5">
+          <div className="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+            Communication
+          </div>
+          <div className="space-y-0.5">
+            <Link
+              href="/admin/announcements"
+              aria-current={
+                pathname.startsWith('/admin/announcements') ? 'page' : undefined
+              }
+              className={`relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
+                pathname.startsWith('/admin/announcements')
+                  ? 'bg-slate-800 text-white'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`}
+            >
+              {pathname.startsWith('/admin/announcements') && (
+                <span
+                  aria-hidden="true"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-blue-500 rounded-full"
+                />
+              )}
+              <Megaphone
+                aria-hidden="true"
+                className="w-[18px] h-[18px] flex-shrink-0"
+              />
+              <span>Announcements</span>
+            </Link>
+            <SidebarMessagesLink href="/mentor/messages" />
+          </div>
+        </div>
       </nav>
 
       {/* User footer */}
