@@ -52,12 +52,13 @@ export async function sendAnnouncement(input: {
   // Resolve recipients
   let recipientIds: string[] = []
 
-  if (input.audience === 'everyone') {
+    if (input.audience === 'everyone') {
     const { data } = await admin
       .from('profiles')
       .select('id')
       .in('role', ['intern', 'mentor', 'admin', 'super_admin'])
       .eq('status', 'active')
+      .eq('is_demo', false)
     recipientIds = (data ?? []).map((r) => r.id)
   } else if (input.audience === 'interns') {
     const { data } = await admin
@@ -65,6 +66,7 @@ export async function sendAnnouncement(input: {
       .select('id')
       .eq('role', 'intern')
       .eq('status', 'active')
+      .eq('is_demo', false)
     recipientIds = (data ?? []).map((r) => r.id)
   } else if (input.audience === 'mentors') {
     const { data } = await admin
@@ -72,6 +74,7 @@ export async function sendAnnouncement(input: {
       .select('id')
       .in('role', ['mentor', 'admin', 'super_admin'])
       .eq('status', 'active')
+      .eq('is_demo', false)
     recipientIds = (data ?? []).map((r) => r.id)
   } else if (input.audience === 'specific') {
     recipientIds = (input.specificUserIds ?? []).filter(Boolean)
