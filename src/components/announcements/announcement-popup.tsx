@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Megaphone, X } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { markAnnouncementRead } from '@/lib/announcements/actions'
 import { Button } from '@/components/ui/button'
 
 type UnreadAnnouncement = {
@@ -36,7 +35,6 @@ export function AnnouncementPopup({
     })
   }, [supabase])
 
-  // Watch for new announcements arriving via Realtime
   useEffect(() => {
     if (!userId) return
 
@@ -54,7 +52,6 @@ export function AnnouncementPopup({
           const annId = (payload.new as any).announcement_id
           if (!annId) return
 
-          // Fetch the announcement details
           const { data: ann } = await supabase
             .from('announcements')
             .select(
@@ -84,10 +81,22 @@ export function AnnouncementPopup({
     }
   }, [userId, supabase])
 
+  async function markRead(id: string) {
+    try {
+      await fetch('/api/announcements/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ announcementId: id }),
+      })
+    } catch {
+      // silent — best effort
+    }
+  }
+
   async function handleDismiss() {
     if (!current || pending) return
     setPending(true)
-    await markAnnouncementRead(current.id)
+    await markRead(current.id)
     setCurrent(null)
     setPending(false)
     router.refresh()
@@ -97,7 +106,7 @@ export function AnnouncementPopup({
     if (!current || pending) return
     setPending(true)
     const id = current.id
-    await markAnnouncementRead(id)
+    await markRead(id)
     setCurrent(null)
     setPending(false)
     router.push(`${viewBasePath}/${id}`)
@@ -113,7 +122,6 @@ export function AnnouncementPopup({
       }}
     >
       <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col">
-        {/* Header */}
         <div className="flex items-start gap-3 p-5 border-b border-slate-100">
           <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center flex-shrink-0">
             <Megaphone className="w-4 h-4" />
@@ -140,14 +148,12 @@ export function AnnouncementPopup({
           </button>
         </div>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto p-5">
           <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap line-clamp-[12]">
             {current.body}
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2 justify-end p-5 border-t border-slate-100">
           <Button
             type="button"

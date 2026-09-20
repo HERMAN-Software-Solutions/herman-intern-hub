@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import { MessageSquare } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { getUnreadMessageCount } from '@/lib/messaging/unread'
 
 export function SidebarMessagesLink({
   href,
@@ -21,25 +20,31 @@ export function SidebarMessagesLink({
 
   const active = pathname.startsWith(href)
 
-  // Initial unread count
-  useEffect(() => {
-    let mounted = true
-    getUnreadMessageCount().then((count) => {
-      if (mounted) setUnread(count)
-    })
-    return () => {
-      mounted = false
+  // Fetch unread count via API (avoids importing server-only code into client)
+  async function fetchCount() {
+    try {
+      const res = await fetch('/api/messaging/unread-count', {
+        cache: 'no-store',
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      if (typeof data.count === 'number') setUnread(data.count)
+    } catch {
+      // silent
     }
+  }
+
+  useEffect(() => {
+    fetchCount()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
-  // Get user ID for Realtime filter
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) setUserId(user.id)
     })
   }, [supabase])
 
-  // Subscribe to new messages not sent by me — refetch count
   useEffect(() => {
     if (!userId) return
 
@@ -47,14 +52,9 @@ export function SidebarMessagesLink({
       .channel(`sidebar-msg-count-${userId}`)
       .on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-        },
+        { event: 'INSERT', schema: 'public', table: 'messages' },
         () => {
-          // Refetch the count on any new message (cheap enough)
-          getUnreadMessageCount().then((count) => setUnread(count))
+          fetchCount()
         }
       )
       .subscribe()
@@ -62,6 +62,7 @@ export function SidebarMessagesLink({
     return () => {
       supabase.removeChannel(channel)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, supabase])
 
   return (

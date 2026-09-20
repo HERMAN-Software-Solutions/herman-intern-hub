@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 import { Megaphone } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { getUnreadAnnouncementCount } from '@/lib/announcements/queries'
 
 export function SidebarAnnouncementsLink({
   href,
@@ -21,14 +20,22 @@ export function SidebarAnnouncementsLink({
 
   const active = pathname.startsWith(href)
 
-  useEffect(() => {
-    let mounted = true
-    getUnreadAnnouncementCount().then((count) => {
-      if (mounted) setUnread(count)
-    })
-    return () => {
-      mounted = false
+  async function fetchCount() {
+    try {
+      const res = await fetch('/api/announcements/unread-count', {
+        cache: 'no-store',
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      if (typeof data.count === 'number') setUnread(data.count)
+    } catch {
+      // silent
     }
+  }
+
+  useEffect(() => {
+    fetchCount()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
   useEffect(() => {
@@ -50,9 +57,7 @@ export function SidebarAnnouncementsLink({
           table: 'announcement_recipients',
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          getUnreadAnnouncementCount().then((count) => setUnread(count))
-        }
+        () => fetchCount()
       )
       .on(
         'postgres_changes',
@@ -62,15 +67,14 @@ export function SidebarAnnouncementsLink({
           table: 'announcement_recipients',
           filter: `user_id=eq.${userId}`,
         },
-        () => {
-          getUnreadAnnouncementCount().then((count) => setUnread(count))
-        }
+        () => fetchCount()
       )
       .subscribe()
 
     return () => {
       supabase.removeChannel(channel)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, supabase])
 
   return (
