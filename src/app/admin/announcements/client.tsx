@@ -114,13 +114,16 @@ export function AdminAnnouncementsClient({
     })
   }
 
+  const realInterns = users.filter((u) => u.role === 'intern').length
+  const realMentors = users.filter((u) => u.role === 'mentor').length
+
   const recipientPreview =
     audience === 'everyone'
-      ? users.length + 2 // rough: interns + mentors + admins
+      ? realInterns + realMentors + 1 // +1 for admins (you)
       : audience === 'interns'
-        ? users.filter((u) => u.role === 'intern').length
+        ? realInterns
         : audience === 'mentors'
-          ? users.filter((u) => u.role === 'mentor').length
+          ? realMentors
           : specificIds.length
 
   return (
@@ -198,7 +201,10 @@ export function AdminAnnouncementsClient({
                         {u.email}
                       </div>
                     </div>
-                    <Badge variant={u.role === 'mentor' ? 'info' : 'default'} size="sm">
+                    <Badge
+                      variant={u.role === 'mentor' ? 'info' : 'default'}
+                      size="sm"
+                    >
                       {u.role}
                     </Badge>
                   </label>
@@ -264,9 +270,7 @@ export function AdminAnnouncementsClient({
 
         {announcements.length === 0 ? (
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center">
-            <p className="text-sm text-slate-500">
-              No announcements yet.
-            </p>
+            <p className="text-sm text-slate-500">No announcements yet.</p>
           </div>
         ) : (
           <div className="space-y-3">

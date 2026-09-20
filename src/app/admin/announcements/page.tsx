@@ -23,12 +23,13 @@ export default async function AdminAnnouncementsPage() {
     redirect('/dashboard')
   }
 
-  // Fetch recipients for the "specific" dropdown
+  // Fetch recipients for the "specific" dropdown — real users only
   const { data: users } = await supabase
     .from('profiles')
     .select('id, full_name, email, role, is_demo')
     .in('role', ['intern', 'mentor'])
     .eq('status', 'active')
+    .eq('is_demo', false)
     .order('full_name')
 
   const { data: announcements } = await supabase
