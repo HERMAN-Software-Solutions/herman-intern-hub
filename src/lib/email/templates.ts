@@ -307,3 +307,42 @@ export function certificateIssuedEmail(input: {
     `),
   }
 }
+
+// ─────────────────────────────────────────────────────
+// 7. Announcement
+// ─────────────────────────────────────────────────────
+export function announcementEmail(input: {
+  recipientName: string | null
+  subject: string
+  body: string
+  senderName: string
+}): { subject: string; html: string } {
+  // Convert newlines to <br> for simple formatting
+  const formattedBody = input.body
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br>')
+
+  return {
+    subject: `📢 ${input.subject}`,
+    html: shell(`
+      ${h1(input.subject)}
+      ${p(
+        input.recipientName
+          ? `Hi ${input.recipientName.split(' ')[0]},`
+          : 'Hi,'
+      )}
+      <div style="font-size:14px;line-height:1.7;color:#334155;margin:0 0 20px;">
+        ${formattedBody}
+      </div>
+      ${p(`— ${input.senderName}, HERMAN Software Solutions`)}
+      <div style="margin-top:24px;">
+        ${button(
+          `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/announcements`,
+          'Open in HERMAN Intern Hub'
+        )}
+      </div>
+    `),
+  }
+}

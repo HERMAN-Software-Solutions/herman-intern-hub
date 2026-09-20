@@ -7,6 +7,7 @@ import {
   rejectionEmail,
   certificateIssuedEmail,
   newApplicationAdminEmail,
+  announcementEmail,
 } from './templates'
 
 const ADMIN_NOTIFICATION_EMAIL = 'infohermansoftware@gmail.com'
@@ -123,6 +124,34 @@ export async function sendNewApplicationToAdmin(input: {
     subject: t.subject,
     htmlContent: t.html,
     replyTo: input.applicantEmail,
+  })
+  return res.success ? { success: true } : { success: false, error: res.error }
+}
+
+/**
+ * Send an announcement email. Reply-to goes to the admin so replies
+ * come straight back to the sender.
+ */
+export async function sendAnnouncementEmail(input: {
+  to: string
+  recipientName: string | null
+  subject: string
+  body: string
+  senderName: string
+  senderEmail: string
+}): Promise<{ success: boolean; error?: string }> {
+  const t = announcementEmail({
+    recipientName: input.recipientName,
+    subject: input.subject,
+    body: input.body,
+    senderName: input.senderName,
+  })
+  const res = await sendEmail({
+    to: input.to,
+    toName: input.recipientName ?? undefined,
+    subject: t.subject,
+    htmlContent: t.html,
+    replyTo: input.senderEmail,
   })
   return res.success ? { success: true } : { success: false, error: res.error }
 }
