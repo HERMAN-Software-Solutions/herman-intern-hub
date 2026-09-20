@@ -10,6 +10,7 @@ export type NotificationType =
   | 'mentor_assigned'
   | 'certificate_issued'
   | 'weekly_report_ready'
+  | 'announcement'
 
 export async function createNotification(input: {
   userId: string

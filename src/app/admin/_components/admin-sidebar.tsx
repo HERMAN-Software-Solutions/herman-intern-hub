@@ -13,6 +13,7 @@ import {
   FileText,
   BarChart3,
   LogOut,
+  Megaphone,
 } from 'lucide-react'
 import { SidebarMessagesLink } from '@/components/messaging/sidebar-messages-link'
 
@@ -61,6 +62,12 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     ],
   },
+  {
+    label: 'Communication',
+    items: [
+      { href: '/admin/announcements', label: 'Announcements', icon: Megaphone },
+    ],
+  }
 ]
 
 export function AdminSidebar({ adminName }: { adminName: string }) {
