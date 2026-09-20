@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { InternSidebar } from './_components/intern-sidebar'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { DrawerLayout } from '@/components/layout/drawer-layout'
+import { AnnouncementPopup } from '@/components/announcements/announcement-popup'
+import { getNewestUnreadAnnouncement } from '@/lib/announcements/queries'
 
 export default async function DashboardLayout({
   children,
@@ -30,21 +32,29 @@ export default async function DashboardLayout({
     if (profile.role === 'admin' || profile.role === 'super_admin') {
       redirect('/admin')
     }
-    // Unknown role → safest default
     redirect('/login')
   }
 
   // Onboarding gate
   if (profile.status === 'onboarding') redirect('/onboarding')
 
+  // Fetch unread announcement for popup
+  const unreadAnnouncement = await getNewestUnreadAnnouncement()
+
   return (
-    <DrawerLayout
-      sidebar={
-        <InternSidebar internName={profile.full_name ?? profile.email} />
-      }
-      headerRight={<NotificationBell />}
-    >
-      {children}
-    </DrawerLayout>
+    <>
+      <AnnouncementPopup
+        initialUnread={unreadAnnouncement}
+        viewBasePath="/dashboard/announcements"
+      />
+      <DrawerLayout
+        sidebar={
+          <InternSidebar internName={profile.full_name ?? profile.email} />
+        }
+        headerRight={<NotificationBell />}
+      >
+        {children}
+      </DrawerLayout>
+    </>
   )
 }

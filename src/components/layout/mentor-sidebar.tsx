@@ -14,6 +14,7 @@ import {
   FolderKanban,
 } from 'lucide-react'
 import { SidebarMessagesLink } from '@/components/messaging/sidebar-messages-link'
+import { SidebarAnnouncementsLink } from '@/components/announcements/sidebar-announcements-link'
 
 type NavItem = {
   href: string
@@ -135,15 +136,20 @@ export function MentorSidebar({
                 )
               })}
 
-              {/* Messages — inserted after Interns group items */}
+              {/* Messages — after Interns group items */}
               {group.label === 'Interns' && (
                 <SidebarMessagesLink href="/mentor/messages" />
+              )}
+
+              {/* Announcements — after You group items */}
+              {group.label === 'You' && (
+                <SidebarAnnouncementsLink href="/mentor/announcements" />
               )}
             </div>
           </div>
         ))}
 
-        {/* Admin shortcut for admins/super-admins who are also mentors */}
+        {/* Admin shortcut */}
         {isAdmin && (
           <div className="mt-5">
             <div className="px-3 mb-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
