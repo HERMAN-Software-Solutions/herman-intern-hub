@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     lineHeight: 1.4,
     flex: 1,
-  },,
+  },
 
   // Signatures
   signaturesBlock: {
