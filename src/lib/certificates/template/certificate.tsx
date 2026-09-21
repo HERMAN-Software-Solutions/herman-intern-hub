@@ -9,8 +9,6 @@ import {
 } from '@react-pdf/renderer'
 import type { CertificateData } from '../types'
 
-// Register fonts (using built-in Helvetica as fallback)
-// In production, you'd register Inter/Georgia from /public/fonts
 Font.registerHyphenationCallback((word) => [word])
 
 const COLORS = {
@@ -19,6 +17,8 @@ const COLORS = {
   border: '#E2E8F0',
   accent: '#2563EB',
   seal: '#B45309',
+  sealInner: '#FEF3C7',
+  sealOuter: '#FFFBEB',
   green: '#16A34A',
 }
 
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  // Performance section
+  // Performance
   sectionTitle: {
     fontSize: 8,
     fontWeight: 'bold',
@@ -185,6 +185,7 @@ const styles = StyleSheet.create({
   signaturesBlock: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-end',
     marginTop: 'auto',
     paddingTop: 20,
   },
@@ -208,22 +209,75 @@ const styles = StyleSheet.create({
     color: COLORS.secondary,
     marginTop: 2,
   },
-  sealBlock: {
-    width: 60,
-    height: 60,
-    borderWidth: 1.5,
-    borderColor: COLORS.seal,
-    borderRadius: 30,
+
+  // ─── Enhanced SEAL ─────────────────────────────────────
+  sealWrapper: {
+    width: 100,
+    height: 100,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FEF3C7',
+    paddingBottom: 4,
   },
-  sealText: {
+  sealOuter: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: COLORS.sealOuter,
+    borderWidth: 2.5,
+    borderColor: COLORS.seal,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 4,
+  },
+  sealInnerRing: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
+    borderWidth: 1,
+    borderColor: COLORS.seal,
+    borderStyle: 'dashed',
+    backgroundColor: COLORS.sealInner,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'column',
+  },
+  sealStarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    marginBottom: 1,
+  },
+  sealStar: {
+    fontSize: 7,
+    color: COLORS.seal,
+  },
+  sealBrand: {
+    fontSize: 10,
+    color: COLORS.seal,
+    fontWeight: 'bold',
+    letterSpacing: 1.5,
+    textAlign: 'center',
+  },
+  sealDivider: {
+    width: 46,
+    height: 0.7,
+    backgroundColor: COLORS.seal,
+    marginVertical: 3,
+  },
+  sealLabel: {
     fontSize: 6,
     color: COLORS.seal,
     fontWeight: 'bold',
+    letterSpacing: 1.2,
     textAlign: 'center',
-    lineHeight: 1.3,
+  },
+  sealYear: {
+    fontSize: 6,
+    color: COLORS.seal,
+    letterSpacing: 1,
+    marginTop: 2,
+    textAlign: 'center',
   },
 
   // Footer
@@ -252,6 +306,8 @@ const styles = StyleSheet.create({
 })
 
 export function CertificateDocument({ data }: { data: CertificateData }) {
+  const year = new Date().getFullYear()
+
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
@@ -337,13 +393,26 @@ export function CertificateDocument({ data }: { data: CertificateData }) {
               <View style={styles.signature}>
                 <View style={styles.signatureLine} />
                 <Text style={styles.signatureName}>{data.ceoName}</Text>
-                <Text style={styles.signatureRole}>Chief Executive Officer</Text>
+                <Text style={styles.signatureRole}>
+                  Chief Executive Officer
+                </Text>
               </View>
 
-              <View style={styles.sealBlock}>
-                <Text style={styles.sealText}>
-                  HERMAN{'\n'}OFFICIAL{'\n'}SEAL
-                </Text>
+              {/* Enhanced seal */}
+              <View style={styles.sealWrapper}>
+                <View style={styles.sealOuter}>
+                  <View style={styles.sealInnerRing}>
+                    <View style={styles.sealStarRow}>
+                      <Text style={styles.sealStar}>★</Text>
+                      <Text style={styles.sealBrand}>HERMAN</Text>
+                      <Text style={styles.sealStar}>★</Text>
+                    </View>
+                    <View style={styles.sealDivider} />
+                    <Text style={styles.sealLabel}>OFFICIAL</Text>
+                    <Text style={styles.sealLabel}>SEAL</Text>
+                    <Text style={styles.sealYear}>{year}</Text>
+                  </View>
+                </View>
               </View>
 
               <View style={styles.signature}>
@@ -357,7 +426,8 @@ export function CertificateDocument({ data }: { data: CertificateData }) {
             <View style={styles.footer}>
               <View>
                 <Text style={styles.footerText}>
-                  Certificate ID: <Text style={styles.footerBold}>{data.certificateId}</Text>
+                  Certificate ID:{' '}
+                  <Text style={styles.footerBold}>{data.certificateId}</Text>
                 </Text>
                 <Text style={styles.footerText}>
                   Verify authenticity at:{' '}

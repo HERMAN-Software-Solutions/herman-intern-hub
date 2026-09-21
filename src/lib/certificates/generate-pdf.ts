@@ -20,7 +20,11 @@ type GenerateResult =
 
 export async function generateCertificate(
   internId: string,
-  issuedByUserId: string
+  issuedByUserId: string,
+  options?: {
+    techStack?: string
+    notes?: string | null
+  }
 ): Promise<GenerateResult> {
   const supabase = createAdminClient()
 
@@ -57,43 +61,58 @@ export async function generateCertificate(
   if (!scoreRes.success) return { success: false, error: scoreRes.error }
   const { score, band, breakdown } = scoreRes.result
 
-  // 4. Get primary tech stack (track)
-  const { data: stackRows } = await supabase
-    .from('intern_tech_stacks')
-    .select('is_primary, tech_stack:tech_stack_id (name)')
-    .eq('intern_id', internId)
+  // 4. Resolve track: explicit admin input first, else auto-detect
+  let track = options?.techStack?.trim() || ''
 
-  let track = 'Software Development'
-  const primary = stackRows?.find((s: any) => s.is_primary)
-  if (primary) {
-    const tsRaw = (primary as any).tech_stack
-    const ts = Array.isArray(tsRaw) ? tsRaw[0] : tsRaw
-    if (ts?.name) track = ts.name
-  } else if (stackRows && stackRows.length > 0) {
-    const firstRaw = (stackRows[0] as any).tech_stack
-    const first = Array.isArray(firstRaw) ? firstRaw[0] : firstRaw
-    if (first?.name) track = first.name
+  if (!track) {
+    const { data: stackRows } = await supabase
+      .from('intern_tech_stacks')
+      .select('is_primary, tech_stack:tech_stack_id (name)')
+      .eq('intern_id', internId)
+
+    const primary = stackRows?.find((s: any) => s.is_primary)
+    if (primary) {
+      const tsRaw = (primary as any).tech_stack
+      const ts = Array.isArray(tsRaw) ? tsRaw[0] : tsRaw
+      if (ts?.name) track = ts.name
+    } else if (stackRows && stackRows.length > 0) {
+      const firstRaw = (stackRows[0] as any).tech_stack
+      const first = Array.isArray(firstRaw) ? firstRaw[0] : firstRaw
+      if (first?.name) track = first.name
+    }
   }
 
-  // 5. Get highlights (top 5 tasks marked as highlight)
-  const { data: highlights } = await supabase
-    .from('tasks')
-    .select('title')
-    .eq('assigned_to', internId)
-    .eq('is_highlight', true)
-    .eq('status', 'done')
-    .limit(5)
+  if (!track) track = 'Software Development'
 
-  const highlightTitles = (highlights ?? []).map((h) => h.title)
-  // Fallback: if no highlights, use top 5 completed tasks
-  if (highlightTitles.length === 0) {
-    const { data: doneTasks } = await supabase
+  // 5. Resolve highlights: custom notes first, else auto-detect
+  let highlightTitles: string[] = []
+
+  if (options?.notes?.trim()) {
+    highlightTitles = options.notes
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .slice(0, 6)
+  } else {
+    const { data: highlights } = await supabase
       .from('tasks')
       .select('title')
       .eq('assigned_to', internId)
+      .eq('is_highlight', true)
       .eq('status', 'done')
       .limit(5)
-    for (const t of doneTasks ?? []) highlightTitles.push(t.title)
+
+    highlightTitles = (highlights ?? []).map((h) => h.title)
+
+    if (highlightTitles.length === 0) {
+      const { data: doneTasks } = await supabase
+        .from('tasks')
+        .select('title')
+        .eq('assigned_to', internId)
+        .eq('status', 'done')
+        .limit(5)
+      for (const t of doneTasks ?? []) highlightTitles.push(t.title)
+    }
   }
 
   // 6. Generate certificate ID
@@ -147,7 +166,7 @@ export async function generateCertificate(
     day: 'numeric',
   })
 
-  const ceoName = process.env.HERMAN_CEO_NAME ?? 'Robert Kisitu'
+  const ceoName = process.env.HERMAN_CEO_NAME ?? 'Herman Salim'
 
   // 10. Assemble CertificateData
   const data: CertificateData = {
@@ -189,7 +208,7 @@ export async function generateCertificate(
     .from('documents')
     .upload(certPath, certBuffer, {
       contentType: 'application/pdf',
-      upsert: true,   // ← CHANGED: retry-safe, overwrites if a prior attempt left a file
+      upsert: true,
     })
 
   if (certUploadError) {
@@ -201,7 +220,7 @@ export async function generateCertificate(
     .from('documents')
     .upload(letterPath, letterBuffer, {
       contentType: 'application/pdf',
-      upsert: true,   // ← CHANGED
+      upsert: true,
     })
 
   if (letterUploadError) {
@@ -228,8 +247,8 @@ export async function generateCertificate(
       file_url: letterPath,
       issued_by: issuedByUserId,
       certificate_id: certificateId,
-      performance_score: score,   // ← ADDED
-      verified: true,             // ← ADDED (this was the bug)
+      performance_score: score,
+      verified: true,
     },
   ])
 

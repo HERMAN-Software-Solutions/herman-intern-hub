@@ -159,7 +159,10 @@ export default async function InternDetailPage({
             Issue a certificate of internship and experience letter as PDFs.
             Requires a completed performance review.
           </p>
-          <IssueButton internId={intern.id} />
+                    <IssueButton
+            internId={intern.id}
+            defaultTech="Full-Stack Development"
+          />
         </Card>
       )}
 

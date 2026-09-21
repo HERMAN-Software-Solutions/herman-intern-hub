@@ -220,15 +220,19 @@ export async function updateInternStatus(
   // Set end_date when moving to completed/withdrawn
   const patch: Record<string, unknown> = { status: newStatus }
 
-  if (newStatus === 'completed' || newStatus === 'withdrawn') {
-    // Only set if not already set
+    if (newStatus === 'completed' || newStatus === 'withdrawn') {
     const { data: fresh } = await admin
       .from('profiles')
       .select('end_date')
       .eq('id', internId)
       .single()
-    if (fresh && !fresh.end_date) {
-      patch.end_date = new Date().toISOString().slice(0, 10)
+
+    const today = new Date().toISOString().slice(0, 10)
+    const currentEnd = fresh?.end_date ?? null
+
+    // Overwrite if missing OR if it's in the future (intern completed early)
+    if (!currentEnd || currentEnd > today) {
+      patch.end_date = today
     }
   }
 
