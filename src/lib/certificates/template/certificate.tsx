@@ -178,24 +178,25 @@ const styles = StyleSheet.create({
     borderLeftColor: COLORS.accent,
     flexDirection: 'column',
   },
-  contributionRow: {
+      contributionRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 6,
+    paddingVertical: 6,
   },
   contributionBullet: {
-    fontSize: 9,
-    color: COLORS.primary,
-    width: 12,
-    lineHeight: 1.5,
+    fontSize: 10,
+    color: COLORS.accent,
+    width: 14,
+    lineHeight: 1.4,
     flexShrink: 0,
+    fontWeight: 'bold',
   },
   contributionText: {
-    fontSize: 9,
+    fontSize: 9.5,
     color: COLORS.primary,
-    lineHeight: 1.5,
+    lineHeight: 1.4,
     flex: 1,
-  },
+  },,
 
   // Signatures
   signaturesBlock: {
