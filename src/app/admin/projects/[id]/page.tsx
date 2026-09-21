@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { PageHeader } from '@/components/ui/page-header'
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
+import { getRealActiveInterns } from '@/lib/profiles/queries'
 import { AssignmentPanel } from './assignment-panel'
 import { NewTaskForm } from './new-task-form'
 import { TaskActionsMenu } from '@/components/tasks/task-actions-menu'
@@ -64,13 +65,8 @@ export default async function AdminProjectDetailPage({
 
   const assignedIds = assignments.map((a) => a.intern_id)
 
-  // Available interns (not yet on this project)
-  const { data: allInterns } = await supabase
-    .from('profiles')
-    .select('id, full_name, email, avatar_url, status')
-    .eq('role', 'intern')
-    .eq('status', 'active')
-    .order('full_name')
+  // Available interns (real, non-demo, not yet on this project)
+  const { data: allInterns } = await getRealActiveInterns()
 
   const availableInterns = (allInterns ?? []).filter(
     (i) => !assignedIds.includes(i.id)

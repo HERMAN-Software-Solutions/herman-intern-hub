@@ -32,8 +32,6 @@ export function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null)
   const openRef = useRef(false)
 
-  // Keep a ref in sync with `open` so the Realtime callback
-  // can read the latest value without re-subscribing.
   useEffect(() => {
     openRef.current = open
   }, [open])
@@ -62,28 +60,39 @@ export function NotificationBell() {
   }, [])
 
   // Realtime subscription — scoped to this user via filter.
-  // Waits for userId so the filter is always set.
   useEffect(() => {
     if (!userId) return
 
-    const channel = supabase
-      .channel(`notifications-${userId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${userId}`,
-        },
-        async () => {
-          const res = await getUnreadCount()
-          if (res.count != null) setUnread(res.count)
-          // If dropdown is open, refresh the list too
-          if (openRef.current) loadNotifications()
-        }
-      )
-      .subscribe()
+    const channelName = `notifications-${userId}`
+
+    // Remove any stale channel with the same name BEFORE creating a new one.
+    // Prevents "cannot add postgres_changes callbacks after subscribe"
+    // caused by React StrictMode double-mounts + mobile navigation races.
+    const existing = supabase
+      .getChannels()
+      .find((c) => c.topic === `realtime:${channelName}`)
+    if (existing) {
+      supabase.removeChannel(existing)
+    }
+
+    const channel = supabase.channel(channelName)
+
+    channel.on(
+      'postgres_changes',
+      {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${userId}`,
+      },
+      async () => {
+        const res = await getUnreadCount()
+        if (res.count != null) setUnread(res.count)
+        if (openRef.current) loadNotifications()
+      }
+    )
+
+    channel.subscribe()
 
     return () => {
       supabase.removeChannel(channel)
