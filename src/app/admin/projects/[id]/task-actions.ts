@@ -194,3 +194,109 @@ export async function createTask(input: {
 
   return { success: true, taskId: task.id }
 }
+/**
+ * Bulk-assign multiple interns to a project in one go.
+ * Skips ones already assigned. Returns count of newly assigned.
+ */
+export async function bulkAssignInternsToProject(input: {
+  projectId: string
+  internIds: string[]
+  role: 'lead' | 'contributor'
+  compensationType: 'unpaid' | 'paid'
+}): Promise<
+  | { success: true; assigned: number; skipped: number }
+  | { error: string }
+> {
+  if (!input.internIds?.length) {
+    return { error: 'Select at least one intern' }
+  }
+
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: 'Not authenticated' }
+
+  const admin = createAdminClient()
+
+  const { data: actor } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!actor || (actor.role !== 'admin' && actor.role !== 'super_admin')) {
+    return { error: 'Only admins can assign interns' }
+  }
+
+  // Find which interns are already assigned
+  const { data: existing } = await admin
+    .from('project_assignments')
+    .select('intern_id')
+    .eq('project_id', input.projectId)
+    .in('intern_id', input.internIds)
+
+  const alreadyAssigned = new Set(
+    (existing ?? []).map((e) => e.intern_id)
+  )
+
+  const toAssign = input.internIds.filter((id) => !alreadyAssigned.has(id))
+
+  if (toAssign.length === 0) {
+    return { success: true, assigned: 0, skipped: input.internIds.length }
+  }
+
+  const rows = toAssign.map((internId) => ({
+    project_id: input.projectId,
+    intern_id: internId,
+    role: input.role,
+    compensation_type: input.compensationType,
+  }))
+
+  const { error } = await admin.from('project_assignments').insert(rows)
+
+  if (error) {
+    console.error('bulkAssignInternsToProject error:', error)
+    return { error: error.message }
+  }
+
+  // Fetch project title for the notifications
+  const { data: project } = await admin
+    .from('projects')
+    .select('title')
+    .eq('id', input.projectId)
+    .single()
+
+  // Notify each assigned intern
+  for (const internId of toAssign) {
+    createNotification({
+      userId: internId,
+      type: 'task_assigned',
+      title: '🎯 New project assigned',
+      body: `You've been added to "${project?.title ?? 'a project'}" as ${input.role}.`,
+      link: `/dashboard/projects/${input.projectId}`,
+      metadata: { projectId: input.projectId },
+    }).catch((err) => console.error('Assignment notification failed:', err))
+  }
+
+  // Audit
+  await admin.from('audit_log').insert({
+    actor_id: user.id,
+    action: 'project.interns_bulk_assigned',
+    entity: 'project_assignments',
+    metadata: {
+      projectId: input.projectId,
+      count: toAssign.length,
+      role: input.role,
+    },
+  })
+
+  revalidatePath(`/admin/projects/${input.projectId}`)
+  revalidatePath('/admin/projects')
+
+  return {
+    success: true,
+    assigned: toAssign.length,
+    skipped: input.internIds.length - toAssign.length,
+  }
+}
