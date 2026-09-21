@@ -189,7 +189,7 @@ export async function generateCertificate(
     .from('documents')
     .upload(certPath, certBuffer, {
       contentType: 'application/pdf',
-      upsert: false,
+      upsert: true,   // ← CHANGED: retry-safe, overwrites if a prior attempt left a file
     })
 
   if (certUploadError) {
@@ -201,7 +201,7 @@ export async function generateCertificate(
     .from('documents')
     .upload(letterPath, letterBuffer, {
       contentType: 'application/pdf',
-      upsert: false,
+      upsert: true,   // ← CHANGED
     })
 
   if (letterUploadError) {
@@ -228,6 +228,8 @@ export async function generateCertificate(
       file_url: letterPath,
       issued_by: issuedByUserId,
       certificate_id: certificateId,
+      performance_score: score,   // ← ADDED
+      verified: true,             // ← ADDED (this was the bug)
     },
   ])
 
