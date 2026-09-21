@@ -68,44 +68,48 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
       `mentor_id.eq.${me.id},type.eq.mentor_admin`
     )
   } else if (me.role === 'admin' || me.role === 'super_admin') {
-    // Admins see everything (including mentor room)
+    // Admins see everything
   } else {
     return []
   }
 
-    const { data: rawThreads } = await threadQuery.order('updated_at', {
+  const { data: rawThreads } = await threadQuery.order('updated_at', {
     ascending: false,
   })
 
   if (!rawThreads || rawThreads.length === 0) return []
 
-  // ─── Filter out stale mentor_intern threads ─────────────
-  // A mentor_intern thread is only valid if the intern's current mentor_id
-  // still points to this mentor. If the intern was reassigned or unassigned,
-  // the thread should disappear from the mentor's list.
+  // ─── Filter stale mentor_intern threads ─────────────────
+  // A mentor_intern thread is only valid if the intern's CURRENT mentor_id
+  // matches the thread's mentor_id. This hides threads for reassigned interns.
   let threads = rawThreads
 
-  if (me.role === 'mentor') {
+  if (me.role === 'mentor' || me.role === 'admin' || me.role === 'super_admin') {
+    // Get all intern_ids that appear in mentor_intern threads
     const internIdsInThreads = rawThreads
       .filter((t) => t.type === 'mentor_intern' && t.intern_id)
       .map((t) => t.intern_id as string)
 
     if (internIdsInThreads.length > 0) {
+      // Fetch each intern's CURRENT mentor_id
       const { data: currentInterns } = await admin
         .from('profiles')
         .select('id, mentor_id')
         .in('id', internIdsInThreads)
-        .eq('mentor_id', me.id)
 
-      const stillMyInterns = new Set(
-        (currentInterns ?? []).map((i) => i.id)
-      )
+      const currentMentorByIntern = new Map<string, string | null>()
+      for (const i of currentInterns ?? []) {
+        currentMentorByIntern.set(i.id, i.mentor_id ?? null)
+      }
 
       threads = rawThreads.filter((t) => {
         // Keep team + admin threads as-is
         if (t.type !== 'mentor_intern') return true
-        // Keep 1-on-1 threads only if the intern is still assigned
-        return t.intern_id ? stillMyInterns.has(t.intern_id) : false
+        if (!t.intern_id) return false
+
+        // Only keep the thread whose mentor_id matches the intern's CURRENT mentor_id
+        const currentMentor = currentMentorByIntern.get(t.intern_id) ?? null
+        return currentMentor !== null && currentMentor === t.mentor_id
       })
     }
   }
@@ -146,7 +150,7 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
     readByThread.set(r.thread_id, r.last_read_at)
   }
 
-  // Unread: only count messages NOT sent by me, created after my last read
+  // Unread count (excluding own messages)
   const unread = new Map<string, number>()
   for (const t of threads) {
     const lastRead = readByThread.get(t.id) ?? '1970-01-01'
@@ -164,7 +168,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
     if (t.mentor_id) profileIds.add(t.mentor_id)
     if (t.intern_id) profileIds.add(t.intern_id)
   }
-  // Also add senders of last messages (for mentor room previews)
   for (const m of lastByThread.values()) {
     if (m.sender_id) profileIds.add(m.sender_id)
   }
@@ -209,7 +212,6 @@ export async function getMyThreads(): Promise<ThreadSummary[]> {
           : nameById.get(last.sender_id)?.split(' ')[0] ?? 'Someone'
       const text =
         last.body.length > 60 ? last.body.slice(0, 60) + '…' : last.body
-      // Mentor room: prefix with sender name for context
       preview =
         t.type === 'mentor_admin' ? `${senderName}: ${text}` : text
     }
