@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { ProfileForm } from './profile-form'
+import { AvatarUploader } from '@/components/profile/avatar-uploader'
+import { Card } from '@/components/ui/card'
 
 export const metadata = { title: 'Profile — HERMAN Intern Hub' }
 
@@ -35,6 +37,14 @@ export default async function ProfilePage() {
           Manage your internship profile and contact details.
         </p>
       </div>
+
+      {/* Profile photo */}
+      <Card className="mb-6">
+        <AvatarUploader
+          currentUrl={profile.avatar_url}
+          name={profile.full_name ?? profile.email}
+        />
+      </Card>
 
       <ProfileForm
         initial={{

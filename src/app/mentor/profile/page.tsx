@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { PageHeader } from '@/components/ui/page-header'
+import { Card } from '@/components/ui/card'
+import { AvatarUploader } from '@/components/profile/avatar-uploader'
 import { MentorProfileForm } from './profile-form'
 
 export const metadata = { title: 'My Profile — HERMAN Mentor Panel' }
@@ -14,7 +16,7 @@ export default async function MentorProfilePage() {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, email, phone, bio, role')
+    .select('full_name, email, phone, bio, role, avatar_url')
     .eq('id', user.id)
     .single()
 
@@ -26,6 +28,14 @@ export default async function MentorProfilePage() {
         title="My profile"
         description="Update your mentor profile information."
       />
+
+      {/* Profile photo */}
+      <Card className="mb-6">
+        <AvatarUploader
+          currentUrl={profile.avatar_url}
+          name={profile.full_name ?? profile.email}
+        />
+      </Card>
 
       <MentorProfileForm
         initial={{
