@@ -84,13 +84,26 @@ export async function generateCertificate(
 
   if (!track) track = 'Software Development'
 
+  // 4b. Cap the track string so it doesn't overflow the certificate line
+  // (Over ~4 techs the line wraps awkwardly or overlaps in React-PDF.)
+  {
+    const parts = track
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+
+    if (parts.length > 4) {
+      track = `${parts.slice(0, 4).join(', ')} +${parts.length - 4} more`
+    }
+  }
+
   // 5. Resolve highlights: custom notes first, else auto-detect
   let highlightTitles: string[] = []
 
   if (options?.notes?.trim()) {
     highlightTitles = options.notes
       .split('\n')
-      .map((line) => line.trim())
+      .map((line) => line.trim().replace(/^[-•·*]\s*/, '')) // strip leading bullets
       .filter(Boolean)
       .slice(0, 6)
   } else {

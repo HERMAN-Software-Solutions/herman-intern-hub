@@ -110,10 +110,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
 
-  // Body
+  // Body — fixed overlap: minHeight + flexDirection + no flexWrap collision
   bodyBlock: {
     alignItems: 'center',
     marginBottom: 20,
+    minHeight: 90,
+    flexDirection: 'column',
   },
   certifyText: {
     fontSize: 11,
@@ -130,10 +132,10 @@ const styles = StyleSheet.create({
   bodyText: {
     fontSize: 10,
     color: COLORS.primary,
-    lineHeight: 1.5,
+    lineHeight: 1.6,
     textAlign: 'center',
-    maxWidth: 420,
-    marginTop: 4,
+    maxWidth: 480,
+    marginTop: 6,
   },
 
   // Performance
@@ -167,18 +169,32 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-  // Contributions
+  // Contributions — each row is its own flex container so nothing overlaps
   contributionsBlock: {
     padding: 12,
+    paddingLeft: 14,
     marginBottom: 12,
     borderLeftWidth: 2,
     borderLeftColor: COLORS.accent,
+    flexDirection: 'column',
   },
-  contribution: {
+  contributionRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 6,
+  },
+  contributionBullet: {
     fontSize: 9,
     color: COLORS.primary,
-    marginBottom: 4,
-    lineHeight: 1.4,
+    width: 12,
+    lineHeight: 1.5,
+    flexShrink: 0,
+  },
+  contributionText: {
+    fontSize: 9,
+    color: COLORS.primary,
+    lineHeight: 1.5,
+    flex: 1,
   },
 
   // Signatures
@@ -210,7 +226,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // ─── Enhanced SEAL ─────────────────────────────────────
+  // Seal
   sealWrapper: {
     width: 100,
     height: 100,
@@ -374,15 +390,16 @@ export function CertificateDocument({ data }: { data: CertificateData }) {
               </View>
             </View>
 
-            {/* Key Contributions */}
+            {/* Key Contributions — each row is a flex row so no overlap */}
             {data.highlights.length > 0 && (
               <>
                 <Text style={styles.sectionTitle}>Key Contributions</Text>
                 <View style={styles.contributionsBlock}>
                   {data.highlights.map((h, i) => (
-                    <Text key={i} style={styles.contribution}>
-                      · {h}
-                    </Text>
+                    <View key={i} style={styles.contributionRow}>
+                      <Text style={styles.contributionBullet}>·</Text>
+                      <Text style={styles.contributionText}>{h}</Text>
+                    </View>
                   ))}
                 </View>
               </>
@@ -398,7 +415,6 @@ export function CertificateDocument({ data }: { data: CertificateData }) {
                 </Text>
               </View>
 
-              {/* Enhanced seal */}
               <View style={styles.sealWrapper}>
                 <View style={styles.sealOuter}>
                   <View style={styles.sealInnerRing}>
