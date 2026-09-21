@@ -3,6 +3,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 /**
  * Ensures the 1-on-1 thread exists between a mentor and an intern.
+ *
+ * IMPORTANT: threads follow the INTERN, not the mentor-intern pair.
+ * On reassignment, the same thread updates its mentor_id — history is preserved.
+ *
  * Idempotent — safe to call multiple times.
  * Returns the thread id.
  */
@@ -12,17 +16,31 @@ export async function ensureMentorInternThread(
 ): Promise<string | null> {
   const admin = createAdminClient()
 
-  // Check if it already exists
+  // Look for ANY existing mentor_intern thread for this intern
   const { data: existing } = await admin
     .from('threads')
-    .select('id')
+    .select('id, mentor_id')
     .eq('type', 'mentor_intern')
-    .eq('mentor_id', mentorId)
     .eq('intern_id', internId)
     .maybeSingle()
 
-  if (existing) return existing.id
+  if (existing) {
+    // Reuse the thread. If the mentor changed, update mentor_id
+    // so the new mentor can access the history.
+    if (existing.mentor_id !== mentorId) {
+      const { error: updateError } = await admin
+        .from('threads')
+        .update({ mentor_id: mentorId })
+        .eq('id', existing.id)
 
+      if (updateError) {
+        console.error('ensureMentorInternThread update error:', updateError)
+      }
+    }
+    return existing.id
+  }
+
+  // Create a new thread
   const { data: created, error } = await admin
     .from('threads')
     .insert({
