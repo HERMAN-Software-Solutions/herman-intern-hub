@@ -37,6 +37,19 @@ export async function createNotification(input: {
       return { success: false, error: error.message }
     }
 
+    // Fire push notification (fire-and-forget) — dynamic import keeps
+    // web-push out of the client bundle
+    import('@/lib/push/send')
+      .then(({ sendPushToUser }) =>
+        sendPushToUser(input.userId, {
+          title: input.title,
+          body: input.body ?? '',
+          url: input.link,
+          tag: input.type,
+        })
+      )
+      .catch((err) => console.error('Push notification failed:', err))
+
     return { success: true }
   } catch (err) {
     console.error('Notification error:', err)
@@ -73,4 +86,20 @@ export async function notifyAdmins(input: {
   }))
 
   await supabase.from('notifications').insert(rows)
+
+  // Fire push to each admin (fire-and-forget)
+  import('@/lib/push/send')
+    .then(({ sendPushToUser }) =>
+      Promise.all(
+        admins.map((a) =>
+          sendPushToUser(a.id, {
+            title: input.title,
+            body: input.body ?? '',
+            url: input.link,
+            tag: input.type,
+          })
+        )
+      )
+    )
+    .catch((err) => console.error('Admin push notification failed:', err))
 }

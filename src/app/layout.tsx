@@ -1,5 +1,6 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { Toaster } from 'sonner'
 import { CookieBanner } from '@/components/legal/cookie-banner'
@@ -41,6 +42,21 @@ export const metadata: Metadata = {
   creator: 'HERMAN Software Solutions Limited',
   publisher: 'HERMAN Software Solutions Limited',
   applicationName: 'HERMAN Intern Hub',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Intern Hub',
+  },
+  icons: {
+    icon: '/icons/icon-192.png',
+    apple: '/icons/apple-touch-icon.png',
+  },
+  formatDetection: {
+    telephone: false,
+    email: false,
+    address: false,
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -67,9 +83,18 @@ export const metadata: Metadata = {
     },
   },
   // Uncomment and add your code after verifying with Google Search Console
-   verification: {
-     google: 'ARKdvcChjPgHXFnujH-TH_CYT-XjvmN2ATFRLXfxG24',
-   },
+  verification: {
+    google: 'ARKdvcChjPgHXFnujH-TH_CYT-XjvmN2ATFRLXfxG24',
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#0F172A',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
@@ -85,20 +110,33 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         >
           Skip to content
         </a>
-       {children}
-       <Toaster
-        position="top-right"
-        richColors
-        closeButton
-        toastOptions={{
-        style: {
-        borderRadius: '10px',
-        fontSize: '14px',
-        },
-      }}
-     />
-      <CookieBanner />
-     </body>
+        {children}
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          toastOptions={{
+            style: {
+              borderRadius: '10px',
+              fontSize: '14px',
+            },
+          }}
+        />
+        <CookieBanner />
+
+        {/* Register service worker for PWA (push + offline) */}
+        <Script id="sw-register" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                  console.warn('SW registration failed:', err);
+                });
+              });
+            }
+          `}
+        </Script>
+      </body>
     </html>
   )
 }
