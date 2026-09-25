@@ -32,7 +32,7 @@ export function InstallPrompt() {
     window.addEventListener('beforeinstallprompt', handler)
 
     // iOS doesn't fire beforeinstallprompt — fallback timer
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
     let iosTimer: any
     if (isIOS) {
       iosTimer = setTimeout(() => setVisible(true), 3000)
