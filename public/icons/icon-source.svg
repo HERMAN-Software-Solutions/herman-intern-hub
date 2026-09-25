@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded square background -->
+  <rect x="0" y="0" width="512" height="512" rx="96" ry="96" fill="url(#bg)"/>
+
+  <!-- Graduation cap (mortarboard) -->
+  <g transform="translate(256 200)">
+    <!-- Cap top - diamond (upper face) -->
+    <polygon points="0,-70 140,-15 0,40 -140,-15" fill="#2563EB"/>
+    <!-- Cap bottom - three-quarter view -->
+    <path d="M -140,-15 L -140,25 L 0,80 L 140,25 L 140,-15 L 0,40 Z" fill="#1E40AF"/>
+    <!-- Tassel -->
+    <line x1="120" y1="-30" x2="120" y2="40" stroke="#60A5FA" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="120" cy="45" r="10" fill="#60A5FA"/>
+
+    <!-- "H" monogram on the cap — drawn as a path (no fonts needed) -->
+    <g transform="translate(0 -15) scale(1 0.75)">
+      <!-- H centered at (0,0), width 50, height 90 -->
+      <path d="
+        M -25 -45
+        L -25 45
+        L -8 45
+        L -8 8
+        L 8 8
+        L 8 45
+        L 25 45
+        L 25 -45
+        L 8 -45
+        L 8 -8
+        L -8 -8
+        L -8 -45
+        Z
+      " fill="#FFFFFF"/>
+    </g>
+  </g>
+
+  <!-- Code brackets — drawn as paths (no fonts needed) -->
+  <g fill="#FFFFFF" transform="translate(256 395)">
+    <!-- Left bracket < -->
+    <polygon points="-120,-55 -145,-55 -185,0 -145,55 -120,55 -160,0" />
+    <!-- Slash / -->
+    <polygon points="-18,-60 18,-60 48,60 12,60" />
+    <!-- Right bracket > -->
+    <polygon points="120,-55 145,-55 185,0 145,55 120,55 160,0" />
+  </g>
+</svg>
