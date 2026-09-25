@@ -29,6 +29,7 @@ export async function sendPushToUser(
     body: string
     url?: string
     tag?: string
+    priority?: 'normal' | 'high'
   }
 ): Promise<{ sent: number; failed: number }> {
   if (!ensureConfigured()) return { sent: 0, failed: 0 }
@@ -41,6 +42,18 @@ export async function sendPushToUser(
 
   if (!subs || subs.length === 0) return { sent: 0, failed: 0 }
 
+  // Determine priority from tag if not explicitly set
+  const highPriorityTags = [
+    'task_assigned',
+    'message',
+    'announcement',
+    'certificate_issued',
+    'mentor_assigned',
+  ]
+  const priority =
+    payload.priority ??
+    (payload.tag && highPriorityTags.includes(payload.tag) ? 'high' : 'normal')
+
   let sent = 0
   let failed = 0
 
@@ -51,14 +64,25 @@ export async function sendPushToUser(
           endpoint: sub.endpoint,
           keys: { p256dh: sub.p256dh, auth: sub.auth },
         },
-        JSON.stringify(payload)
+        JSON.stringify({
+          title: payload.title,
+          body: payload.body,
+          url: payload.url,
+          tag: payload.tag,
+          priority,
+        }),
+        {
+          // Web Push priority hints (best-effort)
+          TTL: 60 * 60 * 24, // 24 hours
+          urgency: priority === 'high' ? 'high' : 'normal',
+        }
       )
       sent++
     } catch (err: any) {
       failed++
       const status = err?.statusCode
       if (status === 404 || status === 410) {
-        // Subscription is dead — remove it
+        // Dead subscription — remove
         await admin.from('push_subscriptions').delete().eq('id', sub.id)
       } else {
         console.error('[push] send failed:', err?.message ?? err)

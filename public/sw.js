@@ -1,14 +1,16 @@
 // HERMAN Intern Hub — Service Worker
 // Handles: cache fallback + push notifications + notification clicks
 
-const CACHE_NAME = 'herman-hub-v1'
-const OFFLINE_URLS = ['/', '/login', '/dashboard']
+const CACHE_NAME = 'herman-hub-v2'
+const OFFLINE_URLS = ['/', '/login']
 
 // ─── Install: pre-cache minimal shell ──────────────────
 self.addEventListener('install', (event) => {
   self.skipWaiting()
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(OFFLINE_URLS).catch(() => {}))
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(OFFLINE_URLS).catch(() => {}))
   )
 })
 
@@ -16,11 +18,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((k) => k !== CACHE_NAME)
-          .map((k) => caches.delete(k))
-      )
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   )
   self.clients.claim()
@@ -30,20 +28,20 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event
 
-  // Only GET requests
   if (request.method !== 'GET') return
 
-  // Skip Supabase, APIs, and cross-origin
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
   if (url.pathname.startsWith('/api/')) return
   if (url.pathname.startsWith('/_next/')) return
-  if (url.pathname.startsWith('/dashboard') || url.pathname.startsWith('/admin') || url.pathname.startsWith('/mentor')) {
-    // Don't cache authed pages — always hit network
+  if (
+    url.pathname.startsWith('/dashboard') ||
+    url.pathname.startsWith('/admin') ||
+    url.pathname.startsWith('/mentor')
+  ) {
     return
   }
 
-  // Static assets: cache-first
   if (/\.(png|jpg|jpeg|svg|webp|ico|woff2?|css|js)$/.test(url.pathname)) {
     event.respondWith(
       caches.match(request).then((cached) => {
@@ -57,30 +55,87 @@ self.addEventListener('fetch', (event) => {
         })
       })
     )
-    return
   }
 })
 
-// ─── Push: show notification ───────────────────────────
+// ─── Push: show notification instantly, never batch ────
 self.addEventListener('push', (event) => {
-  let data = { title: 'HERMAN Intern Hub', body: 'You have a new notification' }
-  try {
-    if (event.data) data = { ...data, ...event.data.json() }
-  } catch (err) {
-    // ignore
+  // Default payload
+  let data = {
+    title: 'HERMAN Intern Hub',
+    body: 'You have a new notification',
+    url: '/dashboard',
+    tag: 'herman',
+    priority: 'normal',
   }
+
+  try {
+    if (event.data) {
+      data = { ...data, ...event.data.json() }
+    }
+  } catch (err) {
+    // Non-JSON payload — try text
+    try {
+      const text = event.data?.text()
+      if (text) data.body = text
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  // Unique tag per notification so they stack instead of replacing
+  // each other. Prevents Android/Chrome from batching.
+  const uniqueTag = `${data.tag || 'herman'}-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`
+
+  const isHighPriority =
+    data.priority === 'high' ||
+    data.tag === 'task_assigned' ||
+    data.tag === 'message' ||
+    data.tag === 'announcement' ||
+    data.tag === 'certificate_issued'
 
   const options = {
     body: data.body,
     icon: '/icons/icon-192.png',
     badge: '/icons/icon-192.png',
-    data: { url: data.url || '/dashboard' },
-    tag: data.tag || 'herman-default',
+    image: data.image || undefined,
+    data: {
+      url: data.url || '/dashboard',
+      tag: data.tag,
+      timestamp: Date.now(),
+    },
+    // Unique tag — prevents batching and replacement
+    tag: uniqueTag,
     renotify: true,
-    vibrate: [100, 50, 100],
+    // High-priority notifications stay on screen until dismissed
+    requireInteraction: isHighPriority,
+    // Vibrate pattern — longer for high priority
+    vibrate: isHighPriority ? [200, 100, 200, 100, 200] : [100, 50, 100],
+    // Silent = false ensures sound plays
+    silent: false,
+    // High urgency hint to the OS (supported by some browsers)
+    timestamp: Date.now(),
   }
 
-  event.waitUntil(self.registration.showNotification(data.title, options))
+  // Show notification immediately. Android will fire it right away
+  // instead of batching with other notifications.
+  event.waitUntil(
+    (async () => {
+      try {
+        await self.registration.showNotification(data.title, options)
+      } catch (err) {
+        // Fallback: minimal notification if the rich one fails
+        await self.registration.showNotification(data.title, {
+          body: data.body,
+          icon: '/icons/icon-192.png',
+          badge: '/icons/icon-192.png',
+          tag: uniqueTag,
+        })
+      }
+    })()
+  )
 })
 
 // ─── Notification click: open or focus the app ─────────
@@ -91,16 +146,22 @@ self.addEventListener('notificationclick', (event) => {
   const fullUrl = new URL(urlToOpen, self.location.origin).href
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-      // If the app is already open, focus it and navigate
-      for (const client of clients) {
-        if (client.url.startsWith(self.location.origin) && 'focus' in client) {
-          client.navigate(fullUrl)
-          return client.focus()
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: true })
+      .then((clients) => {
+        for (const client of clients) {
+          if (client.url.startsWith(self.location.origin) && 'focus' in client) {
+            client.navigate(fullUrl)
+            return client.focus()
+          }
         }
-      }
-      // Otherwise, open a new window
-      if (self.clients.openWindow) return self.clients.openWindow(fullUrl)
-    })
+        if (self.clients.openWindow) return self.clients.openWindow(fullUrl)
+      })
   )
+})
+
+// ─── Notification close: analytics or cleanup (optional) ─
+self.addEventListener('notificationclose', (event) => {
+  // Could log dismissals later
+  event.notification.data?.tag
 })
