@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { AdminSidebar } from './_components/admin-sidebar'
 import { NotificationBell } from '@/components/notifications/notification-bell'
 import { DrawerLayout } from '@/components/layout/drawer-layout'
+import { InstallPrompt } from '@/components/pwa/install-prompt'
+import { PushManager } from '@/components/pwa/push-manager'
 
 export default async function AdminLayout({
   children,
@@ -30,11 +32,17 @@ export default async function AdminLayout({
   }
 
   return (
-    <DrawerLayout
-      sidebar={<AdminSidebar adminName={profile.full_name ?? profile.email} />}
-      headerRight={<NotificationBell />}
-    >
-      {children}
-    </DrawerLayout>
+    <>
+      <InstallPrompt />
+      <PushManager />
+      <DrawerLayout
+        sidebar={
+          <AdminSidebar adminName={profile.full_name ?? profile.email} />
+        }
+        headerRight={<NotificationBell />}
+      >
+        {children}
+      </DrawerLayout>
+    </>
   )
 }

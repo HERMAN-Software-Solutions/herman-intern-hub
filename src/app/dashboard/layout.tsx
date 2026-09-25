@@ -5,6 +5,8 @@ import { NotificationBell } from '@/components/notifications/notification-bell'
 import { DrawerLayout } from '@/components/layout/drawer-layout'
 import { AnnouncementPopup } from '@/components/announcements/announcement-popup'
 import { getNewestUnreadAnnouncement } from '@/lib/announcements/queries'
+import { InstallPrompt } from '@/components/pwa/install-prompt'
+import { PushManager } from '@/components/pwa/push-manager'
 
 export default async function DashboardLayout({
   children,
@@ -47,6 +49,8 @@ export default async function DashboardLayout({
         initialUnread={unreadAnnouncement}
         viewBasePath="/dashboard/announcements"
       />
+      <InstallPrompt />
+      <PushManager />
       <DrawerLayout
         sidebar={
           <InternSidebar internName={profile.full_name ?? profile.email} />
