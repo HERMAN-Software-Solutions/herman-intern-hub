@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Avatar } from '@/components/ui/avatar'
 import { NewTaskForm } from './new-task-form'
 import { TaskActionsMenu } from '@/components/tasks/task-actions-menu'
+import { MessageInternButton } from '@/components/messaging/message-intern-button'
 
 const STATUS_VARIANTS: Record<
   string,
@@ -138,7 +139,7 @@ export default async function MentorInternDetailPage({
         Back to interns
       </Link>
 
-      <div className="flex flex-col sm:flex-row items-start gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
         <Avatar
           name={intern.full_name}
           src={intern.avatar_url}
@@ -159,6 +160,11 @@ export default async function MentorInternDetailPage({
             {intern.course && <span>· {intern.course}</span>}
           </div>
         </div>
+      </div>
+
+      {/* Quick actions */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        <MessageInternButton internId={intern.id} />
       </div>
 
       {/* KPI cards */}

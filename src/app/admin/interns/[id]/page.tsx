@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { MentorAssignment } from './mentor-assignment'
 import { IssueButton } from './issue-certificate/issue-button'
 import { StatusControl } from './status-control'
+import { MessageInternButton } from '@/components/messaging/message-intern-button'
 import type { InternStatus } from './actions'
 
 export default async function InternDetailPage({
@@ -71,6 +72,7 @@ export default async function InternDetailPage({
         description={intern.email}
         action={
           <div className="flex items-center gap-2 flex-wrap">
+            <MessageInternButton internId={intern.id} />
             <StatusBadge status={intern.status} />
             <StatusControl
               internId={intern.id}
@@ -159,7 +161,7 @@ export default async function InternDetailPage({
             Issue a certificate of internship and experience letter as PDFs.
             Requires a completed performance review.
           </p>
-                    <IssueButton
+          <IssueButton
             internId={intern.id}
             defaultTech="Full-Stack Development"
           />
